@@ -12,6 +12,7 @@
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
+    "composite": true,
     "noEmit": true,
     "jsx": "react-jsx",
 
@@ -32,7 +33,6 @@
       "@/i18n/*": ["src/i18n/*"],
       "@/locales/*": ["src/locales/*"]
     },
-
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,

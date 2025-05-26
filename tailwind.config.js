@@ -125,8 +125,14 @@ export default {
           '0%, 100%': { transform: 'translateY(-5%)' },
           '50%': { transform: 'translateY(0)' },
         },
+        border: "var(--border)",
+        input: "var(--input)",
+        ring: "var(--ring)",
+        background: "var(--background)",
+        foreground: "var(--foreground)",
+        // ... các biến khác nếu cần
       },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 };

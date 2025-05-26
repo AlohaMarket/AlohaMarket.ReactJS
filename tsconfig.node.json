@@ -7,18 +7,14 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@Components/*": ["src/Components/*"],
-      "@styles/*": ["src/assets/Styles/*"],
-      "@icons/*": ["src/assets/Icons/*"],
-      "@pages/*": ["src/pages/*"],
-      "@context/*": ["src/Contexts/*"]
+      "@/*": ["src/*"]
     },
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
+    "composite": true,
     "noEmit": true,
 
     /* Linting */
