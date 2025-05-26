@@ -5,7 +5,15 @@
     "lib": ["ES2023"],
     "module": "ESNext",
     "skipLibCheck": true,
-
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@Components/*": ["src/Components/*"],
+      "@styles/*": ["src/assets/Styles/*"],
+      "@icons/*": ["src/assets/Icons/*"],
+      "@pages/*": ["src/pages/*"],
+      "@context/*": ["src/Contexts/*"]
+    },
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
