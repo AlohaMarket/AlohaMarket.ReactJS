@@ -12,11 +12,35 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
-      "@Components": path.resolve(__dirname, "src/Components"),
-      "@styles": path.resolve(__dirname, "src/assets/Styles"),
-      "@icons": path.resolve(__dirname, "src/assets/Icons"),
-      "@pages": path.resolve(__dirname, "src/pages"),
-      "@context": path.resolve(__dirname, "src/contexts"),
+      "@/components": path.resolve(__dirname, "src/components"),
+      "@/pages": path.resolve(__dirname, "src/pages"),
+      "@/layouts": path.resolve(__dirname, "src/layouts"),
+      "@/hooks": path.resolve(__dirname, "src/hooks"),
+      "@/contexts": path.resolve(__dirname, "src/contexts"),
+      "@/utils": path.resolve(__dirname, "src/utils"),
+      "@/types": path.resolve(__dirname, "src/types"),
+      "@/apis": path.resolve(__dirname, "src/apis"),
+      "@/assets": path.resolve(__dirname, "src/assets"),
+      "@/constants": path.resolve(__dirname, "src/constants"),
+      "@/i18n": path.resolve(__dirname, "src/i18n"),
+      "@/locales": path.resolve(__dirname, "src/locales"),
     },
   },
+  server: {
+    port: 4000,
+    open: true,
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+          query: ['@tanstack/react-query'],
+          forms: ['react-hook-form', 'yup', '@hookform/resolvers'],
+        },
+      },
+    },
+  },
+
 });
