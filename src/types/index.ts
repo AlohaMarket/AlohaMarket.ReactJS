@@ -192,4 +192,40 @@ export interface LanguageOption {
   code: Language;
   name: string;
   flag: string;
-} 
+}
+
+// Marketplace listing types
+export interface SellerInfo {
+  full_name: string;
+  avatar: string;
+}
+
+export interface MarketplaceListing {
+  id: string;
+  subject: string;
+  price: number;
+  webp_image: string;
+  region_name: string;
+  date: string;
+  seller_info: SellerInfo;
+}
+
+// Raw API response types for marketplace
+export interface RawMarketplaceItem {
+  ad_id?: string | number;
+  list_id?: string | number;
+  subject?: string;
+  price?: number;
+  image?: string;
+  webp_image?: string;
+  region_name?: string;
+  area?: string;
+  date?: string;
+  list_time?: string | number;
+  account_name?: string;
+  avatar?: string;
+}
+
+export interface MarketplaceApiResponse {
+  data?: RawMarketplaceItem[];
+}
