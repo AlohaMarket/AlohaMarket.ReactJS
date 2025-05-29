@@ -57,15 +57,15 @@ export const productsApi = {
   getFeaturedProducts: async (limit?: number): Promise<Product[]> => {
     const params = limit ? `?limit=${limit}` : '';
     return api.get<Product[]>(`${API_ENDPOINTS.products.featured}${params}`);
-  },    // Get marketplace listings
-  getMarketplaceListings: async (limit?: number): Promise<MarketplaceListing[]> => {
+  },  // Get marketplace listings
+  getMarketplaceListings: async (limit?: number, page: number = 1): Promise<MarketplaceListing[]> => {
     try {
       const params = new URLSearchParams();
       if (limit) {
         params.append('limit', limit.toString());
       }
       params.append('fingerprint', 'undefined');
-      params.append('page', '1');
+      params.append('page', page.toString());
       
       const url = `https://gateway.chotot.com/v1/public/recommender/homepage?${params.toString()}`;
       const response = await api.get<MarketplaceApiResponse>(url);
