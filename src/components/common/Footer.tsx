@@ -15,8 +15,15 @@ export default function Footer() {
           {/* Company Info */}
           <div>
             <div className="mb-4 flex items-center space-x-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500">
-                <span className="text-lg font-bold text-white">A</span>
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500">
+                <span className="text-lg font-bold text-white">
+                  <img
+                    src="/src/assets/imgs/logo.png"
+                    alt="Aloha Market Logo"
+                    className="h-8 w-auto"
+                    style={{ filter: 'brightness(0) invert(1)' }}
+                  />
+                </span>
               </div>
               <span className="text-xl font-bold text-gray-900">{APP_CONFIG.name}</span>{' '}
               {/* heading màu xám đậm */}
@@ -93,9 +100,9 @@ export default function Footer() {
               <input
                 type="email"
                 placeholder={t('footer.enterEmail')}
-                className="flex-1 rounded-l-md border border-gray-300 bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-300"
+                className="flex-1 rounded-l-md border border-gray-300 bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
               />
-              <button className="rounded-r-md bg-orange-500 px-4 py-2 text-white transition-colors hover:bg-orange-600">
+              <button className="rounded-r-md bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600">
                 {t('footer.subscribe')}
               </button>
             </div>

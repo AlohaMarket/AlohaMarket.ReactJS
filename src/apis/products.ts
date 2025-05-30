@@ -1,10 +1,13 @@
 import { api } from './client';
 import { API_ENDPOINTS } from '@/constants';
-import {
+import type {
   Product,
   Category,
   PaginatedResponse,
   SearchFilters,
+  MarketplaceListing,
+  MarketplaceApiResponse,
+  RawMarketplaceItem,
 } from '@/types';
 
 export const productsApi = {
@@ -54,6 +57,36 @@ export const productsApi = {
   getFeaturedProducts: async (limit?: number): Promise<Product[]> => {
     const params = limit ? `?limit=${limit}` : '';
     return api.get<Product[]>(`${API_ENDPOINTS.products.featured}${params}`);
+  },  // Get marketplace listings
+  getMarketplaceListings: async (limit?: number, page: number = 1): Promise<MarketplaceListing[]> => {
+    try {
+      const params = new URLSearchParams();
+      if (limit) {
+        params.append('limit', limit.toString());
+      }
+      params.append('fingerprint', 'undefined');
+      params.append('page', page.toString());
+      
+      const url = `https://gateway.chotot.com/v1/public/recommender/homepage?${params.toString()}`;
+      const response = await api.get<MarketplaceApiResponse>(url);
+      
+      // Extract and transform the data array from the response
+      return (response?.data || []).map((item: RawMarketplaceItem) => ({
+        id: item.ad_id?.toString() || item.list_id?.toString() || '',
+        subject: item.subject || 'No title',
+        price: item.price || 0,
+        webp_image: item.image || item.webp_image || '',
+        region_name: item.region_name || item.area || 'Unknown location',
+        date: item.list_time ? new Date(item.list_time).toISOString() : new Date().toISOString(),
+        seller_info: {
+          full_name: item.account_name || 'Anonymous',
+          avatar: item.avatar || '/placeholder-avatar.png'
+        }
+      }));
+    } catch (error) {
+      console.error('Failed to fetch marketplace listings:', error);
+      return [];
+    }
   },
 
   // Get trending products
@@ -83,4 +116,4 @@ export const productsApi = {
     const url = `${API_ENDPOINTS.products.list}?${params.toString()}`;
     return api.get<PaginatedResponse<Product>>(url);
   },
-}; 
+};
