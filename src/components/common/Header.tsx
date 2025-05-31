@@ -151,7 +151,7 @@ export default function Header() {
               <ChevronDown size={16} className="text-white" />
             </div>
             {showAccount && (
-              <div className="absolute right-0 top-full mt-2 w-40 rounded bg-white p-2 shadow-lg">
+              <div className="absolute right-0 top-full z-[100] mt-2 w-40 rounded bg-white p-2 shadow-lg">
                 {['Đăng nhập', 'Đăng ký'].map((item) => (
                   <div
                     key={item}
