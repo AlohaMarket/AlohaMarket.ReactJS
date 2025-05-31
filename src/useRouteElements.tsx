@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import MainLayout from '@/layouts/MainLayout';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
@@ -9,7 +9,6 @@ const ProductsPage = lazy(() => import('@/pages/ProductsPage'));
 const ProductDetailPage = lazy(() => import('@/pages/ProductDetailPage'));
 const CartPage = lazy(() => import('@/pages/CartPage'));
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
-const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage'));
 const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
 const AboutPage = lazy(() => import('@/pages/AboutPage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
@@ -67,22 +66,21 @@ export function useRouteElements() {
           }
         />
       </Route>
+
+      {/* Auth routes - sử dụng LoginPage với URL params */}
       <Route
-        path="/login"
+        path="/auth"
         element={
           <Suspense fallback={<LoadingSpinner />}>
             <LoginPage />
           </Suspense>
         }
       />
-      <Route
-        path="/register"
-        element={
-          <Suspense fallback={<LoadingSpinner />}>
-            <RegisterPage />
-          </Suspense>
-        }
-      />
+
+      {/* Redirect old routes to new auth route */}
+      <Route path="/login" element={<Navigate to="/auth?mode=login" replace />} />
+      <Route path="/register" element={<Navigate to="/auth?mode=register" replace />} />
+
       <Route
         path="*"
         element={
@@ -93,4 +91,4 @@ export function useRouteElements() {
       />
     </Routes>
   );
-} 
+}
