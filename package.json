@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 4000",
+    "dev": "vite --port 3000",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -32,6 +32,7 @@
     "react-hot-toast": "^2.4.1",
     "react-i18next": "^15.2.0",
     "react-router-dom": "^7.1.1",
+    "swiper": "^11.2.8",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "yup": "^1.6.0"

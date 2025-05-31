@@ -1,7 +1,7 @@
 // App configuration
 export const APP_CONFIG = {
   name: 'Aloha Market',
-  description: 'Your one-stop e-commerce destination',
+  description: 'Your one-stop services platform destination',
   version: '1.0.0',
   author: 'Aloha Market Team',
   email: 'support@alohamarket.com',
@@ -168,7 +168,8 @@ export const VALIDATION = {
   password: {
     minLength: 8,
     pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
-    message: 'Password must be at least 8 characters with uppercase, lowercase, number, and special character',
+    message:
+      'Password must be at least 8 characters with uppercase, lowercase, number, and special character',
   },
   phone: {
     pattern: /^\+?[\d\s\-\(\)]+$/,
@@ -190,4 +191,4 @@ export const SOCIAL_LINKS = {
   instagram: 'https://instagram.com/alohamarket',
   youtube: 'https://youtube.com/alohamarket',
   linkedin: 'https://linkedin.com/company/alohamarket',
-} as const; 
+} as const;
