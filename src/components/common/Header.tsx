@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   ChevronDown,
   Menu,
@@ -14,6 +16,7 @@ import {
 } from 'lucide-react';
 
 export default function Header() {
+  const navigate = useNavigate();
   const [selectedAddress, setSelectedAddress] = useState('Toàn Quốc');
   const [showAddress, setShowAddress] = useState(false);
   const [showAccount, setShowAccount] = useState(false);
@@ -28,6 +31,11 @@ export default function Header() {
   const handleSelectCategory = (category) => {
     setSelectedCategory(category);
     setShowCategory(false);
+  };
+
+  const handleAuthAction = (action: 'login' | 'register') => {
+    setShowAccount(false);
+    navigate(`/auth?mode=${action}`);
   };
 
   return (
@@ -152,14 +160,18 @@ export default function Header() {
             </div>
             {showAccount && (
               <div className="absolute right-0 top-full z-[100] mt-2 w-40 rounded bg-white p-2 shadow-lg">
-                {['Đăng nhập', 'Đăng ký'].map((item) => (
-                  <div
-                    key={item}
-                    className="cursor-pointer rounded px-2 py-1 text-gray-800 transition hover:bg-orange-100 hover:text-orange-600"
-                  >
-                    {item}
-                  </div>
-                ))}
+                <div
+                  className="cursor-pointer rounded px-2 py-1 text-gray-800 transition hover:bg-orange-100 hover:text-orange-600"
+                  onClick={() => handleAuthAction('login')}
+                >
+                  Đăng nhập
+                </div>
+                <div
+                  className="cursor-pointer rounded px-2 py-1 text-gray-800 transition hover:bg-orange-100 hover:text-orange-600"
+                  onClick={() => handleAuthAction('register')}
+                >
+                  Đăng ký
+                </div>
               </div>
             )}
           </div>
