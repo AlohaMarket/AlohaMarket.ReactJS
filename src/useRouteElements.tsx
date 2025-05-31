@@ -6,7 +6,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 // Lazy load pages for better performance
 const HomePage = lazy(() => import('@/pages/HomePage'));
 const ProductsPage = lazy(() => import('@/pages/ProductsPage'));
-const ProductDetailPage = lazy(() => import('@/pages/ProductDetailPage'));
+const ProductDetailPage = lazy(() => import('@/pages/ProductDetail/ProductDetailPage'));
 const CartPage = lazy(() => import('@/pages/CartPage'));
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
 const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage'));
