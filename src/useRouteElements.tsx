@@ -3,15 +3,16 @@ import { Suspense, lazy } from 'react';
 import MainLayout from '@/layouts/MainLayout';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
-// Lazy load pages for better performance
+// Lazy load pages
 const HomePage = lazy(() => import('@/pages/HomePage'));
 const ProductsPage = lazy(() => import('@/pages/ProductsPage'));
 const ProductDetailPage = lazy(() => import('@/pages/ProductDetail/ProductDetailPage'));
 const CartPage = lazy(() => import('@/pages/CartPage'));
-const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
 const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
 const AboutPage = lazy(() => import('@/pages/AboutPage'));
+const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
+const MyAdsPage = lazy(() => import('@/pages/ManageADS/MyAdsPage'));
 
 export function useRouteElements() {
   return (
@@ -65,9 +66,17 @@ export function useRouteElements() {
             </Suspense>
           }
         />
+        <Route
+          path="my-ads"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <MyAdsPage />
+            </Suspense>
+          }
+        />
       </Route>
 
-      {/* Auth routes - sử dụng LoginPage với URL params */}
+      {/* Auth & Redirects */}
       <Route
         path="/auth"
         element={
@@ -76,11 +85,10 @@ export function useRouteElements() {
           </Suspense>
         }
       />
-
-      {/* Redirect old routes to new auth route */}
       <Route path="/login" element={<Navigate to="/auth?mode=login" replace />} />
       <Route path="/register" element={<Navigate to="/auth?mode=register" replace />} />
 
+      {/* 404 */}
       <Route
         path="*"
         element={
