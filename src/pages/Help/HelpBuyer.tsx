@@ -4,15 +4,18 @@ import { Link } from 'react-router-dom';
 const HelpBuyer = () => {
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="flex items-center justify-between px-6 py-4 bg-blue-500 text-white font-bold">
-        <div className="flex items-center justify-center">
-          <img
+      {/* Header */}      <header className="flex items-center justify-between px-6 py-4 bg-blue-500 text-white font-bold">
+        <div className="flex items-center gap-2">
+          <Link to="/" className="hover:opacity-80">
+            <img
               src="/src/assets/imgs/logo.png"
               alt="Aloha Market Logo"
               className="h-8 w-auto"
               style={{ filter: 'brightness(0) invert(1)' }} // chuyển icon sang trắng
-            /> | <Link to="/help" className="hover:underline"> Trung tâm trợ giúp</Link>
+            />
+          </Link>
+          <span>|</span>
+          <Link to="/help" className="hover:underline">Trung tâm trợ giúp</Link>
         </div>
         <div className="space-x-4">
             <Link to="/help/seller" className="hover:underline">Tôi là người bán</Link>

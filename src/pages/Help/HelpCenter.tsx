@@ -6,17 +6,19 @@ import { Link } from 'react-router-dom';
 export default function HelpCenter() {
   return (
     <div className="w-full min-h-screen bg-gradient-to-b from-blue-400 to-blue-200">
-      {/* Header */}
-      <header className="flex items-center justify-between px-6 py-4 bg-blue-500 text-white font-bold">
-        <div className="flex items-center justify-center">
-          <img
-            src="/src/assets/imgs/logo.png"
-            alt="Aloha Market Logo"
-            className="h-8 w-auto"
-            style={{ filter: 'brightness(0) invert(1)' }} // chuyển icon sang trắng
-          /> | <Link to="#" className="hover:underline"> Trung tâm trợ giúp</Link>
-
-        </div>        <div className="space-x-4">
+      {/* Header */}      <header className="flex items-center justify-between px-6 py-4 bg-blue-500 text-white font-bold">
+        <div className="flex items-center gap-2">
+          <Link to="/" className="hover:opacity-80">
+            <img
+              src="/src/assets/imgs/logo.png"
+              alt="Aloha Market Logo"
+              className="h-8 w-auto"
+              style={{ filter: 'brightness(0) invert(1)' }} // chuyển icon sang trắng
+            />
+          </Link>
+          <span>|</span>
+          <Link to="/help" className="hover:underline">Trung tâm trợ giúp</Link>
+        </div><div className="space-x-4">
           <Link to="/help/seller" className="hover:underline">Tôi là người bán</Link>
           <Link to="/help/buyer" className="hover:underline">Tôi là người mua</Link>
         </div>
