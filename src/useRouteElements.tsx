@@ -11,7 +11,12 @@ const CartPage = lazy(() => import('@/pages/CartPage'));
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
 const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
 const AboutPage = lazy(() => import('@/pages/AboutPage'));
+const PrivacyPolicyPage = lazy(() => import('@/pages/PrivacyPolicyPage'));
+const TermsOfServicePage = lazy(() => import('@/pages/TermsOfServicePage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
+const HelpCenter = lazy(() => import('@/pages/Help/HelpCenter'));
+const HelpSeller = lazy(() => import('@/pages/Help/HelpSeller'));
+const HelpBuyer = lazy(() => import('@/pages/Help/HelpBuyer'));
 
 export function useRouteElements() {
   return (
@@ -56,8 +61,7 @@ export function useRouteElements() {
               <ProfilePage />
             </Suspense>
           }
-        />
-        <Route
+        />        <Route
           path="about"
           element={
             <Suspense fallback={<LoadingSpinner />}>
@@ -65,7 +69,48 @@ export function useRouteElements() {
             </Suspense>
           }
         />
-      </Route>
+        <Route
+          path="privacy"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <PrivacyPolicyPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="terms"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <TermsOfServicePage />
+            </Suspense>
+          }
+        />      </Route>
+      
+      {/* Help routes - independent pages */}
+      <Route
+        path="help"
+        element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <HelpCenter />
+          </Suspense>
+        }
+      />
+      <Route
+        path="help/seller"
+        element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <HelpSeller />
+          </Suspense>
+        }
+      />
+      <Route
+        path="help/buyer"
+        element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <HelpBuyer />
+          </Suspense>
+        }
+      />
 
       {/* Auth routes - sử dụng LoginPage với URL params */}
       <Route

@@ -50,16 +50,23 @@ export default function Header() {
           ))}
         </div>
         <div className="flex items-center space-x-4">
-          {['Đóng góp ý kiến', 'Tải ứng dụng', 'Trợ giúp'].map((label) => (
-            <a key={label} href="#" className="transition hover:text-gray-200">
+          {[
+            { label: 'Đóng góp ý kiến', href: 'feedback' },
+            { label: 'Tải ứng dụng', href: 'download-app' },
+            { label: 'Trợ giúp', href: 'help' }
+          ].map(({ label, href }) => (
+            <a key={label} href={href} className="transition hover:text-gray-200">
               {label}
             </a>
           ))}
-          <div className="flex cursor-pointer items-center space-x-1 rounded bg-blue-600 px-2 py-1 transition hover:bg-blue-500">
+          <a 
+            href="/seller" 
+            className="flex cursor-pointer items-center space-x-1 rounded bg-blue-600 px-2 py-1 transition hover:bg-blue-500"
+          >
             <Briefcase size={16} className="text-white" />
             <span className="text-xs font-medium">Dành cho người bán</span>
             <ChevronDown size={16} className="text-white" />
-          </div>
+          </a>
         </div>
       </div>
 

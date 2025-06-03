@@ -20,8 +20,7 @@
     "viewAll": "Xem tất cả",
     "showMore": "Xem thêm",
     "showLess": "Ẩn bớt"
-  },
-  "navigation": {
+  },  "navigation": {
     "home": "Trang chủ",
     "products": "Sản phẩm",
     "categories": "Danh mục",
@@ -34,7 +33,9 @@
     "logout": "Đăng xuất",
     "profile": "Hồ sơ",
     "orders": "Đơn hàng",
-    "settings": "Cài đặt"
+    "settings": "Cài đặt",
+    "privacy": "Chính Sách Bảo Mật",
+    "terms": "Điều Khoản Dịch Vụ"
   },
   "auth": {
     "login": "Đăng nhập",
@@ -187,12 +188,167 @@
   "validation": {
     "required": "Trường này là bắt buộc",
     "emailInvalid": "Vui lòng nhập địa chỉ email hợp lệ",
-    "passwordTooShort": "Mật khẩu phải có ít nhất 8 ký tự",
-    "passwordMismatch": "Mật khẩu không khớp",
+    "passwordTooShort": "Mật khẩu phải có ít nhất 8 ký tự",    "passwordMismatch": "Mật khẩu không khớp",
     "phoneInvalid": "Vui lòng nhập số điện thoại hợp lệ",
     "minLength": "Phải có ít nhất {{min}} ký tự",
     "maxLength": "Không được quá {{max}} ký tự",
     "min": "Phải ít nhất {{min}}",
     "max": "Không được quá {{max}}"
+  },
+  "privacy": {
+    "title": "Chính Sách Bảo Mật",
+    "heading": "Chính Sách Bảo Mật",
+    "description": "Chúng tôi cam kết bảo vệ quyền riêng tư của bạn. Chính sách này giải thích cách chúng tôi thu thập, sử dụng và bảo vệ thông tin cá nhân của bạn.",
+    "lastUpdated": "Cập nhật lần cuối",
+    "informationWeCollect": {
+      "title": "Thông Tin Chúng Tôi Thu Thập",
+      "personalInfo": {
+        "title": "Thông Tin Cá Nhân",
+        "name": "Họ tên và thông tin liên hệ",
+        "email": "Địa chỉ email",
+        "phone": "Số điện thoại",
+        "address": "Địa chỉ giao hàng và thanh toán",
+        "paymentInfo": "Thông tin thanh toán (được xử lý an toàn)"
+      },
+      "automaticInfo": {
+        "title": "Thông Tin Thu Thập Tự Động",
+        "ipAddress": "Địa chỉ IP và dữ liệu vị trí",
+        "browserInfo": "Loại và phiên bản trình duyệt",
+        "deviceInfo": "Thông tin thiết bị",
+        "usageData": "Dữ liệu sử dụng và tương tác website"
+      }
+    },
+    "howWeUseInfo": {
+      "title": "Cách Chúng Tôi Sử Dụng Thông Tin",
+      "provideServices": "Cung cấp và duy trì dịch vụ thương mại điện tử",
+      "processTransactions": "Xử lý các giao dịch và đơn hàng của bạn",
+      "customerSupport": "Cung cấp hỗ trợ khách hàng",
+      "improveServices": "Cải thiện và cá nhân hóa dịch vụ",
+      "sendUpdates": "Gửi thông báo quan trọng",
+      "preventFraud": "Ngăn chặn gian lận và đảm bảo bảo mật",
+      "marketingCommunications": "Gửi thông tin marketing (với sự đồng ý của bạn)"
+    },
+    "informationSharing": {
+      "title": "Chia Sẻ Thông Tin",
+      "description": "Chúng tôi không bán thông tin cá nhân của bạn. Chúng tôi chỉ chia sẻ thông tin trong các trường hợp sau:",
+      "serviceProviders": "Với các nhà cung cấp dịch vụ đáng tin cậy hỗ trợ hoạt động của chúng tôi",
+      "businessTransfers": "Trong trường hợp sáp nhập hoặc mua bán doanh nghiệp",
+      "legalRequirements": "Khi được yêu cầu bởi pháp luật hoặc để bảo vệ quyền lợi của chúng tôi",
+      "yourConsent": "Với sự đồng ý rõ ràng của bạn"
+    },
+    "dataSecurity": {
+      "title": "Bảo Mật Dữ Liệu",
+      "description": "Chúng tôi thực hiện các biện pháp bảo mật thích hợp để bảo vệ thông tin cá nhân của bạn:",
+      "encryption": "Mã hóa dữ liệu trong quá trình truyền tải và lưu trữ",
+      "secureServers": "Máy chủ và trung tâm dữ liệu an toàn",
+      "accessControls": "Kiểm soát truy cập nghiêm ngặt và xác thực",
+      "regularAudits": "Kiểm tra bảo mật và cập nhật thường xuyên"
+    },
+    "yourRights": {
+      "title": "Quyền Của Bạn",
+      "accessData": "Truy cập dữ liệu cá nhân của bạn",
+      "correctData": "Sửa chữa thông tin không chính xác",
+      "deleteData": "Yêu cầu xóa dữ liệu của bạn",
+      "portData": "Chuyển dữ liệu",
+      "restrictProcessing": "Hạn chế xử lý dữ liệu của bạn",
+      "optOutMarketing": "Từ chối nhận thông tin marketing"
+    },
+    "cookies": {
+      "title": "Cookies và Theo Dõi",
+      "description": "Chúng tôi sử dụng cookies và các công nghệ tương tự để cải thiện trải nghiệm duyệt web và phân tích việc sử dụng website.",
+      "control": "Bạn có thể kiểm soát cài đặt cookie thông qua tùy chọn trình duyệt."
+    },
+    "contact": {
+      "title": "Liên Hệ Với Chúng Tôi",
+      "description": "Nếu bạn có bất kỳ câu hỏi nào về Chính sách Bảo mật này hoặc dữ liệu cá nhân của bạn, vui lòng liên hệ:"
+    }
+  },
+  "terms": {
+    "title": "Điều Khoản Dịch Vụ",
+    "heading": "Điều Khoản Dịch Vụ",
+    "description": "Vui lòng đọc kỹ các điều khoản này trước khi sử dụng dịch vụ của chúng tôi. Bằng cách truy cập nền tảng của chúng tôi, bạn đồng ý bị ràng buộc bởi các điều khoản này.",
+    "lastUpdated": "Cập nhật lần cuối",
+    "acceptance": {
+      "title": "Chấp Nhận Điều Khoản",
+      "description": "Bằng cách truy cập và sử dụng AlohaMarket, bạn chấp nhận và đồng ý bị ràng buộc bởi các điều khoản và quy định của thỏa thuận này.",
+      "agreement": "Nếu bạn không đồng ý tuân thủ các điều khoản trên, vui lòng không sử dụng dịch vụ này."
+    },
+    "serviceDescription": {
+      "title": "Mô Tả Dịch Vụ",
+      "description": "AlohaMarket cung cấp nền tảng thương mại điện tử trực tuyến cho phép người dùng mua và bán sản phẩm. Dịch vụ của chúng tôi bao gồm:",
+      "marketplace": "Thương mại điện tử trực tuyến để mua và bán",
+      "userAccounts": "Quản lý tài khoản và hồ sơ người dùng",
+      "transactions": "Xử lý thanh toán an toàn",
+      "customerSupport": "Hỗ trợ khách hàng và giải quyết tranh chấp"
+    },
+    "userAccounts": {
+      "title": "Tài Khoản Người Dùng",
+      "description": "Để truy cập một số tính năng của dịch vụ, bạn phải tạo tài khoản. Bạn đồng ý:",
+      "accurateInfo": "Cung cấp thông tin chính xác và đầy đủ",
+      "securePassword": "Duy trì mật khẩu an toàn",
+      "responsibleUse": "Chịu trách nhiệm cho tất cả hoạt động dưới tài khoản của bạn",
+      "notifyChanges": "Thông báo cho chúng tôi về bất kỳ việc sử dụng trái phép nào"
+    },
+    "userConduct": {
+      "title": "Hành Vi Người Dùng",
+      "description": "Bạn đồng ý sử dụng dịch vụ của chúng tôi một cách có trách nhiệm và tuân thủ các điều khoản này:",
+      "prohibited": {
+        "title": "Hoạt Động Bị Cấm",
+        "illegalActivities": "Tham gia vào các hoạt động bất hợp pháp",
+        "fraudulentBehavior": "Hành vi gian lận hoặc lừa đảo",
+        "harassment": "Quấy rối hoặc lạm dụng người dùng khác",
+        "spamming": "Gửi spam hoặc tin nhắn không mong muốn",
+        "copyrightViolation": "Vi phạm quyền sở hữu trí tuệ"
+      },
+      "required": {
+        "title": "Hành Vi Bắt Buộc",
+        "respectOthers": "Đối xử tôn trọng với người dùng khác",
+        "accurateListing": "Cung cấp danh sách sản phẩm chính xác",
+        "promptCommunication": "Giao tiếp nhanh chóng và chuyên nghiệp",
+        "completeTransactions": "Hoàn thành giao dịch một cách thiện chí",
+        "followLaws": "Tuân thủ tất cả luật pháp và quy định hiện hành"
+      }
+    },
+    "paymentTerms": {
+      "title": "Điều Khoản Thanh Toán",
+      "securePayment": "Tất cả thanh toán được xử lý an toàn thông qua đối tác thanh toán của chúng tôi",
+      "acceptedMethods": "Chúng tôi chấp nhận các thẻ tín dụng chính và phương thức thanh toán kỹ thuật số",
+      "feesAndCharges": "Phí dịch vụ và chi phí được công bố rõ ràng",
+      "refundPolicy": "Hoàn tiền tuân theo chính sách trả hàng của chúng tôi",
+      "disputeResolution": "Tranh chấp thanh toán được xử lý thông qua quy trình giải quyết của chúng tôi"
+    },
+    "intellectualProperty": {
+      "title": "Sở Hữu Trí Tuệ",
+      "description": "Chúng tôi tôn trọng quyền sở hữu trí tuệ và mong đợi người dùng cũng làm như vậy:",
+      "ownersRights": "AlohaMarket sở hữu tất cả quyền đối với nền tảng và nội dung của nó",
+      "userContent": "Người dùng giữ quyền đối với nội dung của họ nhưng cấp cho chúng tôi quyền sử dụng",
+      "respectRights": "Người dùng phải tôn trọng sở hữu trí tuệ của người khác",
+      "reportViolations": "Báo cáo bất kỳ vi phạm bản quyền hoặc thương hiệu nào"
+    },
+    "limitationOfLiability": {
+      "title": "Giới Hạn Trách Nhiệm",
+      "description": "Trách nhiệm của chúng tôi được giới hạn theo mức độ được pháp luật cho phép:",
+      "noWarranty": "Dịch vụ được cung cấp 'như hiện tại' không có bảo hành",
+      "userRisk": "Người dùng chịu rủi ro cho các giao dịch của họ",
+      "indirectDamages": "Chúng tôi không chịu trách nhiệm về thiệt hại gián tiếp hoặc hậu quả",
+      "maximumLiability": "Trách nhiệm tối đa của chúng tôi được giới hạn ở số tiền đã trả cho dịch vụ"
+    },
+    "termination": {
+      "title": "Chấm Dứt",
+      "description": "Bất kỳ bên nào cũng có thể chấm dứt thỏa thuận này:",
+      "immediateTermination": "Chúng tôi có thể chấm dứt tài khoản vì vi phạm",
+      "suspendServices": "Chúng tôi có thể tạm ngừng dịch vụ để bảo trì hoặc cập nhật",
+      "userTermination": "Người dùng có thể xóa tài khoản của họ bất cứ lúc nào",
+      "dataRetention": "Dữ liệu có thể được giữ lại theo chính sách bảo mật của chúng tôi"
+    },
+    "changesToTerms": {
+      "title": "Thay Đổi Điều Khoản",
+      "description": "Chúng tôi có thể cập nhật các điều khoản này theo thời gian. Những thay đổi quan trọng sẽ được thông báo cho người dùng.",
+      "notification": "Việc tiếp tục sử dụng sau khi có thay đổi đồng nghĩa với việc chấp nhận các điều khoản mới."
+    },
+    "contact": {
+      "title": "Thông Tin Liên Hệ",
+      "description": "Nếu bạn có câu hỏi về Điều khoản Dịch vụ này, vui lòng liên hệ:"
+    }
   }
-} 
+}

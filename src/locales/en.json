@@ -20,8 +20,7 @@
     "viewAll": "View All",
     "showMore": "Show More",
     "showLess": "Show Less"
-  },
-  "navigation": {
+  },  "navigation": {
     "home": "Home",
     "products": "Products",
     "categories": "Categories",
@@ -34,7 +33,9 @@
     "logout": "Logout",
     "profile": "Profile",
     "orders": "Orders",
-    "settings": "Settings"
+    "settings": "Settings",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service"
   },
   "auth": {
     "login": "Login",
@@ -187,12 +188,167 @@
   "validation": {
     "required": "This field is required",
     "emailInvalid": "Please enter a valid email address",
-    "passwordTooShort": "Password must be at least 8 characters",
-    "passwordMismatch": "Passwords do not match",
+    "passwordTooShort": "Password must be at least 8 characters",    "passwordMismatch": "Passwords do not match",
     "phoneInvalid": "Please enter a valid phone number",
     "minLength": "Must be at least {{min}} characters",
     "maxLength": "Must be no more than {{max}} characters",
     "min": "Must be at least {{min}}",
     "max": "Must be no more than {{max}}"
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "heading": "Privacy Policy",
+    "description": "We are committed to protecting your privacy. This policy explains how we collect, use, and protect your personal information.",
+    "lastUpdated": "Last updated",
+    "informationWeCollect": {
+      "title": "Information We Collect",
+      "personalInfo": {
+        "title": "Personal Information",
+        "name": "Full name and contact information",
+        "email": "Email address",
+        "phone": "Phone number",
+        "address": "Shipping and billing addresses",
+        "paymentInfo": "Payment information (processed securely)"
+      },
+      "automaticInfo": {
+        "title": "Automatically Collected Information",
+        "ipAddress": "IP address and location data",
+        "browserInfo": "Browser type and version",
+        "deviceInfo": "Device information",
+        "usageData": "Website usage and interaction data"
+      }
+    },
+    "howWeUseInfo": {
+      "title": "How We Use Your Information",
+      "provideServices": "Provide and maintain our marketplace services",
+      "processTransactions": "Process your transactions and orders",
+      "customerSupport": "Provide customer support and assistance",
+      "improveServices": "Improve and personalize our services",
+      "sendUpdates": "Send you important updates and notifications",
+      "preventFraud": "Prevent fraud and ensure security",
+      "marketingCommunications": "Send marketing communications (with your consent)"
+    },
+    "informationSharing": {
+      "title": "Information Sharing",
+      "description": "We do not sell your personal information. We may share your information only in the following circumstances:",
+      "serviceProviders": "With trusted service providers who assist in our operations",
+      "businessTransfers": "In case of business mergers or acquisitions",
+      "legalRequirements": "When required by law or to protect our rights",
+      "yourConsent": "With your explicit consent"
+    },
+    "dataSecurity": {
+      "title": "Data Security",
+      "description": "We implement appropriate security measures to protect your personal information:",
+      "encryption": "Data encryption in transit and at rest",
+      "secureServers": "Secure servers and data centers",
+      "accessControls": "Strict access controls and authentication",
+      "regularAudits": "Regular security audits and updates"
+    },
+    "yourRights": {
+      "title": "Your Rights",
+      "accessData": "Access your personal data",
+      "correctData": "Correct inaccurate information",
+      "deleteData": "Request deletion of your data",
+      "portData": "Data portability",
+      "restrictProcessing": "Restrict processing of your data",
+      "optOutMarketing": "Opt-out of marketing communications"
+    },
+    "cookies": {
+      "title": "Cookies and Tracking",
+      "description": "We use cookies and similar technologies to enhance your browsing experience and analyze website usage.",
+      "control": "You can control cookie settings through your browser preferences."
+    },
+    "contact": {
+      "title": "Contact Us",
+      "description": "If you have any questions about this Privacy Policy or your personal data, please contact us:"
+    }
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "heading": "Terms of Service",
+    "description": "Please read these terms carefully before using our services. By accessing our platform, you agree to be bound by these terms.",
+    "lastUpdated": "Last updated",
+    "acceptance": {
+      "title": "Acceptance of Terms",
+      "description": "By accessing and using AlohaMarket, you accept and agree to be bound by the terms and provision of this agreement.",
+      "agreement": "If you do not agree to abide by the above, please do not use this service."
+    },
+    "serviceDescription": {
+      "title": "Description of Service",
+      "description": "AlohaMarket provides an online marketplace platform that enables users to buy and sell products. Our services include:",
+      "marketplace": "Online marketplace for buying and selling",
+      "userAccounts": "User account management and profiles",
+      "transactions": "Secure payment processing",
+      "customerSupport": "Customer support and dispute resolution"
+    },
+    "userAccounts": {
+      "title": "User Accounts",
+      "description": "To access certain features of our service, you must create an account. You agree to:",
+      "accurateInfo": "Provide accurate and complete information",
+      "securePassword": "Maintain a secure password",
+      "responsibleUse": "Be responsible for all activities under your account",
+      "notifyChanges": "Notify us of any unauthorized use"
+    },
+    "userConduct": {
+      "title": "User Conduct",
+      "description": "You agree to use our service responsibly and in accordance with these terms:",
+      "prohibited": {
+        "title": "Prohibited Activities",
+        "illegalActivities": "Engaging in illegal activities",
+        "fraudulentBehavior": "Fraudulent or deceptive behavior",
+        "harassment": "Harassment or abuse of other users",
+        "spamming": "Sending spam or unsolicited messages",
+        "copyrightViolation": "Violating intellectual property rights"
+      },
+      "required": {
+        "title": "Required Behavior",
+        "respectOthers": "Treat other users with respect",
+        "accurateListing": "Provide accurate product listings",
+        "promptCommunication": "Communicate promptly and professionally",
+        "completeTransactions": "Complete transactions in good faith",
+        "followLaws": "Follow all applicable laws and regulations"
+      }
+    },
+    "paymentTerms": {
+      "title": "Payment Terms",
+      "securePayment": "All payments are processed securely through our payment partners",
+      "acceptedMethods": "We accept major credit cards and digital payment methods",
+      "feesAndCharges": "Service fees and charges are clearly disclosed",
+      "refundPolicy": "Refunds are subject to our return policy",
+      "disputeResolution": "Payment disputes are handled through our resolution process"
+    },
+    "intellectualProperty": {
+      "title": "Intellectual Property",
+      "description": "We respect intellectual property rights and expect our users to do the same:",
+      "ownersRights": "AlohaMarket owns all rights to the platform and its content",
+      "userContent": "Users retain rights to their own content but grant us usage rights",
+      "respectRights": "Users must respect others' intellectual property",
+      "reportViolations": "Report any copyright or trademark violations"
+    },
+    "limitationOfLiability": {
+      "title": "Limitation of Liability",
+      "description": "Our liability is limited to the extent permitted by law:",
+      "noWarranty": "Services are provided 'as is' without warranties",
+      "userRisk": "Users assume risk for their transactions",
+      "indirectDamages": "We are not liable for indirect or consequential damages",
+      "maximumLiability": "Our maximum liability is limited to the amount paid for services"
+    },
+    "termination": {
+      "title": "Termination",
+      "description": "Either party may terminate this agreement:",
+      "immediateTermination": "We may terminate accounts for violations",
+      "suspendServices": "We may suspend services for maintenance or updates",
+      "userTermination": "Users may delete their accounts at any time",
+      "dataRetention": "Data may be retained according to our privacy policy"
+    },
+    "changesToTerms": {
+      "title": "Changes to Terms",
+      "description": "We may update these terms from time to time. Material changes will be communicated to users.",
+      "notification": "Continued use after changes constitutes acceptance of new terms."
+    },
+    "contact": {
+      "title": "Contact Information",
+      "description": "If you have questions about these Terms of Service, please contact us:"
+    }
   }
-} 
+}
