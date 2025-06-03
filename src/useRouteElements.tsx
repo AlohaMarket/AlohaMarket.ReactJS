@@ -67,8 +67,9 @@ export function useRouteElements() {
               <AboutPage />
             </Suspense>
           }
-        />
-      </Route>
+        />      </Route>
+      
+      {/* Help routes - independent pages */}
       <Route
         path="help"
         element={
@@ -76,24 +77,23 @@ export function useRouteElements() {
             <HelpCenter />
           </Suspense>
         }
-      >
-        <Route
-          path="seller"
-          element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <HelpSeller />
-            </Suspense>
-          }
-        />
-        <Route
-          path="buyer"
-          element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <HelpBuyer />
-            </Suspense>
-          }
-        />
-      </Route>
+      />
+      <Route
+        path="help/seller"
+        element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <HelpSeller />
+          </Suspense>
+        }
+      />
+      <Route
+        path="help/buyer"
+        element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <HelpBuyer />
+          </Suspense>
+        }
+      />
 
       {/* Auth routes - sử dụng LoginPage với URL params */}
       <Route

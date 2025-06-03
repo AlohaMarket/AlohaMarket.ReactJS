@@ -1,10 +1,28 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const HelpSeller = () => {
   return (
     <div className="min-h-screen bg-white">
+      {/* Header */}
+      <header className="flex items-center justify-between px-6 py-4 bg-blue-500 text-white font-bold">
+        <div className="flex items-center justify-center">
+          <img
+            src="/src/assets/imgs/logo.png"
+            alt="Aloha Market Logo"
+            className="h-8 w-auto"
+            style={{ filter: 'brightness(0) invert(1)' }} // chuyển icon sang trắng
+          />
+          | <Link to="/help" className="hover:underline"> Trung tâm trợ giúp</Link>
+        </div>
+        <div className="space-x-4">
+          <Link to="/help/seller" className="hover:underline">Tôi là người bán</Link>
+          <Link to="/help/buyer" className="hover:underline">Tôi là người mua</Link>
+        </div>
+      </header>
+
       {/* Title */}
-      <div className="bg-yellow-100 py-10 px-6 text-4xl font-bold text-gray-800">
+      <div className="bg-blue-500 py-10 px-6 text-4xl font-bold text-white">
         TÔI LÀ NGƯỜI BÁN
       </div>
 
