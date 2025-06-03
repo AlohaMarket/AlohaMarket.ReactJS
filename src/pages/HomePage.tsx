@@ -10,7 +10,13 @@ const categories = [
   { label: 'Thú cưng', icon: <Dog className="w-6 h-6" /> },
   { label: 'Đồ gia dụng', icon: <Monitor className="w-6 h-6" /> },
   { label: 'Thời trang', icon: <Shirt className="w-6 h-6" /> },
-  { label: 'Sách báo', icon: <Newspaper className="w-6 h-6" /> }
+  { label: 'Sách báo', icon: <Newspaper className="w-6 h-6" /> },
+  { label: 'Đánh giá', icon: <Star className="w-6 h-6" /> },
+  { label: 'Tin tức', icon: <Clock className="w-6 h-6" /> },
+  { label: 'Vị trí', icon: <MapPin className="w-6 h-6" /> },
+  { label: 'Khuyến mãi', icon: <TrendingUp className="w-6 h-6" /> },
+  { label: 'Mới nhất', icon: <Clock className="w-6 h-6" /> },
+  { label: 'Phổ biến', icon: <Star className="w-6 h-6" /> },
 ];
 
 
