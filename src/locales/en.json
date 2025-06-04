@@ -194,5 +194,15 @@
     "maxLength": "Must be no more than {{max}} characters",
     "min": "Must be at least {{min}}",
     "max": "Must be no more than {{max}}"
+  },
+  "profile": {
+    "currentInfo": "Current Information",
+    "updateProfile": "Update Profile",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "updateButton": "Update Profile",
+    "updateSuccess": "Profile updated successfully",
+    "updateError": "Failed to update profile"
   }
-} 
+}

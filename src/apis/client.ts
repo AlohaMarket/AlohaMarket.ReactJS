@@ -1,7 +1,8 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios,{type AxiosInstance,type AxiosRequestConfig,type AxiosResponse } from 'axios';
 import { API_CONFIG, STORAGE_KEYS } from '@/constants';
 import { storage } from '@/utils';
-import { ApiError } from '@/types';
+import {type ApiError } from '@/types';
+import { keycloak } from '@/lib/keycloak';
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
@@ -13,11 +14,24 @@ const apiClient: AxiosInstance = axios.create({
 });
 
 // Request interceptor to add auth token
+// apiClient.interceptors.request.use(
+//   (config) => {
+//     const token = storage.get<string>(STORAGE_KEYS.token);
+//     if (token) {
+//       config.headers.Authorization = `Bearer ${token}`;
+//     }
+//     return config;
+//   },
+//   (error) => {
+//     return Promise.reject(error);
+//   }
+// );
+
 apiClient.interceptors.request.use(
-  (config) => {
-    const token = storage.get<string>(STORAGE_KEYS.token);
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+  async (config) => {
+    if (keycloak.authenticated) {
+      await keycloak.updateToken(30);
+      config.headers.Authorization = `Bearer ${keycloak.token}`;
     }
     return config;
   },

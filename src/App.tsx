@@ -7,6 +7,7 @@ import { AppProvider } from '@/contexts';
 import { TOAST_CONFIG } from '@/constants';
 import '@/i18n';
 import './index.css';
+import { KeycloakProvider } from './contexts/KeycloakContext';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -24,32 +25,34 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <AppProvider>
-          {routeElements}
-          <Toaster
-            position={TOAST_CONFIG.position as any}
-            toastOptions={{
-              duration: TOAST_CONFIG.duration,
-              style: {
-                background: '#363636',
-                color: '#fff',
-              },
-              success: {
+      <KeycloakProvider>
+        <BrowserRouter>
+          <AppProvider>
+            {routeElements}
+            <Toaster
+              position={TOAST_CONFIG.position as any}
+              toastOptions={{
+                duration: TOAST_CONFIG.duration,
                 style: {
-                  background: '#22c55e',
+                  background: '#363636',
+                  color: '#fff',
                 },
-              },
-              error: {
-                style: {
-                  background: '#ef4444',
+                success: {
+                  style: {
+                    background: '#22c55e',
+                  },
                 },
-              },
-            }}
-          />
-        </AppProvider>
-      </BrowserRouter>
-      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+                error: {
+                  style: {
+                    background: '#ef4444',
+                  },
+                },
+              }}
+            />
+          </AppProvider>
+        </BrowserRouter>
+      </KeycloakProvider>
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }

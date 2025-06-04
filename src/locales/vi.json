@@ -194,5 +194,15 @@
     "maxLength": "Không được quá {{max}} ký tự",
     "min": "Phải ít nhất {{min}}",
     "max": "Không được quá {{max}}"
+  },
+  "profile": {
+    "currentInfo": "Thông tin hiện tại",
+    "updateProfile": "Cập nhật hồ sơ",
+    "firstName": "Tên",
+    "lastName": "Họ",
+    "email": "Email",
+    "updateButton": "Cập nhật hồ sơ",
+    "updateSuccess": "Cập nhật hồ sơ thành công",
+    "updateError": "Cập nhật hồ sơ thất bại"
   }
-} 
+}
