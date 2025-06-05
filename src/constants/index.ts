@@ -11,7 +11,7 @@ export const APP_CONFIG = {
 
 // API configuration
 export const API_CONFIG = {
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api',
+  baseURL: import.meta.env['VITE_API_BASE_URL'] || 'http://localhost:3000/api',
   timeout: 10000,
   retries: 3,
 } as const;
@@ -54,8 +54,7 @@ export const API_ENDPOINTS = {
     detail: (id: string) => `/orders/${id}`,
     create: '/orders',
     cancel: (id: string) => `/orders/${id}/cancel`,
-  },
-  // User
+  },  // User
   user: {
     addresses: '/user/addresses',
     addAddress: '/user/addresses',
@@ -64,6 +63,29 @@ export const API_ENDPOINTS = {
     wishlist: '/user/wishlist',
     addToWishlist: '/user/wishlist/add',
     removeFromWishlist: (id: string) => `/user/wishlist/remove/${id}`,
+  },
+  // Users (for chat and social features)
+  users: {
+    search: '/users/search',
+    detail: (id: string) => `/users/${id}`,
+    contacts: '/users/contacts',
+    suggested: '/users/suggested',
+    online: '/users/online',
+    addContact: '/users/contacts/add',
+    removeContact: (id: string) => `/users/contacts/remove/${id}`,
+    block: '/users/block',
+    unblock: (id: string) => `/users/unblock/${id}`,
+    blocked: '/users/blocked',
+  },
+  // Chat
+  chat: {
+    conversations: '/chat/conversations',
+    messages: '/chat/messages',
+    upload: '/chat/upload',
+    search: '/chat/search',
+    getOrCreate: '/chat/conversations/get-or-create',
+    block: '/chat/block',
+    report: '/chat/report',
   },
 } as const;
 
@@ -94,10 +116,14 @@ export const QUERY_KEYS = {
   cart: ['cart'] as const,
   // Orders
   orders: ['orders'] as const,
-  order: (id: string) => ['orders', id] as const,
-  // User
+  order: (id: string) => ['orders', id] as const,  // User
   addresses: ['user', 'addresses'] as const,
   wishlist: ['user', 'wishlist'] as const,
+  // Chat
+  conversations: ['chat', 'conversations'] as const,
+  conversation: (id: string) => ['chat', 'conversations', id] as const,
+  messages: (conversationId: string) => ['chat', 'messages', conversationId] as const,
+  chatSearch: (query: string) => ['chat', 'search', query] as const,
 } as const;
 
 // Pagination defaults

@@ -18,6 +18,9 @@ const HelpCenter = lazy(() => import('@/pages/Help/HelpCenter'));
 const HelpSeller = lazy(() => import('@/pages/Help/HelpSeller'));
 const HelpBuyer = lazy(() => import('@/pages/Help/HelpBuyer'));
 
+//Chat
+const ChatPage = lazy(() => import('@/pages/ChatHubPage'));
+
 export function useRouteElements() {
   return (
     <Routes>
@@ -84,8 +87,9 @@ export function useRouteElements() {
               <TermsOfServicePage />
             </Suspense>
           }
-        />      </Route>
-      
+        />
+      </Route>
+
       {/* Help routes - independent pages */}
       <Route
         path="help"
@@ -111,7 +115,15 @@ export function useRouteElements() {
           </Suspense>
         }
       />
-
+      {/* Chat route - independent page */}
+      <Route
+        path="chat"
+        element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <ChatPage />
+          </Suspense>
+        }
+      />
       {/* Auth routes - sử dụng LoginPage với URL params */}
       <Route
         path="/auth"

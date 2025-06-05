@@ -3,7 +3,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { BrowserRouter } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { useRouteElements } from './useRouteElements';
-import { AppProvider } from '@/contexts';
+import { AppProvider, ChatProvider } from '@/contexts';
 import { TOAST_CONFIG } from '@/constants';
 import '@/i18n';
 import './index.css';
@@ -22,31 +22,32 @@ const queryClient = new QueryClient({
 function App() {
   const routeElements = useRouteElements();
 
-  return (
-    <QueryClientProvider client={queryClient}>
+  return (    <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AppProvider>
-          {routeElements}
-          <Toaster
-            position={TOAST_CONFIG.position as any}
-            toastOptions={{
-              duration: TOAST_CONFIG.duration,
-              style: {
-                background: '#363636',
-                color: '#fff',
-              },
-              success: {
+          <ChatProvider>
+            {routeElements}
+            <Toaster
+              position={TOAST_CONFIG.position as any}
+              toastOptions={{
+                duration: TOAST_CONFIG.duration,
                 style: {
-                  background: '#22c55e',
+                  background: '#363636',
+                  color: '#fff',
                 },
-              },
-              error: {
-                style: {
-                  background: '#ef4444',
+                success: {
+                  style: {
+                    background: '#22c55e',
+                  },
                 },
-              },
-            }}
-          />
+                error: {
+                  style: {
+                    background: '#ef4444',
+                  },
+                },
+              }}
+            />
+          </ChatProvider>
         </AppProvider>
       </BrowserRouter>
       {/* <ReactQueryDevtools initialIsOpen={false} /> */}

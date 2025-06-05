@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Check, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useAuth } from '@/hooks/useApp';
 
 export default function LoginPage() {
-  const { t } = useTranslation();
-  const navigate = useNavigate(); // ← thêm useNavigate
+  const navigate = useNavigate();
+  const { login, register, isLoading: authLoading } = useAuth();
   const [searchParams] = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -16,7 +16,7 @@ export default function LoginPage() {
   // Lấy mode từ URL params, mặc định là login
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
-    phone: '',
+    email: '',
     password: '',
     confirmPassword: '',
     fullName: '',
@@ -39,24 +39,29 @@ export default function LoginPage() {
       [name]: value,
     }));
   };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isLogin) {
-      console.log('Login attempt:', formData);
-    } else {
-      console.log('Register attempt:', formData);
+    try {
+      if (isLogin) {
+        await login(formData.email, formData.password);
+        navigate('/chat'); // Navigate to chat after successful login
+      } else {
+        await register(formData.fullName, formData.email, formData.password, formData.confirmPassword);
+        navigate('/chat'); // Navigate to chat after successful registration
+      }
+    } catch (error) {
+      // Error is already handled by the auth context with toast notifications
+      console.error('Authentication error:', error);
     }
   };
 
   const handleSocialLogin = (provider: string) => {
     console.log(`${isLogin ? 'Login' : 'Register'} with ${provider}`);
   };
-
   const toggleMode = () => {
     setIsLogin(!isLogin);
     setFormData({
-      phone: '',
+      email: '',
       password: '',
       confirmPassword: '',
       fullName: '',
@@ -145,15 +150,13 @@ export default function LoginPage() {
                     required
                   />
                 </div>
-              )}
-
-              {/* Phone input */}
+              )}              {/* Email input */}
               <div>
                 <Input
-                  type="tel"
-                  name="phone"
-                  placeholder="Số điện thoại"
-                  value={formData.phone}
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  value={formData.email}
                   onChange={handleInputChange}
                   className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-transparent focus:ring-2 focus:ring-orange-500"
                   required
@@ -225,14 +228,13 @@ export default function LoginPage() {
                     Quên mật khẩu?
                   </Link>
                 </div>
-              )}
-
-              {/* Submit button */}
+              )}              {/* Submit button */}
               <Button
                 type="submit"
-                className="mt-4 w-full rounded-lg bg-gradient-to-r from-orange-500 to-red-500 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:from-orange-600 hover:to-red-600 hover:shadow-xl"
+                disabled={authLoading}
+                className="mt-4 w-full rounded-lg bg-gradient-to-r from-orange-500 to-red-500 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:from-orange-600 hover:to-red-600 hover:shadow-xl disabled:opacity-50"
               >
-                {isLogin ? 'ĐĂNG NHẬP' : 'ĐĂNG KÝ'}
+                {authLoading ? 'ĐANG XỬ LÝ...' : (isLogin ? 'ĐĂNG NHẬP' : 'ĐĂNG KÝ')}
               </Button>
             </form>
 
@@ -243,10 +245,53 @@ export default function LoginPage() {
                 {isLogin ? 'Hoặc đăng nhập bằng' : 'Hoặc đăng ký bằng'}
               </span>
               <div className="flex-1 border-t border-gray-200"></div>
-            </div>
-
-            {/* Social login buttons */}
+            </div>            {/* Social login buttons */}
             <div className="space-y-2">
+              {/* Quick Mock User Login - Development Only */}
+              {isLogin && (
+                <div className="mb-4 rounded-lg bg-gray-50 p-3">
+                  <p className="mb-2 text-xs font-semibold text-gray-600">Quick Login (Mock Users):</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData({ ...formData, email: 'alice@example.com', password: 'alice123' });
+                      }}
+                      className="rounded bg-blue-100 px-2 py-1 text-xs text-blue-700 hover:bg-blue-200"
+                    >
+                      Alice (User)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData({ ...formData, email: 'bob@example.com', password: 'bob123' });
+                      }}
+                      className="rounded bg-green-100 px-2 py-1 text-xs text-green-700 hover:bg-green-200"
+                    >
+                      Bob (Seller)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData({ ...formData, email: 'admin@alohamarket.com', password: 'admin123' });
+                      }}
+                      className="rounded bg-purple-100 px-2 py-1 text-xs text-purple-700 hover:bg-purple-200"
+                    >
+                      Admin
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData({ ...formData, email: 'carol@example.com', password: 'carol123' });
+                      }}
+                      className="rounded bg-pink-100 px-2 py-1 text-xs text-pink-700 hover:bg-pink-200"
+                    >
+                      Carol (User)
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <button
                 onClick={() => handleSocialLogin('facebook')}
                 className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-2.5 text-sm text-white transition-all hover:bg-blue-700"
