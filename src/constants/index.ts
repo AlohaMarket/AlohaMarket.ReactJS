@@ -76,14 +76,15 @@ export const API_ENDPOINTS = {
     block: '/users/block',
     unblock: (id: string) => `/users/unblock/${id}`,
     blocked: '/users/blocked',
-  },
-  // Chat
+  },  // Chat
   chat: {
     conversations: '/chat/conversations',
     messages: '/chat/messages',
     upload: '/chat/upload',
     search: '/chat/search',
+    searchConversations: '/chat/conversations/search',
     getOrCreate: '/chat/conversations/get-or-create',
+    presence: '/chat/presence',
     block: '/chat/block',
     report: '/chat/report',
   },
