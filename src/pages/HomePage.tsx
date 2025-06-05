@@ -10,7 +10,13 @@ const categories = [
   { label: 'Thú cưng', icon: <Dog className="w-6 h-6" /> },
   { label: 'Đồ gia dụng', icon: <Monitor className="w-6 h-6" /> },
   { label: 'Thời trang', icon: <Shirt className="w-6 h-6" /> },
-  { label: 'Sách báo', icon: <Newspaper className="w-6 h-6" /> }
+  { label: 'Sách báo', icon: <Newspaper className="w-6 h-6" /> },
+  { label: 'Đánh giá', icon: <Star className="w-6 h-6" /> },
+  { label: 'Tin tức', icon: <Clock className="w-6 h-6" /> },
+  { label: 'Vị trí', icon: <MapPin className="w-6 h-6" /> },
+  { label: 'Khuyến mãi', icon: <TrendingUp className="w-6 h-6" /> },
+  { label: 'Mới nhất', icon: <Clock className="w-6 h-6" /> },
+  { label: 'Phổ biến', icon: <Star className="w-6 h-6" /> },
 ];
 
 
@@ -47,18 +53,15 @@ export default function HomePage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
-      {/* Hero Section with Banner */}
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">      {/* Hero Section with Banner */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>
-        <div className="container mx-auto px-6 relative">
+        <div className="relative">
           <BannerSlider />
         </div>
-      </div>
-
-      {/* Shortcut Menu Section - Enhanced */}
+      </div>      {/* Shortcut Menu Section - Enhanced */}
       <section className="py-8 bg-white/80 backdrop-blur-sm">
-        <div className="container mx-auto px-6">
+        <div className="w-full max-w-6xl mx-auto px-4 sm:px-8 lg:px-16">
           <div className="grid grid-cols-4 md:grid-cols-8 gap-4 text-center">
             {[
               { label: 'Nạp Đồng Tốt', icon: '💰', color: 'from-yellow-400 to-orange-500' },
@@ -85,7 +88,7 @@ export default function HomePage() {
         </div>
       </section>      {/* Categories Section - Enhanced */}
       <section className="py-16 bg-gradient-to-r from-gray-50 to-blue-50">
-        <div className="container mx-auto px-6">
+        <div className="w-full max-w-6xl mx-auto px-4 sm:px-8 lg:px-16">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Khám phá danh mục</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">Tìm kiếm sản phẩm theo danh mục phù hợp với nhu cầu của bạn</p>
@@ -109,7 +112,7 @@ export default function HomePage() {
         </div>
       </section>      {/* Featured Products - Enhanced */}
       <section className="py-20 bg-white">
-        <div className="container mx-auto px-6">
+        <div className="w-full max-w-6xl mx-auto px-4 sm:px-8 lg:px-16">
           {/* Section Header */}
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-full text-sm font-medium mb-4">
@@ -205,7 +208,7 @@ export default function HomePage() {
                       <h3 className="font-bold text-lg mb-3 line-clamp-2 min-h-[3.5rem] text-gray-900 group-hover:text-blue-600 transition-colors duration-300">
                         {listing.subject || 'Không có tiêu đề'}
                       </h3>
-                      
+
                       <div className="flex items-center text-gray-500 mb-4">
                         <MapPin className="w-4 h-4 mr-2" />
                         <span className="text-sm line-clamp-1">
@@ -257,8 +260,8 @@ export default function HomePage() {
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}            </div>
+                </div>))}
+            </div>
           )}
 
           {/* Loading more products indicator */}
@@ -274,7 +277,7 @@ export default function HomePage() {
           {/* View More Button */}
           {!isLoading && !error && listings.length > 0 && (
             <div className="text-center mt-16">
-              <button 
+              <button
                 onClick={() => fetchNextPage()}
                 disabled={!hasNextPage || isFetchingNextPage}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"

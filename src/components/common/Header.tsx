@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   ChevronDown,
   Menu,
@@ -16,6 +18,7 @@ import {
 import { useAuth } from '@/hooks/useApp';
 
 export default function Header() {
+  const navigate = useNavigate();
   const [selectedAddress, setSelectedAddress] = useState('Toàn Quốc');
   const [showAddress, setShowAddress] = useState(false);
   const [showAccount, setShowAccount] = useState(false);
@@ -33,6 +36,11 @@ export default function Header() {
     setShowCategory(false);
   };
 
+  const handleAuthAction = (action: 'login' | 'register') => {
+    setShowAccount(false);
+    navigate(`/auth?mode=${action}`);
+  };
+
   return (
     <header className="bg-blue-600 text-white">
       {/* Top navigation bar */}
@@ -45,16 +53,23 @@ export default function Header() {
           ))}
         </div>
         <div className="flex items-center space-x-4">
-          {['Đóng góp ý kiến', 'Tải ứng dụng', 'Trợ giúp'].map((label) => (
-            <a key={label} href="#" className="transition hover:text-gray-200">
+          {[
+            { label: 'Đóng góp ý kiến', href: 'feedback' },
+            { label: 'Tải ứng dụng', href: 'download-app' },
+            { label: 'Trợ giúp', href: 'help' }
+          ].map(({ label, href }) => (
+            <a key={label} href={href} className="transition hover:text-gray-200">
               {label}
             </a>
           ))}
-          <div className="flex cursor-pointer items-center space-x-1 rounded bg-blue-600 px-2 py-1 transition hover:bg-blue-500">
+          <a
+            href="/seller"
+            className="flex cursor-pointer items-center space-x-1 rounded bg-blue-600 px-2 py-1 transition hover:bg-blue-500"
+          >
             <Briefcase size={16} className="text-white" />
             <span className="text-xs font-medium">Dành cho người bán</span>
             <ChevronDown size={16} className="text-white" />
-          </div>
+          </a>
         </div>
       </div>
 
