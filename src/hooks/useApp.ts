@@ -1,5 +1,6 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { AppContext } from '@/contexts/AppContext';
+import { useKeycloak } from '@react-keycloak/web';
 
 export function useApp() {
   const context = useContext(AppContext);
@@ -9,26 +10,66 @@ export function useApp() {
   return context;
 }
 
-// Convenience hooks for specific functionality
 export function useAuth() {
-  const {
-    user,
-    isAuthenticated,
-    isAuthLoading,
-    login,
-    register,
-    logout,
-    updateUser
-  } = useApp();
-  
+  const { keycloak, initialized } = useKeycloak();
+  const { setUser, setIsAuthLoading } = useApp();
+
+  useEffect(() => {
+    if (!initialized) return;
+
+    setIsAuthLoading(true);
+
+    if (keycloak.authenticated) {
+      const userProfile = {
+        id: keycloak.subject ?? '',
+        email: keycloak.tokenParsed?.['email'] ?? '',
+        name: keycloak.tokenParsed?.['name'] ?? '',
+        avatar: keycloak.tokenParsed?.['avatar_url'] ?? '',
+        firstName: keycloak.tokenParsed?.['given_name'] ?? '',
+        lastName: keycloak.tokenParsed?.['family_name'] ?? '',
+      };
+
+      localStorage.setItem('user', JSON.stringify(userProfile));
+      localStorage.setItem('token', keycloak.token ?? '');
+      localStorage.setItem('refreshToken', keycloak.refreshToken ?? '');
+      setUser(userProfile);
+
+      keycloak.onTokenExpired = () => {
+        keycloak.updateToken(70).then((refreshed) => {
+          if (refreshed) {
+            localStorage.setItem('token', keycloak.token ?? '');
+            localStorage.setItem('refreshToken', keycloak.refreshToken ?? '');
+          }
+        }).catch(() => {
+          logout();
+        });
+      };
+    } else {
+      setUser(null);
+    }
+
+    setIsAuthLoading(false);
+  }, [initialized, keycloak.authenticated]);
+
+  const logout = () => {
+    localStorage.clear();
+    setUser(null);
+    keycloak.logout({
+      redirectUri: window.location.origin
+    });
+  };
+
   return {
-    user,
-    isAuthenticated,
-    isLoading: isAuthLoading,
-    login,
-    register,
+    user: keycloak.authenticated
+      ? JSON.parse(localStorage.getItem('user') || 'null')
+      : null,
+    token: localStorage.getItem('token'),
+    refreshToken: localStorage.getItem('refreshToken'),
+    isAuthenticated: initialized && keycloak.authenticated,
+    isLoading: !initialized,
+    login: () => keycloak.login({ redirectUri: window.location.origin }),
     logout,
-    updateUser
+    register: () => keycloak.register({ redirectUri: window.location.origin })
   };
 }
 
@@ -45,7 +86,7 @@ export function useCart() {
     isInCart,
     getItemQuantity
   } = useApp();
-  
+
   return {
     items,
     totalItems,
@@ -69,7 +110,7 @@ export function useTheme() {
     setTheme,
     changeLanguage
   } = useApp();
-  
+
   return {
     theme,
     language,
@@ -78,4 +119,4 @@ export function useTheme() {
     setTheme,
     changeLanguage
   };
-} 
+}
