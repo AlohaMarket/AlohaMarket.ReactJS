@@ -2,7 +2,9 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useChat } from '@/hooks/useChat';
+import { useApp } from '@/hooks/useApp';
 import {
   ChevronDown,
   Menu,
@@ -17,18 +19,22 @@ import {
 
 export default function Header() {
   const navigate = useNavigate();
+  // const { isAuthenticated } = useApp();
+  // const { getUnreadCount } = useChat();
   const [selectedAddress, setSelectedAddress] = useState('Toàn Quốc');
   const [showAddress, setShowAddress] = useState(false);
   const [showAccount, setShowAccount] = useState(false);
   const [showCategory, setShowCategory] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
 
-  const handleSelectAddress = (address) => {
+  // const unreadCount = isAuthenticated ? getUnreadCount() : 0;
+
+  const handleSelectAddress = (address: string) => {
     setSelectedAddress(address);
     setShowAddress(false);
   };
 
-  const handleSelectCategory = (category) => {
+  const handleSelectCategory = (category: string) => {
     setSelectedCategory(category);
     setShowCategory(false);
   };
@@ -144,17 +150,35 @@ export default function Header() {
               </div>
             )}
           </div>
-        </div>
-
-        {/* right - thu gọn các phần tử để nhường không gian cho ô tìm kiếm */}
+        </div>        {/* right - thu gọn các phần tử để nhường không gian cho ô tìm kiếm */}
         <div className="ml-4 flex items-center gap-4">
-          {[Bell, MessageSquare, Briefcase, Grid].map((Icon, i) => (
-            <Icon
-              key={i}
+          <Bell
+            size={20}
+            className="cursor-pointer text-white transition hover:text-gray-200"
+          />
+          
+          {/* Chat Icon with Unread Count */}
+          <div className="relative">
+            <MessageSquare
               size={20}
               className="cursor-pointer text-white transition hover:text-gray-200"
+              onClick={() => navigate('/chat')}
             />
-          ))}
+            {/* {isAuthenticated && unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )} */}
+          </div>
+
+          <Briefcase
+            size={20}
+            className="cursor-pointer text-white transition hover:text-gray-200"
+          />
+          <Grid
+            size={20}
+            className="cursor-pointer text-white transition hover:text-gray-200"
+          />
 
           <div className="relative">
             <div

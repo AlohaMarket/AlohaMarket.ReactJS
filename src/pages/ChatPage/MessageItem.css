@@ -1,0 +1,169 @@
+.message-item {
+  display: flex;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.message-item.own-message {
+  justify-content: flex-end;
+}
+
+.message-item.other-message {
+  justify-content: flex-start;
+}
+
+.message-avatar {
+  width: 32px;
+  height: 32px;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+.message-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.default-avatar {
+  width: 100%;
+  height: 100%;
+  background-color: #6c757d;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.message-content {
+  max-width: 70%;
+  position: relative;
+}
+
+.message-sender {
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+.message-bubble {
+  position: relative;
+  padding: 0.75rem 1rem;
+  border-radius: 18px;
+  word-wrap: break-word;
+}
+
+.own-message .message-bubble {
+  background-color: #007bff;
+  color: white;
+  margin-left: auto;
+}
+
+.other-message .message-bubble {
+  background-color: white;
+  color: #333;
+  border: 1px solid #e0e0e0;
+}
+
+.message-text {
+  margin-bottom: 0.25rem;
+  line-height: 1.4;
+}
+
+.edited-indicator {
+  font-size: 0.7rem;
+  opacity: 0.7;
+  font-style: italic;
+  margin-left: 0.5rem;
+}
+
+.message-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.25rem;
+}
+
+.message-time {
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
+.message-status {
+  font-size: 0.7rem;
+  opacity: 0.7;
+  margin-left: 0.5rem;
+}
+
+.message-actions {
+  position: absolute;
+  top: 0;
+  right: -60px;
+  display: flex;
+  gap: 0.25rem;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 0.25rem;
+}
+
+.action-btn {
+  padding: 0.25rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 2px;
+  font-size: 0.8rem;
+}
+
+.action-btn:hover {
+  background-color: #f8f9fa;
+}
+
+.message-edit {
+  width: 100%;
+}
+
+.edit-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.save-btn {
+  padding: 0.25rem 0.75rem;
+  background-color: #28a745;
+  color: white;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.cancel-btn {
+  padding: 0.25rem 0.75rem;
+  background-color: #6c757d;
+  color: white;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.save-btn:hover {
+  background-color: #218838;
+}
+
+.cancel-btn:hover {
+  background-color: #5a6268;
+} 
