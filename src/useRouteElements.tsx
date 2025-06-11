@@ -1,26 +1,29 @@
+import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { Suspense, lazy } from 'react';
 import MainLayout from '@/layouts/MainLayout';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
-// Lazy load pages for better performance
+// Lazy load components
 const HomePage = lazy(() => import('@/pages/HomePage'));
-const ProductsPage = lazy(() => import('@/pages/ProductsPage'));
 const ProductDetailPage = lazy(() => import('@/pages/ProductDetail/ProductDetailPage'));
-const CartPage = lazy(() => import('@/pages/CartPage'));
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
-const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
-const AboutPage = lazy(() => import('@/pages/AboutPage'));
-const PrivacyPolicyPage = lazy(() => import('@/pages/PrivacyPolicyPage'));
-const TermsOfServicePage = lazy(() => import('@/pages/TermsOfServicePage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 const HelpCenter = lazy(() => import('@/pages/Help/HelpCenter'));
 const HelpSeller = lazy(() => import('@/pages/Help/HelpSeller'));
 const HelpBuyer = lazy(() => import('@/pages/Help/HelpBuyer'));
+const AboutPage = lazy(() => import('@/pages/AboutPage'));
+const PrivacyPolicyPage = lazy(() => import('@/pages/PrivacyPolicyPage'));
+const TermsOfServicePage = lazy(() => import('@/pages/TermsOfServicePage'));
+
+// Payment pages
+const ProPage = lazy(() => import('@/pages/Payment/ProPage'));
+const CheckoutPage = lazy(() => import('@/pages/Payment/CheckoutPage'));
+const SuccessPage = lazy(() => import('@/pages/Payment/SuccessPage'));
 
 export function useRouteElements() {
   return (
     <Routes>
+      {/* Main layout routes */}
       <Route path="/" element={<MainLayout />}>
         <Route
           index
@@ -30,38 +33,18 @@ export function useRouteElements() {
             </Suspense>
           }
         />
+
         <Route
-          path="products"
-          element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <ProductsPage />
-            </Suspense>
-          }
-        />
-        <Route
-          path="products/:id"
+          path="/product/:id"
           element={
             <Suspense fallback={<LoadingSpinner />}>
               <ProductDetailPage />
             </Suspense>
           }
         />
+
+        {/* About pages */}
         <Route
-          path="cart"
-          element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <CartPage />
-            </Suspense>
-          }
-        />
-        <Route
-          path="profile"
-          element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <ProfilePage />
-            </Suspense>
-          }
-        />        <Route
           path="about"
           element={
             <Suspense fallback={<LoadingSpinner />}>
@@ -84,9 +67,47 @@ export function useRouteElements() {
               <TermsOfServicePage />
             </Suspense>
           }
-        />      </Route>
-      
-      {/* Help routes - independent pages */}
+        />
+
+        {/* Payment routes */}
+        <Route
+          path="payment/pro"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <ProPage />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="payment/checkout"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <CheckoutPage />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="payment/success"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <SuccessPage />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="payment/failed"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <SuccessPage />
+            </Suspense>
+          }
+        />
+      </Route>
+
+      {/* Help routes - independent pages WITHOUT MainLayout */}
       <Route
         path="help"
         element={
@@ -112,7 +133,7 @@ export function useRouteElements() {
         }
       />
 
-      {/* Auth routes - sử dụng LoginPage với URL params */}
+      {/* Auth routes */}
       <Route
         path="/auth"
         element={
@@ -122,7 +143,7 @@ export function useRouteElements() {
         }
       />
 
-      {/* Redirect old routes to new auth route */}
+      {/* Redirect old routes */}
       <Route path="/login" element={<Navigate to="/auth?mode=login" replace />} />
       <Route path="/register" element={<Navigate to="/auth?mode=register" replace />} />
 
