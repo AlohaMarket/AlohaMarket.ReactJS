@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './MessageItem.css';
 import type { Message } from '@/types/chat.types';
 import type { SignalRService } from '@/services/signalRService';
@@ -13,17 +13,31 @@ const MessageItem: React.FC<MessageItemProps> = ({
   message,
   isOwn,
   signalRService
-}) => {
-  const [isEditing, setIsEditing] = useState<boolean>(false);
+}) => {  const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editContent, setEditContent] = useState<string>(message.content);
   const [showActions, setShowActions] = useState<boolean>(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-resize textarea
+  useEffect(() => {
+    if (isEditing && textareaRef.current) {
+      const textarea = textareaRef.current;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [isEditing, editContent]);
 
   const formatTime = (timestamp: string): string => {
     const date = new Date(timestamp);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
-  const handleEdit = async () => {
+    const now = new Date();
+    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+    
+    if (diffInHours < 24) {
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } else {
+      return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    }
+  };  const handleEdit = async () => {
     if (editContent.trim() && editContent !== message.content) {
       try {
         await signalRService.editMessage(message.id, editContent.trim());
@@ -78,30 +92,31 @@ const MessageItem: React.FC<MessageItemProps> = ({
             {message.senderName || message.senderId}
           </div>
         )}
-        
-        <div className="message-bubble">
+          <div className="message-bubble">
           {isEditing ? (
-            <div className="message-edit">
-              <input
-                type="text"
+            <div className="message-edit">              <textarea
+                ref={textareaRef}
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
                     handleEdit();
                   } else if (e.key === 'Escape') {
                     handleCancelEdit();
                   }
                 }}
-                className="edit-input"
+                className="edit-textarea"
                 autoFocus
+                rows={1}
+                placeholder="Edit your message..."
               />
               <div className="edit-actions">
-                <button onClick={handleEdit} className="save-btn">
-                  Save
-                </button>
                 <button onClick={handleCancelEdit} className="cancel-btn">
                   Cancel
+                </button>
+                <button onClick={handleEdit} className="save-btn">
+                  Save
                 </button>
               </div>
             </div>
@@ -110,10 +125,10 @@ const MessageItem: React.FC<MessageItemProps> = ({
               <div className="message-text">
                 {message.content}
                 {message.isEdited && (
-                  <span className="edited-indicator">(edited)</span>
+                  <span className="edited-indicator">· Edited</span>
                 )}
               </div>
-                <div className="message-footer">
+              <div className="message-footer">
                 <span className="message-time">
                   {formatTime(message.timestamp)}
                 </span>
@@ -131,21 +146,21 @@ const MessageItem: React.FC<MessageItemProps> = ({
               </div>
             </>
           )}
-        </div>
-        
-        {isOwn && showActions && !isEditing && (
-          <div className="message-actions">
+        </div>        
+        {/* Action buttons for own messages only */}
+        {showActions && !isEditing && isOwn && (
+          <div className="message-actions own-actions">
             <button 
               onClick={() => setIsEditing(true)}
               className="action-btn edit-btn"
-              title="Edit message"
+              title="Edit"
             >
               ✏️
             </button>
             <button 
               onClick={handleDelete}
               className="action-btn delete-btn"
-              title="Delete message"
+              title="Delete"
             >
               🗑️
             </button>
@@ -156,4 +171,4 @@ const MessageItem: React.FC<MessageItemProps> = ({
   );
 };
 
-export default MessageItem; 
+export default MessageItem;

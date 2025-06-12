@@ -1,7 +1,10 @@
 .chat-window {
   height: 100%;
+  width: 100%;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .chat-window-header {
@@ -11,6 +14,9 @@
   padding: 1rem;
   border-bottom: 1px solid #e0e0e0;
   background-color: white;
+  flex-shrink: 0;
+  min-height: 70px;
+  box-sizing: border-box;
 }
 
 .conversation-info h3 {
@@ -57,8 +63,12 @@
 .messages-container {
   flex: 1;
   overflow-y: auto;
-  padding: 1rem;
+  overflow-x: hidden;
+  padding: 1rem 1rem 1rem 4rem;
   background-color: #f8f9fa;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .loading {
@@ -183,21 +193,29 @@
   padding: 1rem;
   background-color: white;
   border-top: 1px solid #e0e0e0;
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .input-container {
   display: flex;
   gap: 0.75rem;
   align-items: center;
+  width: 100%;
+  max-width: 100%;
 }
 
 .message-input {
   flex: 1;
+  min-width: 0;
   padding: 0.75rem 1rem;
   border: 1px solid #ddd;
   border-radius: 24px;
   font-size: 1rem;
   resize: none;
+  box-sizing: border-box;
 }
 
 .message-input:focus {
@@ -241,5 +259,81 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Additional responsive and width fixes */
+@media (max-width: 1024px) {
+  .chat-window-header {
+    padding: 0.75rem;
+  }
+  
+  .product-info {
+    gap: 0.5rem;
+  }
+  
+  .product-thumbnail {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (max-width: 768px) {
+  .chat-window-header {
+    padding: 0.5rem;
+    flex-wrap: wrap;
+    min-height: auto;
+  }
+  
+  .conversation-info h3 {
+    font-size: 1rem;
+  }
+  
+  .participant-count {
+    font-size: 0.7rem;
+  }
+  
+  .product-info {
+    width: 100%;
+    justify-content: flex-start;
+    margin-top: 0.5rem;
+  }
+    .messages-container {
+    padding: 0.5rem 0.5rem 0.5rem 3rem;
+  }
+  
+  .message-input-form {
+    padding: 0.75rem;
+  }
+  
+  .input-container {
+    gap: 0.5rem;
+  }
+  
+  .send-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .chat-window-header {
+    padding: 0.5rem;
+  }
+  
+  .conversation-info h3 {
+    font-size: 0.9rem;
+  }
+    .messages-container {
+    padding: 0.25rem 0.25rem 0.25rem 2.5rem;
+  }
+  
+  .message-input-form {
+    padding: 0.5rem;
+  }
+  
+  .message-input {
+    font-size: 0.9rem;
+    padding: 0.6rem 0.8rem;
   }
 }

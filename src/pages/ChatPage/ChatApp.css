@@ -1,8 +1,12 @@
 .chat-app {
   height: 100vh;
+  width: 100%;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   background-color: #fff;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .chat-header {
@@ -42,6 +46,10 @@
   display: flex;
   flex: 1;
   height: calc(100vh - 80px);
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .sidebar {
@@ -52,8 +60,10 @@
 
 .main-chat {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .no-conversation-selected {
