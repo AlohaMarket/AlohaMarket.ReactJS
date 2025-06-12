@@ -12,6 +12,7 @@ import {
   Phone,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { paymentAPI, formatPaymentInformation } from '@/apis/payment';
 
 interface CheckoutItem {
   id: string;
@@ -21,14 +22,21 @@ interface CheckoutItem {
   features: string[];
 }
 
+// Mock user data để test
+const mockUser = {
+  id: 'user_550e8400-e29b-41d4-a716-446655440000',
+  name: 'Nguyen Van A',
+  email: 'test@example.com',
+  phone: '0123456789',
+};
+
 export default function CheckoutPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('vnpay'); // Đổi mặc định thành VNPay
+  const user = mockUser;
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('vnpay');
   const [isProcessing, setIsProcessing] = useState(false);
-
-  // Lấy thông tin danh mục từ URL params
   const categoryId = searchParams.get('category');
   const categoryTitle = searchParams.get('title');
 
@@ -36,7 +44,7 @@ export default function CheckoutPage() {
     {
       id: categoryId || 'pro-monthly',
       name: `Gói PRO - ${categoryTitle || 'Không xác định'}`,
-      price: 299000,
+      price: 1500000,
       duration: '30 ngày',
       features: [
         'Đăng tin không giới hạn',
@@ -47,7 +55,6 @@ export default function CheckoutPage() {
     },
   ]);
 
-  // Cập nhật danh sách phương thức thanh toán với VNPay
   const paymentMethods = [
     {
       id: 'vnpay',
@@ -73,27 +80,10 @@ export default function CheckoutPage() {
       bgColor: 'bg-green-50',
       description: 'Chuyển khoản qua Internet Banking',
     },
-    {
-      id: 'zalopay',
-      name: 'ZaloPay',
-      icon: Wallet,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50',
-      description: 'Thanh toán qua ví điện tử ZaloPay',
-    },
-    {
-      id: 'atm',
-      name: 'Thẻ ATM nội địa',
-      icon: CreditCard,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-50',
-      description: 'Thẻ ATM các ngân hàng Việt Nam',
-    },
   ];
 
   const totalAmount = checkoutItems.reduce((sum, item) => sum + item.price, 0);
 
-  // Redirect về ProPage nếu không có thông tin danh mục
   useEffect(() => {
     if (!categoryId || !categoryTitle) {
       navigate('/payment/pro');
@@ -101,196 +91,19 @@ export default function CheckoutPage() {
   }, [categoryId, categoryTitle, navigate]);
 
   const handlePayment = async () => {
+    if (isProcessing) return;
     setIsProcessing(true);
 
     try {
-      // Tạo data chung cho tất cả phương thức thanh toán
-      const paymentData = {
-        orderId: 'ORDER_' + Date.now(),
-        amount: totalAmount,
-        method: selectedPaymentMethod,
-        category: categoryId,
-        categoryTitle: categoryTitle,
-        returnUrl: `${window.location.origin}/payment/success`,
-        cancelUrl: `${window.location.origin}/payment/failed`,
-      };
-
-      // Xử lý theo từng phương thức thanh toán
-      switch (selectedPaymentMethod) {
-        case 'vnpay':
-          await handleVNPayPayment(paymentData);
-          break;
-
-        case 'momo':
-          await handleMoMoPayment(paymentData);
-          break;
-
-        case 'zalopay':
-          await handleZaloPayPayment(paymentData);
-          break;
-
-        case 'banking':
-          await handleBankingPayment(paymentData);
-          break;
-
-        case 'atm':
-          await handleATMPayment(paymentData);
-          break;
-
-        default:
-          throw new Error('Phương thức thanh toán không được hỗ trợ');
-      }
+      const paymentResponse = await paymentAPI.createPaymentUrl(
+        formatPaymentInformation(1001, totalAmount, categoryTitle!, user.name)
+      );
+      window.location.href = paymentResponse;
     } catch (error) {
       console.error('Payment error:', error);
-      navigate('/payment/failed', {
-        state: {
-          status: 'failed',
-          error: 'Có lỗi xảy ra trong quá trình thanh toán',
-        },
-      });
+      navigate('/payment/failed?status=failed');
     } finally {
       setIsProcessing(false);
-    }
-  };
-
-  // Xử lý thanh toán VNPay
-  const handleVNPayPayment = async (paymentData: any) => {
-    // TODO: Tích hợp VNPay SDK
-    console.log('Processing VNPay payment:', paymentData);
-
-    // Simulate VNPay processing
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    // Simulate success/failure (80% success rate)
-    const isSuccess = Math.random() > 0.2;
-
-    if (isSuccess) {
-      navigate('/payment/success', {
-        state: {
-          ...paymentData,
-          status: 'success',
-          transactionId: 'VNP_' + Date.now(),
-        },
-      });
-    } else {
-      navigate('/payment/failed', {
-        state: {
-          ...paymentData,
-          status: 'failed',
-          error: 'Giao dịch VNPay không thành công',
-        },
-      });
-    }
-  };
-
-  // Xử lý thanh toán MoMo
-  const handleMoMoPayment = async (paymentData: any) => {
-    // TODO: Tích hợp MoMo SDK
-    console.log('Processing MoMo payment:', paymentData);
-
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    const isSuccess = Math.random() > 0.2;
-
-    if (isSuccess) {
-      navigate('/payment/success', {
-        state: {
-          ...paymentData,
-          status: 'success',
-          transactionId: 'MOMO_' + Date.now(),
-        },
-      });
-    } else {
-      navigate('/payment/failed', {
-        state: {
-          ...paymentData,
-          status: 'failed',
-          error: 'Giao dịch MoMo không thành công',
-        },
-      });
-    }
-  };
-
-  // Xử lý thanh toán ZaloPay
-  const handleZaloPayPayment = async (paymentData: any) => {
-    // TODO: Tích hợp ZaloPay SDK
-    console.log('Processing ZaloPay payment:', paymentData);
-
-    await new Promise((resolve) => setTimeout(resolve, 1800));
-
-    const isSuccess = Math.random() > 0.2;
-
-    if (isSuccess) {
-      navigate('/payment/success', {
-        state: {
-          ...paymentData,
-          status: 'success',
-          transactionId: 'ZALO_' + Date.now(),
-        },
-      });
-    } else {
-      navigate('/payment/failed', {
-        state: {
-          ...paymentData,
-          status: 'failed',
-          error: 'Giao dịch ZaloPay không thành công',
-        },
-      });
-    }
-  };
-
-  // Xử lý chuyển khoản ngân hàng
-  const handleBankingPayment = async (paymentData: any) => {
-    console.log('Processing Banking payment:', paymentData);
-
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Banking thường có tỷ lệ thành công cao hơn
-    const isSuccess = Math.random() > 0.1;
-
-    if (isSuccess) {
-      navigate('/payment/success', {
-        state: {
-          ...paymentData,
-          status: 'success',
-          transactionId: 'BANK_' + Date.now(),
-        },
-      });
-    } else {
-      navigate('/payment/failed', {
-        state: {
-          ...paymentData,
-          status: 'failed',
-          error: 'Chuyển khoản không thành công',
-        },
-      });
-    }
-  };
-
-  // Xử lý thanh toán ATM
-  const handleATMPayment = async (paymentData: any) => {
-    console.log('Processing ATM payment:', paymentData);
-
-    await new Promise((resolve) => setTimeout(resolve, 2200));
-
-    const isSuccess = Math.random() > 0.2;
-
-    if (isSuccess) {
-      navigate('/payment/success', {
-        state: {
-          ...paymentData,
-          status: 'success',
-          transactionId: 'ATM_' + Date.now(),
-        },
-      });
-    } else {
-      navigate('/payment/failed', {
-        state: {
-          ...paymentData,
-          status: 'failed',
-          error: 'Giao dịch thẻ ATM không thành công',
-        },
-      });
     }
   };
 
@@ -321,6 +134,9 @@ export default function CheckoutPage() {
           </Button>
           <h1 className="text-3xl font-bold text-gray-900">Thanh toán</h1>
           <p className="text-gray-600">Hoàn tất đơn hàng của bạn</p>
+
+          {/* Test Mode Controls */}
+          <div className="mt-4 space-y-3"></div>
         </div>
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -452,7 +268,7 @@ export default function CheckoutPage() {
                 {isProcessing ? (
                   <>
                     <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                    Đang xử lý...
+                    Đang chuyển hướng sang VNPay....
                   </>
                 ) : (
                   `Thanh toán qua ${getPaymentMethodLabel()}`

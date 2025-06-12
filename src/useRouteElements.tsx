@@ -101,7 +101,7 @@ export function useRouteElements() {
           path="payment/failed"
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <SuccessPage />
+              <SuccessPage /> {/* Đổi thành SuccessPage vì nó handle cả success và failed */}
             </Suspense>
           }
         />

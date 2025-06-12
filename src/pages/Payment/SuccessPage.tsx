@@ -1,56 +1,49 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle, XCircle, Crown, ArrowRight, Download, Home, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-interface PaymentResult {
-  orderId: string;
-  amount: number;
-  method: string;
-  category?: string;
-  categoryTitle?: string;
-  status: 'success' | 'failed';
-  transactionId?: string;
-  error?: string;
-}
+import { paymentAPI } from '@/apis/payment';
 
 export default function SuccessPage() {
-  const { t } = useTranslation();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [paymentData, setPaymentData] = useState<PaymentResult | null>(null);
+  const [searchParams] = useSearchParams();
+  const [price, setPrice] = useState<number>(0);
+  const [status, setStatus] = useState<'success' | 'failed'>('failed');
+  const [orderId, setOrderId] = useState<string>('N/A');
 
   useEffect(() => {
-    // Lấy dữ liệu từ state hoặc URL params
-    if (location.state) {
-      setPaymentData(location.state as PaymentResult);
-    } else {
-      // Fallback nếu không có state (user refresh page)
-      navigate('/payment/pro');
+    const mockUserId = 'user_550e8400-e29b-41d4-a716-446655440000';
+    const mockPlanId = 'plan_550e8400-e29b-41d4-a716-446655440000';
+
+    const priceParam = parseInt(searchParams.get('amount') || searchParams.get('price') || '0');
+    const statusParam = searchParams.get('status') || 'success';
+
+    setPrice(priceParam);
+    setStatus(statusParam === 'success' ? 'success' : 'failed');
+
+    if (statusParam === 'success') {
+      const createOrder = async () => {
+        try {
+          const response = await paymentAPI.createOrder({
+            userId: mockUserId,
+            planId: mockPlanId,
+            price: priceParam,
+          });
+
+          // Lấy orderId từ response
+          if (response?.id) {
+            setOrderId(response.id);
+          }
+        } catch (error) {
+          console.error('❌ Error creating order:', error);
+        }
+      };
+
+      createOrder();
     }
-  }, [location.state, navigate]);
+  }, [searchParams]);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-    }).format(amount);
-  };
-
-  const formatDateTime = (timestamp: number) => {
-    return new Date(timestamp).toLocaleString('vi-VN');
-  };
-
-  if (!paymentData) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-orange-500"></div>
-      </div>
-    );
-  }
-
-  const isSuccess = paymentData.status === 'success';
+  const isSuccess = status === 'success';
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -78,8 +71,8 @@ export default function SuccessPage() {
 
             <p className="text-lg text-gray-600">
               {isSuccess
-                ? `Gói PRO - ${paymentData.categoryTitle} đã được kích hoạt thành công`
-                : paymentData.error || 'Đã có lỗi xảy ra trong quá trình thanh toán'}
+                ? `Gói PRO - Premium đã được kích hoạt thành công`
+                : 'Đã có lỗi xảy ra trong quá trình thanh toán'}
             </p>
           </div>
 
@@ -89,40 +82,34 @@ export default function SuccessPage() {
 
             <div className="space-y-4">
               <div className="flex justify-between border-b border-gray-100 py-2">
-                <span className="text-gray-600">Mã đơn hàng:</span>
-                <span className="font-medium text-gray-900">{paymentData.orderId}</span>
+                <span className="text-gray-600">Mã giao dịch:</span>
+                <span className="font-medium text-gray-900">{orderId}</span>
               </div>
-
-              {paymentData.transactionId && (
-                <div className="flex justify-between border-b border-gray-100 py-2">
-                  <span className="text-gray-600">Mã giao dịch:</span>
-                  <span className="font-medium text-gray-900">{paymentData.transactionId}</span>
-                </div>
-              )}
 
               <div className="flex justify-between border-b border-gray-100 py-2">
                 <span className="text-gray-600">Gói dịch vụ:</span>
-                <span className="font-medium text-gray-900">
-                  Gói PRO - {paymentData.categoryTitle}
-                </span>
+                <span className="font-medium text-gray-900">Gói PRO - Premium</span>
               </div>
 
               <div className="flex justify-between border-b border-gray-100 py-2">
                 <span className="text-gray-600">Số tiền:</span>
                 <span className="font-medium text-gray-900">
-                  {formatCurrency(paymentData.amount)}
+                  {new Intl.NumberFormat('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND',
+                  }).format(price)}
                 </span>
               </div>
 
               <div className="flex justify-between border-b border-gray-100 py-2">
                 <span className="text-gray-600">Phương thức:</span>
-                <span className="font-medium capitalize text-gray-900">{paymentData.method}</span>
+                <span className="font-medium capitalize text-gray-900">VNPay</span>
               </div>
 
-              <div className="flex justify-between py-2">
+              <div className="flex justify-between border-b border-gray-100 py-2">
                 <span className="text-gray-600">Thời gian:</span>
                 <span className="font-medium text-gray-900">
-                  {formatDateTime(parseInt(paymentData.orderId.replace('ORDER_', '')))}
+                  {new Date().toLocaleString('vi-VN')}
                 </span>
               </div>
             </div>
@@ -131,7 +118,6 @@ export default function SuccessPage() {
           {isSuccess ? (
             /* Success Actions */
             <>
-              {/* Pro Benefits */}
               <div className="mb-6 rounded-lg bg-gradient-to-r from-purple-50 to-blue-50 p-6">
                 <div className="mb-4 flex items-center">
                   <Crown className="mr-3 h-6 w-6 text-purple-600" />
@@ -153,7 +139,6 @@ export default function SuccessPage() {
                 </div>
               </div>
 
-              {/* Action Buttons */}
               <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
                 <Button
                   onClick={() => navigate('/')}
@@ -166,19 +151,18 @@ export default function SuccessPage() {
                 <Button
                   variant="outline"
                   onClick={() => {
-                    // Generate and download receipt
                     const receiptData = {
-                      ...paymentData,
-                      timestamp: formatDateTime(
-                        parseInt(paymentData.orderId.replace('ORDER_', ''))
-                      ),
+                      orderId: orderId,
+                      amount: price,
+                      method: 'vnpay',
+                      status: status,
+                      timestamp: new Date().toLocaleString('vi-VN'),
                     };
 
                     const dataStr = JSON.stringify(receiptData, null, 2);
                     const dataUri =
                       'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-
-                    const exportFileDefaultName = `receipt_${paymentData.orderId}.json`;
+                    const exportFileDefaultName = `receipt_${orderId}.json`;
 
                     const linkElement = document.createElement('a');
                     linkElement.setAttribute('href', dataUri);
@@ -211,14 +195,7 @@ export default function SuccessPage() {
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <Button
-                  onClick={() =>
-                    navigate('/payment/checkout', {
-                      state: {
-                        category: paymentData.category,
-                        categoryTitle: paymentData.categoryTitle,
-                      },
-                    })
-                  }
+                  onClick={() => navigate('/payment/checkout?category=pro&title=Premium')}
                   className="bg-orange-500 py-3 text-white hover:bg-orange-600"
                 >
                   <ArrowRight className="mr-2 h-4 w-4" />

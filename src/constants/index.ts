@@ -11,7 +11,7 @@ export const APP_CONFIG = {
 
 // API configuration
 export const API_CONFIG = {
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api',
+  baseURL: import.meta.env['VITE_API_BASE_URL'],
   timeout: 10000,
   retries: 3,
 } as const;
@@ -64,6 +64,15 @@ export const API_ENDPOINTS = {
     wishlist: '/user/wishlist',
     addToWishlist: '/user/wishlist/add',
     removeFromWishlist: (id: string) => `/user/wishlist/remove/${id}`,
+  },
+  // Payment - THÊM MỚI
+  payment: {
+    createOrder: '/Payment',
+    createPaymentUrl: '/Payment/payment-url',
+    getById: (id: string) => `/Payment/${id}`,
+    getUserHistory: (userId: string) => `/Payment/user/${userId}`,
+    ipn: '/Payment/ipn',
+    callback: '/Payment/callback',
   },
 } as const;
 
