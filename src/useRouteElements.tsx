@@ -17,6 +17,7 @@ const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 const HelpCenter = lazy(() => import('@/pages/Help/HelpCenter'));
 const HelpSeller = lazy(() => import('@/pages/Help/HelpSeller'));
 const HelpBuyer = lazy(() => import('@/pages/Help/HelpBuyer'));
+const ChatPage = lazy(() => import('@/pages/ChatPage/ChatApp'));
 
 export function useRouteElements() {
   return (
@@ -53,15 +54,23 @@ export function useRouteElements() {
               <CartPage />
             </Suspense>
           }
-        />
-        <Route
+        />        <Route
           path="profile"
           element={
             <Suspense fallback={<LoadingSpinner />}>
               <ProfilePage />
             </Suspense>
           }
-        />        <Route
+        />
+        <Route
+          path="chat"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <ChatPage />
+            </Suspense>
+          }
+        />
+        <Route
           path="about"
           element={
             <Suspense fallback={<LoadingSpinner />}>
