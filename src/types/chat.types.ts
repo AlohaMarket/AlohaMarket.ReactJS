@@ -14,6 +14,39 @@ export interface Message {
   isOptimistic?: boolean; // For optimistic UI updates
 }
 
+// SignalR Event Data Types
+export interface SignalRMessageData {
+  id?: string;
+  conversationId?: string;
+  senderId?: string;
+  senderName?: string;
+  senderAvatar?: string;
+  content?: string;
+  messageType?: string;
+  timestamp?: string;
+  isRead?: boolean;
+}
+
+export interface SignalREditedMessageData {
+  id: string;
+  content: string;
+  isEdited: boolean;
+  editedAt: string;
+}
+
+export interface SignalRTypingData {
+  conversationId: string;
+  userId: string;
+  userName: string;
+  isTyping: boolean;
+}
+
+export interface SignalRMessageDeliveredData {
+  MessageId: string;
+  Status: string;
+  Timestamp: string;
+}
+
 export interface Conversation {
   id: string;
   conversationType: string;
