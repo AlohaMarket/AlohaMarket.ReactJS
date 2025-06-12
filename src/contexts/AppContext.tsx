@@ -4,10 +4,10 @@ import { useTranslation } from 'react-i18next';
 import type { User } from '@/types';
 import { getStoredToken, getStoredData, setStoredData } from '@/utils';
 
-type Theme = 'light' | 'dark';
-type Language = 'en' | 'vi';
+export type Theme = 'light' | 'dark';
+export type Language = 'en' | 'vi';
 
-interface AppContextInterface {
+export interface AppContextInterface {
   // Auth state
   user: User | null;
   isAuthenticated: boolean;
