@@ -2,8 +2,10 @@
 export interface User {
   id: string;
   email: string;
+  firstName: string;
+  lastName: string;
   name: string;
-  avatar?: string | null;
+  avatar_url?: string | null;
   phone?: string;
   address?: Address;
   createdAt?: string;

@@ -15,7 +15,9 @@ import {
   Grid,
   User,
   Search,
+  LogOut,
 } from 'lucide-react';
+import { useAuth } from '@/hooks/useApp';
 
 export default function Header() {
   const navigate = useNavigate();
@@ -26,6 +28,7 @@ export default function Header() {
   const [showAccount, setShowAccount] = useState(false);
   const [showCategory, setShowCategory] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
+  const { user, isAuthenticated, login, logout, register } = useAuth();
 
   // const unreadCount = isAuthenticated ? getUnreadCount() : 0;
 
@@ -65,8 +68,8 @@ export default function Header() {
               {label}
             </a>
           ))}
-          <a 
-            href="/seller" 
+          <a
+            href="/seller"
             className="flex cursor-pointer items-center space-x-1 rounded bg-blue-600 px-2 py-1 transition hover:bg-blue-500"
           >
             <Briefcase size={16} className="text-white" />
@@ -81,14 +84,14 @@ export default function Header() {
         {/* left - điều chỉnh để chiếm nhiều không gian hơn */}
         <div className="flex flex-grow items-center gap-4">
           {/* Logo nổi bật hơn */}
-          <div className="flex items-center justify-center">
+          <a href="/" className="flex items-center justify-center">
             <img
               src="/src/assets/imgs/logo.png"
               alt="Aloha Market Logo"
               className="h-8 w-auto"
               style={{ filter: 'brightness(0) invert(1)' }} // chuyển icon sang trắng
             />
-          </div>
+          </a>
           {/* Danh mục có dropdown */}
           <div className="relative">
             <div
@@ -186,23 +189,77 @@ export default function Header() {
               onClick={() => setShowAccount((v) => !v)}
             >
               <User size={20} className="text-white" />
-              <span className="text-sm">Tài khoản</span>
+              <span className="text-sm">
+                {isAuthenticated ? (user?.firstName || user?.name || 'Tài khoản') : 'Tài khoản'}
+              </span>
               <ChevronDown size={16} className="text-white" />
             </div>
             {showAccount && (
-              <div className="absolute right-0 top-full z-[100] mt-2 w-40 rounded bg-white p-2 shadow-lg">
-                <div
-                  className="cursor-pointer rounded px-2 py-1 text-gray-800 transition hover:bg-orange-100 hover:text-orange-600"
-                  onClick={() => handleAuthAction('login')}
-                >
-                  Đăng nhập
-                </div>
-                <div
-                  className="cursor-pointer rounded px-2 py-1 text-gray-800 transition hover:bg-orange-100 hover:text-orange-600"
-                  onClick={() => handleAuthAction('register')}
-                >
-                  Đăng ký
-                </div>
+              <div className="absolute right-0 top-full mt-2 w-48 rounded bg-white p-2 shadow-lg z-50">
+                {isAuthenticated ? (
+                  <>
+                    <div className="mb-2 border-b border-gray-100 pb-2">
+                      <div className="flex items-center gap-2 px-2 py-1">
+                        <div className="h-8 w-8 overflow-hidden rounded-full bg-gray-200">
+                          {user?.avatar ? (
+                            <img src={user.avatar} alt={user.name} className="h-full w-full object-cover" />
+                          ) : (
+                            <User size={20} className="h-full w-full p-1 text-gray-500" />
+                          )}
+                        </div>
+                        <div>
+                          <div className="font-medium text-gray-800">{user?.name}</div>
+                          <div className="text-xs text-gray-500">{user?.email}</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      className="flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-gray-800 transition hover:bg-orange-100 hover:text-orange-600"
+                      onClick={() => window.location.href = '/profile'}
+                    >
+                      <User size={16} />
+                      <span>Trang cá nhân</span>
+                    </div>
+                    <div
+                      className="flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-gray-800 transition hover:bg-orange-100 hover:text-orange-600"
+                      onClick={() => window.location.href = '/my-posts'}
+                    >
+                      <Grid size={16} />
+                      <span>Tin đăng của tôi</span>
+                    </div>
+                    <div
+                      className="flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-red-500 transition hover:bg-red-50"
+                      onClick={() => {
+                        logout();
+                        setShowAccount(false);
+                      }}
+                    >
+                      <LogOut size={16} />
+                      <span>Đăng xuất</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div
+                      className="cursor-pointer rounded px-2 py-2 font-medium text-gray-800 transition hover:bg-orange-100 hover:text-orange-600"
+                      onClick={() => {
+                        login();
+                        setShowAccount(false);
+                      }}
+                    >
+                      Đăng nhập
+                    </div>
+                    <div
+                      className="cursor-pointer rounded px-2 py-2 font-medium text-gray-800 transition hover:bg-orange-100 hover:text-orange-600"
+                      onClick={() => {
+                        register();
+                        setShowAccount(false);
+                      }}
+                    >
+                      Đăng ký
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </div>

@@ -2,8 +2,7 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { User, CartItem, Product } from '@/types';
-import { authApi } from '@/apis/auth';
-import { getStoredToken, removeStoredToken, setStoredToken, getStoredData, setStoredData } from '@/utils';
+import { getStoredToken, getStoredData, setStoredData } from '@/utils';
 import toast from 'react-hot-toast';
 
 export type Theme = 'light' | 'dark';
@@ -14,26 +13,22 @@ export interface AppContextInterface {
   user: User | null;
   isAuthenticated: boolean;
   isAuthLoading: boolean;
-  
+
   // Cart state
   cartItems: CartItem[];
   totalItems: number;
   totalPrice: number;
   isCartLoading: boolean;
-  
+
   // Theme state
   theme: Theme;
   language: Language;
   isThemeLoading: boolean;
-  
+
   // Auth actions
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
   setIsAuthLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, confirmPassword: string) => Promise<void>;
-  logout: () => void;
-  updateUser: (userData: Partial<User>) => void;
-  
+
   // Cart actions
   setCartItems: React.Dispatch<React.SetStateAction<CartItem[]>>;
   addToCart: (product: Product, quantity?: number) => void;
@@ -42,13 +37,13 @@ export interface AppContextInterface {
   clearCart: () => void;
   isInCart: (productId: string) => boolean;
   getItemQuantity: (productId: string) => number;
-  
+
   // Theme actions
   setTheme: React.Dispatch<React.SetStateAction<Theme>>;
   setLanguage: React.Dispatch<React.SetStateAction<Language>>;
   toggleTheme: () => void;
   changeLanguage: (language: Language) => void;
-  
+
   // Global reset
   reset: () => void;
 }
@@ -62,26 +57,22 @@ export const getInitialAppContext: () => AppContextInterface = () => ({
   user: null,
   isAuthenticated: !!getStoredToken(),
   isAuthLoading: true,
-  
+
   // Cart state
   cartItems: [],
   totalItems: 0,
   totalPrice: 0,
   isCartLoading: true,
-  
+
   // Theme state
   theme: 'light',
   language: 'en',
   isThemeLoading: true,
-  
+
   // Auth actions
   setUser: () => null,
   setIsAuthLoading: () => null,
-  login: async () => {},
-  register: async () => {},
-  logout: () => null,
-  updateUser: () => null,
-  
+
   // Cart actions
   setCartItems: () => null,
   addToCart: () => null,
@@ -90,13 +81,13 @@ export const getInitialAppContext: () => AppContextInterface = () => ({
   clearCart: () => null,
   isInCart: () => false,
   getItemQuantity: () => 0,
-  
+
   // Theme actions
   setTheme: () => null,
   setLanguage: () => null,
   toggleTheme: () => null,
   changeLanguage: () => null,
-  
+
   // Global reset
   reset: () => null
 });
@@ -113,15 +104,15 @@ export const AppProvider = ({
   defaultValue?: AppContextInterface;
 }) => {
   const { i18n } = useTranslation();
-  
+
   // Auth state
   const [user, setUser] = useState<User | null>(defaultValue.user);
   const [isAuthLoading, setIsAuthLoading] = useState<boolean>(defaultValue.isAuthLoading);
-  
+
   // Cart state
   const [cartItems, setCartItems] = useState<CartItem[]>(defaultValue.cartItems);
   const [isCartLoading, setIsCartLoading] = useState<boolean>(defaultValue.isCartLoading);
-  
+
   // Theme state
   const [theme, setTheme] = useState<Theme>(defaultValue.theme);
   const [language, setLanguage] = useState<Language>(defaultValue.language);
@@ -132,24 +123,6 @@ export const AppProvider = ({
   const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
   const totalPrice = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
 
-  // Initialize auth on mount
-  useEffect(() => {
-    const initializeAuth = async () => {
-      const token = getStoredToken();
-      if (token) {
-        try {
-          const userData = await authApi.getCurrentUser();
-          setUser(userData);
-        } catch (error) {
-          // Token is invalid, remove it
-          removeStoredToken();
-        }
-      }
-      setIsAuthLoading(false);
-    };
-
-    initializeAuth();
-  }, []);
 
   // Initialize cart from localStorage
   useEffect(() => {
@@ -211,66 +184,11 @@ export const AppProvider = ({
     }
   }, [language, isThemeLoading]);
 
-  // Auth actions
-  const login = async (email: string, password: string) => {
-    try {
-      setIsAuthLoading(true);
-      const response = await authApi.login({ email, password });
-      
-      // Store token
-      setStoredToken(response.token);
-      
-      // Set user data
-      setUser(response.user);
-      
-      toast.success('Login successful!');
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Login failed';
-      toast.error(errorMessage);
-      throw error;
-    } finally {
-      setIsAuthLoading(false);
-    }
-  };
-
-  const register = async (name: string, email: string, password: string, confirmPassword: string) => {
-    try {
-      setIsAuthLoading(true);
-      const response = await authApi.register({ name, email, password, confirmPassword });
-      
-      // Store token
-      setStoredToken(response.token);
-      
-      // Set user data
-      setUser(response.user);
-      
-      toast.success('Registration successful!');
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Registration failed';
-      toast.error(errorMessage);
-      throw error;
-    } finally {
-      setIsAuthLoading(false);
-    }
-  };
-
-  const logout = () => {
-    removeStoredToken();
-    setUser(null);
-    toast.success('Logged out successfully');
-  };
-
-  const updateUser = (userData: Partial<User>) => {
-    if (user) {
-      setUser({ ...user, ...userData });
-    }
-  };
-
   // Cart actions
   const addToCart = (product: Product, quantity: number = 1) => {
     setCartItems(prevItems => {
       const existingItem = prevItems.find(item => item.product.id === product.id);
-      
+
       if (existingItem) {
         // Update quantity if item already exists
         const updatedItems = prevItems.map(item =>
@@ -351,19 +269,18 @@ export const AppProvider = ({
 
   // Global reset function
   const reset = () => {
-    // Reset auth
+    // Reset auth state
     setUser(null);
     setIsAuthLoading(false);
-    removeStoredToken();
-    
+
     // Reset cart
     setCartItems([]);
     setIsCartLoading(false);
-    
+
     // Reset theme to system preference
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     setTheme(prefersDark ? 'dark' : 'light');
-    
+
     // Reset language to browser preference
     const browserLang = navigator.language.startsWith('vi') ? 'vi' : 'en';
     setLanguage(browserLang);
@@ -378,26 +295,22 @@ export const AppProvider = ({
         user,
         isAuthenticated,
         isAuthLoading,
-        
+
         // Cart state
         cartItems,
         totalItems,
         totalPrice,
         isCartLoading,
-        
+
         // Theme state
         theme,
         language,
         isThemeLoading,
-        
+
         // Auth actions
         setUser,
         setIsAuthLoading,
-        login,
-        register,
-        logout,
-        updateUser,
-        
+
         // Cart actions
         setCartItems,
         addToCart,
@@ -406,13 +319,13 @@ export const AppProvider = ({
         clearCart,
         isInCart,
         getItemQuantity,
-        
+
         // Theme actions
         setTheme,
         setLanguage,
         toggleTheme,
         changeLanguage,
-        
+
         // Global reset
         reset
       }}
@@ -420,7 +333,7 @@ export const AppProvider = ({
       {children}
     </AppContext.Provider>
   );
-}; 
+};
 
 export const useAppContext = () => {
   const context = useContext(AppContext);
