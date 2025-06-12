@@ -38,6 +38,7 @@ export interface SignalRTypingData {
   conversationId: string;
   userId: string;
   userName: string;
+  userAvatar?: string;
   isTyping: boolean;
 }
 

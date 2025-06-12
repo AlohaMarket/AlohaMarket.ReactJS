@@ -22,28 +22,68 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   onMessagesUpdate
 }) => {  const [messageText, setMessageText] = useState<string>('');
   const [isTyping, setIsTyping] = useState<boolean>(false);
-  const [typingUsers, setTypingUsers] = useState<string[]>([]);
+  const [typingUsers, setTypingUsers] = useState<Array<{userId: string, userName: string, userAvatar?: string}>>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   // Filter messages for the current conversation
   const conversationMessages = messages.filter(message => 
     message.conversationId === conversation.id
   );
+  console.log(`📊 ChatWindow - Total messages: ${messages.length}, Filtered for conversation ${conversation.id}: ${conversationMessages.length}`);
+  // Auto-scroll to bottom function - more targeted approach
+  const scrollToBottom = () => {
+    if (messagesContainerRef.current) {
+      const container = messagesContainerRef.current;
+      container.scrollTop = container.scrollHeight;
+    }
+  };  // Auto-scroll when conversation changes (entering a new chat)
+  useEffect(() => {
+    // Only scroll when we have a conversation, with a delay for DOM updates
+    if (conversation.id) {
+      setTimeout(scrollToBottom, 100);
+    }
+  }, [conversation.id]);
 
-  console.log(`📊 ChatWindow - Total messages: ${messages.length}, Filtered for conversation ${conversation.id}: ${conversationMessages.length}`);  useEffect(() => {
+  // Auto-scroll when new messages are added (not on every change)
+  useEffect(() => {
+    // Only scroll if there are messages and we're not in loading state
+    if (conversationMessages.length > 0 && !loading) {
+      setTimeout(scrollToBottom, 50);
+    }
+  }, [conversationMessages.length, loading]);
+
+  // Auto-scroll when typing users appear (to show typing indicator)
+  useEffect(() => {
+    if (typingUsers.length > 0) {
+      setTimeout(scrollToBottom, 50);
+    }
+  }, [typingUsers.length]);
+  useEffect(() => {
     // Setup typing listeners
     signalRService.onUserTyping((data) => {
-      if (data.ConversationId === conversation.id && data.UserId !== currentUserId) {
+      if (data.conversationId === conversation.id && data.userId !== currentUserId) {
         setTypingUsers(prev => {
-          if (data.IsTyping) {
-            return prev.includes(data.UserName) ? prev : [...prev, data.UserName];
+          if (data.isTyping) {
+            // Check if user is already in the typing list
+            const userExists = prev.some(user => user.userId === data.userId);
+            if (!userExists) {
+              // Get user avatar from conversation participants or use a default
+              const participant = conversation.participants.find(p => p.userId === data.userId);
+              return [...prev, {
+                userId: data.userId,
+                userName: data.userName,
+                userAvatar: data.userAvatar || participant?.userAvatar || ''
+              }];
+            }
+            return prev;
           } else {
-            return prev.filter(user => user !== data.UserName);
+            return prev.filter(user => user.userId !== data.userId);
           }
         });
       }
     });
-  }, [conversation.id, currentUserId, signalRService]);
+  }, [conversation.id, currentUserId, signalRService, conversation.participants]);
 
   // Cleanup typing indicator when conversation changes or component unmounts
   useEffect(() => {
@@ -93,13 +133,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       
       console.log('Adding optimistic message:', optimisticMessage);
       return [...prevMessages, optimisticMessage];
-    };
-
-    try {
+    };    try {
       // Show message immediately (optimistic update)
       onMessagesUpdate(addOptimisticMessage);
-      
-      // Clear input and stop typing
+        // Clear input and stop typing
       setMessageText('');
       handleTypingStop();
 
@@ -207,7 +244,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
             </div>
           </div>
         )}
-      </div>      <div className="messages-container">
+      </div>      <div className="messages-container" ref={messagesContainerRef}>
         {loading && conversationMessages.length === 0 ? (
           <div className="loading">Loading messages...</div>
         ) : (
@@ -225,21 +262,30 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                   signalRService={signalRService}
                 />
               ))
-            )}
-              {typingUsers.length > 0 && (
-              <div className="typing-indicator">
-                <div className="typing-bubble">
-                  <span className="typing-text">
-                    {typingUsers.join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing
-                  </span>
-                  <div className="typing-dots">
-                    <span className="dot"></span>
-                    <span className="dot"></span>
-                    <span className="dot"></span>
-                  </div>
+            )}              {typingUsers.length > 0 && (
+                <div className="typing-indicators">
+                  {typingUsers.map((user) => (
+                    <div key={user.userId} className="typing-indicator">
+                      <div className="typing-avatar">
+                        {user.userAvatar ? (
+                          <img src={user.userAvatar} alt={user.userName} />
+                        ) : (
+                          <div className="default-avatar">
+                            {user.userName?.charAt(0)?.toUpperCase() || 'U'}
+                          </div>
+                        )}
+                      </div>
+                      <div className="typing-bubble">
+                        <div className="typing-dots">
+                          <span className="dot"></span>
+                          <span className="dot"></span>
+                          <span className="dot"></span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </div>
-            )}
+              )}
             
             <div ref={messagesEndRef} />
           </>
