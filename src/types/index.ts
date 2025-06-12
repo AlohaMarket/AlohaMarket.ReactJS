@@ -1,15 +1,13 @@
 // User types
 export interface User {
   id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  name: string;
-  avatar_url?: string | null;
-  phone?: string;
-  address?: Address;
+  userName: string;
+  avatarUrl?: string;
+  phoneNumber?: string;
   createdAt?: string;
   updatedAt?: string;
+  isVerify: boolean;
+  birthDate?: string;
 }
 
 export interface Address {
@@ -126,7 +124,6 @@ export enum OrderStatus {
 export interface ApiResponse<T> {
   data: T;
   message?: string;
-  success: boolean;
 }
 
 export interface PaginatedResponse<T> {

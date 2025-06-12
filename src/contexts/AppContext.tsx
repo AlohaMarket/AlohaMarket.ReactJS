@@ -1,9 +1,8 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { User, CartItem, Product } from '@/types';
+import type { User } from '@/types';
 import { getStoredToken, getStoredData, setStoredData } from '@/utils';
-import toast from 'react-hot-toast';
 
 type Theme = 'light' | 'dark';
 type Language = 'en' | 'vi';
@@ -14,12 +13,6 @@ interface AppContextInterface {
   isAuthenticated: boolean;
   isAuthLoading: boolean;
 
-  // Cart state
-  cartItems: CartItem[];
-  totalItems: number;
-  totalPrice: number;
-  isCartLoading: boolean;
-
   // Theme state
   theme: Theme;
   language: Language;
@@ -28,15 +21,6 @@ interface AppContextInterface {
   // Auth actions
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
   setIsAuthLoading: React.Dispatch<React.SetStateAction<boolean>>;
-
-  // Cart actions
-  setCartItems: React.Dispatch<React.SetStateAction<CartItem[]>>;
-  addToCart: (product: Product, quantity?: number) => void;
-  removeFromCart: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
-  clearCart: () => void;
-  isInCart: (productId: string) => boolean;
-  getItemQuantity: (productId: string) => number;
 
   // Theme actions
   setTheme: React.Dispatch<React.SetStateAction<Theme>>;
@@ -48,7 +32,6 @@ interface AppContextInterface {
   reset: () => void;
 }
 
-const CART_STORAGE_KEY = 'aloha_market_cart';
 const THEME_STORAGE_KEY = 'aloha_market_theme';
 const LANGUAGE_STORAGE_KEY = 'aloha_market_language';
 
@@ -58,12 +41,6 @@ export const getInitialAppContext: () => AppContextInterface = () => ({
   isAuthenticated: !!getStoredToken(),
   isAuthLoading: true,
 
-  // Cart state
-  cartItems: [],
-  totalItems: 0,
-  totalPrice: 0,
-  isCartLoading: true,
-
   // Theme state
   theme: 'light',
   language: 'en',
@@ -72,15 +49,6 @@ export const getInitialAppContext: () => AppContextInterface = () => ({
   // Auth actions
   setUser: () => null,
   setIsAuthLoading: () => null,
-
-  // Cart actions
-  setCartItems: () => null,
-  addToCart: () => null,
-  removeFromCart: () => null,
-  updateQuantity: () => null,
-  clearCart: () => null,
-  isInCart: () => false,
-  getItemQuantity: () => 0,
 
   // Theme actions
   setTheme: () => null,
@@ -109,10 +77,6 @@ export const AppProvider = ({
   const [user, setUser] = useState<User | null>(defaultValue.user);
   const [isAuthLoading, setIsAuthLoading] = useState<boolean>(defaultValue.isAuthLoading);
 
-  // Cart state
-  const [cartItems, setCartItems] = useState<CartItem[]>(defaultValue.cartItems);
-  const [isCartLoading, setIsCartLoading] = useState<boolean>(defaultValue.isCartLoading);
-
   // Theme state
   const [theme, setTheme] = useState<Theme>(defaultValue.theme);
   const [language, setLanguage] = useState<Language>(defaultValue.language);
@@ -120,25 +84,6 @@ export const AppProvider = ({
 
   // Computed values
   const isAuthenticated = !!user;
-  const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
-  const totalPrice = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-
-
-  // Initialize cart from localStorage
-  useEffect(() => {
-    const savedCart = getStoredData<CartItem[]>(CART_STORAGE_KEY);
-    if (savedCart) {
-      setCartItems(savedCart);
-    }
-    setIsCartLoading(false);
-  }, []);
-
-  // Save cart to localStorage whenever items change
-  useEffect(() => {
-    if (!isCartLoading) {
-      setStoredData(CART_STORAGE_KEY, cartItems);
-    }
-  }, [cartItems, isCartLoading]);
 
   // Initialize theme and language
   useEffect(() => {
@@ -184,79 +129,6 @@ export const AppProvider = ({
     }
   }, [language, isThemeLoading]);
 
-  // Cart actions
-  const addToCart = (product: Product, quantity: number = 1) => {
-    setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.product.id === product.id);
-
-      if (existingItem) {
-        // Update quantity if item already exists
-        const updatedItems = prevItems.map(item =>
-          item.product.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
-        toast.success(`Updated ${product.name} quantity in cart`);
-        return updatedItems;
-      } else {
-        // Add new item
-        const newItem: CartItem = {
-          id: `${product.id}-${Date.now()}`,
-          productId: product.id,
-          quantity,
-          price: product.price,
-          product: {
-            id: product.id,
-            name: product.name,
-            image: product.image,
-            stock: product.stock ?? 0,
-          },
-        };
-        toast.success(`Added ${product.name} to cart`);
-        return [...prevItems, newItem];
-      }
-    });
-  };
-
-  const removeFromCart = (productId: string) => {
-    setCartItems(prevItems => {
-      const itemToRemove = prevItems.find(item => item.product.id === productId);
-      if (itemToRemove) {
-        toast.success(`Removed ${itemToRemove.product.name} from cart`);
-      }
-      return prevItems.filter(item => item.product.id !== productId);
-    });
-  };
-
-  const updateQuantity = (productId: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(productId);
-      return;
-    }
-
-    setCartItems(prevItems =>
-      prevItems.map(item =>
-        item.product.id === productId
-          ? { ...item, quantity }
-          : item
-      )
-    );
-  };
-
-  const clearCart = () => {
-    setCartItems([]);
-    toast.success('Cart cleared');
-  };
-
-  const isInCart = (productId: string): boolean => {
-    return cartItems.some(item => item.product.id === productId);
-  };
-
-  const getItemQuantity = (productId: string): number => {
-    const item = cartItems.find(item => item.product.id === productId);
-    return item ? item.quantity : 0;
-  };
-
   // Theme actions
   const toggleTheme = () => {
     setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
@@ -272,10 +144,6 @@ export const AppProvider = ({
     // Reset auth state
     setUser(null);
     setIsAuthLoading(false);
-
-    // Reset cart
-    setCartItems([]);
-    setIsCartLoading(false);
 
     // Reset theme to system preference
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -296,12 +164,6 @@ export const AppProvider = ({
         isAuthenticated,
         isAuthLoading,
 
-        // Cart state
-        cartItems,
-        totalItems,
-        totalPrice,
-        isCartLoading,
-
         // Theme state
         theme,
         language,
@@ -310,15 +172,6 @@ export const AppProvider = ({
         // Auth actions
         setUser,
         setIsAuthLoading,
-
-        // Cart actions
-        setCartItems,
-        addToCart,
-        removeFromCart,
-        updateQuantity,
-        clearCart,
-        isInCart,
-        getItemQuantity,
 
         // Theme actions
         setTheme,
