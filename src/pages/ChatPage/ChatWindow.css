@@ -73,15 +73,62 @@
   color: #666;
 }
 
+/* Typing Indicator */
 .typing-indicator {
   padding: 0.5rem 1rem;
-  margin: 0.5rem 0;
-  background-color: #e9ecef;
+  margin-bottom: 0.5rem;
+}
+
+.typing-bubble {
+  display: inline-flex;
+  align-items: center;
+  background-color: #f1f3f4;
   border-radius: 18px;
-  font-style: italic;
-  color: #666;
-  font-size: 0.9rem;
+  padding: 0.5rem 0.75rem;
+  gap: 0.5rem;
   max-width: 200px;
+}
+
+.typing-text {
+  font-size: 0.8rem;
+  color: #666;
+  white-space: nowrap;
+}
+
+.typing-dots {
+  display: flex;
+  gap: 0.2rem;
+}
+
+.typing-dots .dot {
+  width: 6px;
+  height: 6px;
+  background-color: #666;
+  border-radius: 50%;
+  animation: typing-animation 1.4s infinite;
+}
+
+.typing-dots .dot:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.typing-dots .dot:nth-child(2) {
+  animation-delay: 200ms;
+}
+
+.typing-dots .dot:nth-child(3) {
+  animation-delay: 400ms;
+}
+
+@keyframes typing-animation {
+  0%, 60%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .message-input-form {
@@ -125,4 +172,26 @@
 
 .send-button:disabled {
   background-color: #6c757d;
-} 
+}
+
+/* User Typing Indicator */
+.user-typing-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 1rem;
+  font-size: 0.8rem;
+  color: #666;
+  animation: fade-in 0.3s ease-in;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

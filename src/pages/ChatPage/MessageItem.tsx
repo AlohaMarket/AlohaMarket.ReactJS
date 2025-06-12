@@ -113,14 +113,19 @@ const MessageItem: React.FC<MessageItemProps> = ({
                   <span className="edited-indicator">(edited)</span>
                 )}
               </div>
-              
-              <div className="message-footer">
+                <div className="message-footer">
                 <span className="message-time">
                   {formatTime(message.timestamp)}
                 </span>
                 {isOwn && (
                   <div className="message-status">
-                    {message.isRead ? '✓✓' : '✓'}
+                    {message.isOptimistic ? (
+                      <span className="sending-indicator" title="Sending...">⏳</span>
+                    ) : message.isRead ? (
+                      <span className="read-indicator" title="Read">✓✓</span>
+                    ) : (
+                      <span className="sent-indicator" title="Sent">✓</span>
+                    )}
                   </div>
                 )}
               </div>

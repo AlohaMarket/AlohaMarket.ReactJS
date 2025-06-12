@@ -11,6 +11,7 @@ export interface Message {
   isEdited: boolean;
   editedAt?: string;
   replyToMessageId?: string;
+  isOptimistic?: boolean; // For optimistic UI updates
 }
 
 export interface Conversation {

@@ -10,6 +10,7 @@ interface ChatWindowProps {
   currentUserId: string;
   signalRService: SignalRService;
   loading: boolean;
+  onMessagesUpdate: (updater: (prevMessages: Message[]) => Message[]) => void;
 }
 
 const ChatWindow: React.FC<ChatWindowProps> = ({
@@ -17,52 +18,109 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   messages,
   currentUserId,
   signalRService,
-  loading
-}) => {
-  const [messageText, setMessageText] = useState<string>('');
+  loading,
+  onMessagesUpdate
+}) => {  const [messageText, setMessageText] = useState<string>('');
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // Filter messages for the current conversation
+  const conversationMessages = messages.filter(message => 
+    message.conversationId === conversation.id
+  );
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  useEffect(() => {
+  console.log(`📊 ChatWindow - Total messages: ${messages.length}, Filtered for conversation ${conversation.id}: ${conversationMessages.length}`);  useEffect(() => {
     // Setup typing listeners
-    signalRService.onUserTyping((conversationId, userId, userName, isTyping) => {
-      if (conversationId === conversation.id && userId !== currentUserId) {
+    signalRService.onUserTyping((data) => {
+      if (data.ConversationId === conversation.id && data.UserId !== currentUserId) {
         setTypingUsers(prev => {
-          if (isTyping) {
-            return prev.includes(userName) ? prev : [...prev, userName];
+          if (data.IsTyping) {
+            return prev.includes(data.UserName) ? prev : [...prev, data.UserName];
           } else {
-            return prev.filter(user => user !== userName);
+            return prev.filter(user => user !== data.UserName);
           }
         });
       }
     });
   }, [conversation.id, currentUserId, signalRService]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const handleSendMessage = async (e: React.FormEvent) => {
+  // Cleanup typing indicator when conversation changes or component unmounts
+  useEffect(() => {
+    return () => {
+      if (isTyping) {
+        signalRService.setTyping(conversation.id, false);
+      }
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
+  }, [conversation.id, isTyping, signalRService]);const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!messageText.trim()) return;
 
+    const messageContent = messageText.trim();
+    const tempMessageId = `temp-${Date.now()}-${Math.random()}`;
+    
+    // Create optimistic message (show immediately)
+    const optimisticMessage: Message = {
+      id: tempMessageId,
+      conversationId: conversation.id,
+      senderId: currentUserId,
+      senderName: 'You', // We'll update this when we get the real message
+      senderAvatar: '',
+      content: messageContent,
+      messageType: 'text',
+      timestamp: new Date().toISOString(),
+      isRead: false,
+      isEdited: false,
+      isOptimistic: true // Flag to identify optimistic messages
+    };
+
+    // Add optimistic message immediately
+    const addOptimisticMessage = (prevMessages: Message[]) => {
+      // Check if we already have this message (to prevent duplicates)
+      const messageExists = prevMessages.some(msg => 
+        msg.content === messageContent && 
+        msg.senderId === currentUserId && 
+        Math.abs(new Date(msg.timestamp).getTime() - new Date(optimisticMessage.timestamp).getTime()) < 5000
+      );
+      
+      if (messageExists) {
+        console.log('Similar message already exists, skipping optimistic update');
+        return prevMessages;
+      }
+      
+      console.log('Adding optimistic message:', optimisticMessage);
+      return [...prevMessages, optimisticMessage];
+    };
+
     try {
+      // Show message immediately (optimistic update)
+      onMessagesUpdate(addOptimisticMessage);
+      
+      // Clear input and stop typing
+      setMessageText('');
+      handleTypingStop();
+
+      // Send message via SignalR
       await signalRService.sendMessage({
         conversationId: conversation.id,
-        content: messageText.trim(),
+        content: messageContent,
         messageType: 'text'
       });
       
-      setMessageText('');
-      handleTypingStop();
+      console.log('✅ Message sent successfully via SignalR');
     } catch (error) {
       console.error('Failed to send message:', error);
+      
+      // Remove optimistic message on error
+      onMessagesUpdate((prevMessages: Message[]) => 
+        prevMessages.filter(msg => msg.id !== tempMessageId)
+      );
+      
+      // Restore message text
+      setMessageText(messageContent);
       alert('Failed to send message');
     }
   };
@@ -71,11 +129,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     setMessageText(e.target.value);
     handleTypingStart();
   };
-
   const handleTypingStart = () => {
     if (!isTyping) {
       setIsTyping(true);
       signalRService.setTyping(conversation.id, true);
+      console.log('Started typing indicator');
     }
 
     // Clear existing timeout
@@ -83,16 +141,17 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       clearTimeout(typingTimeoutRef.current);
     }
 
-    // Set timeout to stop typing indicator
+    // Set timeout to stop typing indicator after 2 seconds of inactivity
     typingTimeoutRef.current = setTimeout(() => {
       handleTypingStop();
-    }, 3000);
+    }, 2000);
   };
 
   const handleTypingStop = () => {
     if (isTyping) {
       setIsTyping(false);
       signalRService.setTyping(conversation.id, false);
+      console.log('Stopped typing indicator');
     }
 
     if (typingTimeoutRef.current) {
@@ -148,19 +207,17 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
             </div>
           </div>
         )}
-      </div>
-
-      <div className="messages-container">
-        {loading && messages.length === 0 ? (
+      </div>      <div className="messages-container">
+        {loading && conversationMessages.length === 0 ? (
           <div className="loading">Loading messages...</div>
         ) : (
           <>
-            {messages.length === 0 ? (
+            {conversationMessages.length === 0 ? (
               <div className="no-messages">
                 <p>No messages yet. Start the conversation!</p>
               </div>
             ) : (
-              messages.map((message) => (
+              conversationMessages.map((message) => (
                 <MessageItem
                   key={message.id}
                   message={message}
@@ -169,19 +226,25 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                 />
               ))
             )}
-            
-            {typingUsers.length > 0 && (
+              {typingUsers.length > 0 && (
               <div className="typing-indicator">
-                <span>{typingUsers.join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing...</span>
+                <div className="typing-bubble">
+                  <span className="typing-text">
+                    {typingUsers.join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing
+                  </span>
+                  <div className="typing-dots">
+                    <span className="dot"></span>
+                    <span className="dot"></span>
+                    <span className="dot"></span>
+                  </div>
+                </div>
               </div>
             )}
             
             <div ref={messagesEndRef} />
           </>
         )}
-      </div>
-
-      <form onSubmit={handleSendMessage} className="message-input-form">
+      </div>      <form onSubmit={handleSendMessage} className="message-input-form">
         <div className="input-container">
           <input
             type="text"
@@ -199,6 +262,16 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
             Send
           </button>
         </div>
+        {isTyping && (
+          <div className="user-typing-indicator">
+            <span>You are typing</span>
+            <div className="typing-dots">
+              <span className="dot"></span>
+              <span className="dot"></span>
+              <span className="dot"></span>
+            </div>
+          </div>
+        )}
       </form>
     </div>
   );
