@@ -4,7 +4,6 @@ import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useChat } from '@/hooks/useChat';
-import { useApp } from '@/hooks/useApp';
 import {
   ChevronDown,
   Menu,
@@ -17,7 +16,7 @@ import {
   Search,
   LogOut,
 } from 'lucide-react';
-import { useAuth } from '@/hooks/useApp';
+import { useApp, useAuth } from '@/hooks/useApp';
 
 export default function Header() {
   const navigate = useNavigate();
@@ -28,7 +27,9 @@ export default function Header() {
   const [showAccount, setShowAccount] = useState(false);
   const [showCategory, setShowCategory] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
-  const { user, isAuthenticated, login, logout, register } = useAuth();
+  const { isAuthenticated, login, logout, register } = useAuth();
+  const { user } = useApp();
+  const { user: authUser } = useAuth();
 
   // const unreadCount = isAuthenticated ? getUnreadCount() : 0;
 
@@ -42,10 +43,10 @@ export default function Header() {
     setShowCategory(false);
   };
 
-  const handleAuthAction = (action: 'login' | 'register') => {
-    setShowAccount(false);
-    navigate(`/auth?mode=${action}`);
-  };
+  // const handleAuthAction = (action: 'login' | 'register') => {
+  //   setShowAccount(false);
+  //   navigate(`/auth?mode=${action}`);
+  // };
 
   return (
     <header className="bg-blue-600 text-white">
@@ -159,7 +160,7 @@ export default function Header() {
             size={20}
             className="cursor-pointer text-white transition hover:text-gray-200"
           />
-          
+
           {/* Chat Icon with Unread Count */}
           <div className="relative">
             <MessageSquare
@@ -190,7 +191,7 @@ export default function Header() {
             >
               <User size={20} className="text-white" />
               <span className="text-sm">
-                {isAuthenticated ? (user?.firstName || user?.name || 'Tài khoản') : 'Tài khoản'}
+                {isAuthenticated ? (user?.userName) : 'Tài khoản'}
               </span>
               <ChevronDown size={16} className="text-white" />
             </div>
@@ -201,28 +202,28 @@ export default function Header() {
                     <div className="mb-2 border-b border-gray-100 pb-2">
                       <div className="flex items-center gap-2 px-2 py-1">
                         <div className="h-8 w-8 overflow-hidden rounded-full bg-gray-200">
-                          {user?.avatar ? (
-                            <img src={user.avatar} alt={user.name} className="h-full w-full object-cover" />
+                          {user?.avatarUrl ? (
+                            <img src={user.avatarUrl} alt={user.userName} className="h-full w-full object-cover" />
                           ) : (
                             <User size={20} className="h-full w-full p-1 text-gray-500" />
                           )}
                         </div>
                         <div>
-                          <div className="font-medium text-gray-800">{user?.name}</div>
-                          <div className="text-xs text-gray-500">{user?.email}</div>
+                          <div className="font-medium text-gray-800">{user?.userName}</div>
+                          <div className="text-xs text-gray-500">{authUser?.email}</div>
                         </div>
                       </div>
                     </div>
                     <div
                       className="flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-gray-800 transition hover:bg-orange-100 hover:text-orange-600"
-                      onClick={() => window.location.href = '/profile'}
+                      onClick={() => navigate('/profile')}
                     >
                       <User size={16} />
                       <span>Trang cá nhân</span>
                     </div>
                     <div
                       className="flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-gray-800 transition hover:bg-orange-100 hover:text-orange-600"
-                      onClick={() => window.location.href = '/my-posts'}
+                      onClick={() => navigate('/my-posts')}
                     >
                       <Grid size={16} />
                       <span>Tin đăng của tôi</span>

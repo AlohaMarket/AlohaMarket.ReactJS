@@ -20,7 +20,8 @@
     "viewAll": "View All",
     "showMore": "Show More",
     "showLess": "Show Less"
-  },  "navigation": {
+  },
+  "navigation": {
     "home": "Home",
     "products": "Products",
     "categories": "Categories",
@@ -188,22 +189,41 @@
   "validation": {
     "required": "This field is required",
     "emailInvalid": "Please enter a valid email address",
-    "passwordTooShort": "Password must be at least 8 characters",    "passwordMismatch": "Passwords do not match",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "passwordMismatch": "Passwords do not match",
     "phoneInvalid": "Please enter a valid phone number",
     "minLength": "Must be at least {{min}} characters",
     "maxLength": "Must be no more than {{max}} characters",
     "min": "Must be at least {{min}}",
-    "max": "Must be no more than {{max}}"
+    "max": "Must be no more than {{max}}",
+    "phoneNumberFormat": "Phone number must start with 0 followed by 9 digits"
   },
   "profile": {
-    "currentInfo": "Current Information",
-    "updateProfile": "Update Profile",
-    "firstName": "First Name",
-    "lastName": "Last Name",
-    "email": "Email",
-    "updateButton": "Update Profile",
+    "update": "Update Profile",
+    "currentInfo": "Profile Information",
+    "edit": "Edit Profile",
+    "name": "Name",
+    "phone": "Phone",
+    "avatar": "Avatar",
+    "verifyNotice": "Your account needs to be verified",
+    "accountNotVerified": "Your account is not verified.",
+    "verifyNow": "Verify now",
+    "phoneFormat": "Format: 0123456789",
     "updateSuccess": "Profile updated successfully",
-    "updateError": "Failed to update profile"
+    "updateError": "Failed to update profile",
+    "notVerified": "Your account is not verified.",
+    "requestVerification": "Request verification",
+    "verificationSent": "Verification email sent",
+    "verificationError": "Failed to send verification email",
+    "verificationInstructions": "Verification Email Sent",
+    "checkEmail": "Please check your email to complete verification.",
+    "accountLimited": "Unverified Account - Limited Functionality",
+    "limitedFunctionality": "Your account has limited access until verification is complete.",
+    "limitedFeaturesList": "Features requiring verification:",
+    "limitedFeature1": "Uploading and selling products",
+    "limitedFeature2": "Contact and buying from sellers",
+    "limitedFeature3": "Leaving reviews and ratings for sellers",
+    "completeVerification": "Complete Verification"
   },
   "privacy": {
     "title": "Privacy Policy",

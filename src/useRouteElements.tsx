@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import MainLayout from '@/layouts/MainLayout';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Lazy load pages for better performance
 const HomePage = lazy(() => import('@/pages/HomePage'));
@@ -17,6 +18,7 @@ const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 const HelpCenter = lazy(() => import('@/pages/Help/HelpCenter'));
 const HelpSeller = lazy(() => import('@/pages/Help/HelpSeller'));
 const HelpBuyer = lazy(() => import('@/pages/Help/HelpBuyer'));
+const AfterRegisterPage = lazy(() => import('@/pages/AfterRegisterPage'));
 const ChatPage = lazy(() => import('@/pages/ChatPage/ChatApp'));
 
 export function useRouteElements() {
@@ -54,11 +56,14 @@ export function useRouteElements() {
               <CartPage />
             </Suspense>
           }
-        />        <Route
+        />
+        <Route
           path="profile"
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <ProfilePage />
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
             </Suspense>
           }
         />
@@ -94,7 +99,7 @@ export function useRouteElements() {
             </Suspense>
           }
         />      </Route>
-      
+
       {/* Help routes - independent pages */}
       <Route
         path="help"
@@ -117,6 +122,14 @@ export function useRouteElements() {
         element={
           <Suspense fallback={<LoadingSpinner />}>
             <HelpBuyer />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/after-register"
+        element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <AfterRegisterPage />
           </Suspense>
         }
       />
