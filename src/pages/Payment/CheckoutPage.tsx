@@ -12,7 +12,11 @@ import {
   Phone,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { paymentAPI, formatPaymentInformation } from '@/apis/payment';
+import {
+  paymentAPI,
+  formatPaymentInformation,
+  formatMomoPaymentRequest, // Import the new formatter
+} from '@/apis/payment';
 
 interface CheckoutItem {
   id: string;
@@ -44,7 +48,7 @@ export default function CheckoutPage() {
     {
       id: categoryId || 'pro-monthly',
       name: `Gói PRO - ${categoryTitle || 'Không xác định'}`,
-      price: 1500000,
+      price: 15000,
       duration: '30 ngày',
       features: [
         'Đăng tin không giới hạn',
@@ -95,15 +99,53 @@ export default function CheckoutPage() {
     setIsProcessing(true);
 
     try {
-      const paymentResponse = await paymentAPI.createPaymentUrl(
-        formatPaymentInformation(1001, totalAmount, categoryTitle!, user.name)
-      );
-      window.location.href = paymentResponse;
+      if (selectedPaymentMethod === 'vnpay') {
+        const paymentData = formatPaymentInformation(
+          1001, // Assuming a default quotationId or you might want to generate/fetch this
+          totalAmount,
+          categoryTitle!,
+          user.name
+        );
+        const paymentResponse = await paymentAPI.createPaymentUrl(paymentData);
+        // The backend for VNPay returns { message: string, data: string (url) }
+        // So, we need to access paymentResponse.data for the URL
+        if (paymentResponse) {
+          window.location.href = paymentResponse;
+        } else {
+          throw new Error('Không nhận được URL thanh toán từ VNPay');
+        }
+      } else if (selectedPaymentMethod === 'momo') {
+        // For Momo, we need a unique orderId. Let's generate one for now.
+        // In a real application, this might come from your backend or be generated more robustly.
+        const momoOrderId = `MOMO_ORDER_${Date.now()}`;
+        const momoOrderInfo = `${user.name} Thanh toán gói ${categoryTitle} ${totalAmount} qua MoMo`;
+
+        const momoPaymentData = formatMomoPaymentRequest(
+          user.name,
+          momoOrderId,
+          momoOrderInfo,
+          totalAmount
+        );
+        const momoResponse = await paymentAPI.createMomoPaymentUrl(momoPaymentData);
+        // Assuming Momo response is also { message: string, data: string (url) }
+        if (momoResponse) {
+          window.location.href = momoResponse;
+        } else {
+          throw new Error('Không nhận được URL thanh toán từ MoMo');
+        }
+      } else {
+        // Handle other payment methods or show an error
+        console.warn('Phương thức thanh toán chưa được hỗ trợ:', selectedPaymentMethod);
+        setIsProcessing(false);
+        return;
+      }
     } catch (error) {
       console.error('Payment error:', error);
-      navigate('/payment/failed?status=failed');
+      const errorMessage =
+        error instanceof Error ? error.message : 'Đã có lỗi xảy ra trong quá trình thanh toán.';
+      navigate(`/payment/failed?status=failed&message=${encodeURIComponent(errorMessage)}`);
     } finally {
-      setIsProcessing(false);
+      // setIsProcessing(false); // Only set to false if not redirecting or if an error occurred before redirect
     }
   };
 
@@ -268,7 +310,11 @@ export default function CheckoutPage() {
                 {isProcessing ? (
                   <>
                     <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                    Đang chuyển hướng sang VNPay....
+                    {selectedPaymentMethod === 'vnpay'
+                      ? 'Đang chuyển hướng sang VNPay...'
+                      : selectedPaymentMethod === 'momo'
+                        ? 'Đang chuyển hướng sang MoMo...'
+                        : 'Đang xử lý...'}
                   </>
                 ) : (
                   `Thanh toán qua ${getPaymentMethodLabel()}`

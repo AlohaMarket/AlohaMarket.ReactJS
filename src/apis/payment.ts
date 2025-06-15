@@ -9,6 +9,14 @@ export interface PaymentInformationModel {
   name: string;
 }
 
+// Add new interface for Momo Payment Request
+export interface MomoPaymentRequestModel {
+  fullName: string;
+  orderId: string;
+  orderInfo: string;
+  amount: number;
+}
+
 // Real response format từ backend
 export interface PaymentUrlResponse {
   message: string;
@@ -69,6 +77,17 @@ export const paymentAPI = {
     }
   },
 
+  // POST /api/Payment/momo-payment-url - Tạo Momo payment URL
+  createMomoPaymentUrl: async (data: MomoPaymentRequestModel): Promise<PaymentUrlResponse> => {
+    try {
+      const response = await api.post('/Payment/momo-payment-url', data);
+      // Assuming Momo response is similar to VNPay's { message: string, data: string (url) }
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Không thể tạo URL thanh toán MoMo');
+    }
+  },
+
   // Mock function để test
   createPaymentUrlMock: async (data: PaymentInformationModel): Promise<PaymentUrlResponse> => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -100,26 +119,6 @@ export const paymentAPI = {
       throw new Error(error.response?.data?.message || 'Không thể lấy lịch sử thanh toán');
     }
   },
-
-  // GET /api/Payment/ipn - Xử lý IPN callback
-  processIPN: async (params: any): Promise<any> => {
-    try {
-      const response = await api.get('/Payment/ipn', { params });
-      return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Không thể xử lý IPN');
-    }
-  },
-
-  // GET /api/Payment/callback - Xử lý callback
-  processCallback: async (params: any): Promise<any> => {
-    try {
-      const response = await api.get('/Payment/callback', { params });
-      return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Không thể xử lý callback');
-    }
-  },
 };
 
 // Helper functions với format data đúng như backend expect
@@ -135,6 +134,21 @@ export const formatPaymentInformation = (
     amount,
     orderDescription: `${userName} Thanh toán gói dịch vụ ${categoryTitle} ${amount}`,
     name: userName,
+  };
+};
+
+// Helper function to format Momo payment request
+export const formatMomoPaymentRequest = (
+  fullName: string,
+  orderId: string,
+  orderInfo: string,
+  amount: number
+): MomoPaymentRequestModel => {
+  return {
+    fullName,
+    orderId,
+    orderInfo,
+    amount,
   };
 };
 
@@ -158,6 +172,21 @@ export const getMockPaymentData = (): PaymentInformationModel => {
     amount: 1500000, // Match với backend example
     orderDescription: 'Nguyen Van A Thanh toán gói dịch vụ Premium tháng 6 1500000',
     name: 'Nguyen Van A',
+  };
+};
+
+// Mock data for Momo request
+export const getMockMomoPaymentData = (
+  fullName: string,
+  orderId: string,
+  orderInfo: string,
+  amount: number
+): MomoPaymentRequestModel => {
+  return {
+    fullName,
+    orderId,
+    orderInfo,
+    amount,
   };
 };
 
