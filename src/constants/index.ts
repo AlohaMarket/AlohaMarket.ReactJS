@@ -12,6 +12,8 @@ export const APP_CONFIG = {
 // API configuration
 export const API_CONFIG = {
   baseURL: import.meta.env['VITE_API_BASE_URL'],
+//   // baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api',
+//   baseURL: 'https://localhost:7000/api',
   timeout: 10000,
   retries: 3,
 } as const;
@@ -20,15 +22,12 @@ export const API_CONFIG = {
 export const API_ENDPOINTS = {
   // Auth
   auth: {
-    login: '/auth/login',
-    register: '/auth/register',
-    logout: '/auth/logout',
-    refresh: '/auth/refresh',
-    profile: '/auth/profile',
-    updateProfile: '/auth/profile',
-    changePassword: '/auth/change-password',
-    forgotPassword: '/auth/forgot-password',
-    resetPassword: '/auth/reset-password',
+    register: '/user/register',
+    profile: '/user/profile',
+    updateProfile: '/user/profile/update',
+    verifyProfile: '/user/verify-profile',
+    uploadAvatar: '/user/profile/avatar',
+    removeAvatar: '/user/profile/avatar'
   },
   // Products
   products: {
@@ -39,21 +38,6 @@ export const API_ENDPOINTS = {
     featured: '/products/featured',
     trending: '/products/trending',
     recommendations: (id: string) => `/products/${id}/recommendations`,
-  },
-  // Cart
-  cart: {
-    get: '/cart',
-    add: '/cart/add',
-    update: (id: string) => `/cart/update/${id}`,
-    remove: (id: string) => `/cart/remove/${id}`,
-    clear: '/cart/clear',
-  },
-  // Orders
-  orders: {
-    list: '/orders',
-    detail: (id: string) => `/orders/${id}`,
-    create: '/orders',
-    cancel: (id: string) => `/orders/${id}/cancel`,
   },
   // User
   user: {

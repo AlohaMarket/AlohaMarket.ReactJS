@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from '@/layouts/MainLayout';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Lazy load components
 const HomePage = lazy(() => import('@/pages/HomePage'));
@@ -15,10 +16,11 @@ const AboutPage = lazy(() => import('@/pages/AboutPage'));
 const PrivacyPolicyPage = lazy(() => import('@/pages/PrivacyPolicyPage'));
 const TermsOfServicePage = lazy(() => import('@/pages/TermsOfServicePage'));
 
-// Payment pages
 const ProPage = lazy(() => import('@/pages/Payment/ProPage'));
 const CheckoutPage = lazy(() => import('@/pages/Payment/CheckoutPage'));
 const SuccessPage = lazy(() => import('@/pages/Payment/SuccessPage'));
+const AfterRegisterPage = lazy(() => import('@/pages/AfterRegisterPage'));
+const ChatPage = lazy(() => import('@/pages/ChatPage/ChatApp'));
 
 export function useRouteElements() {
   return (
@@ -72,6 +74,22 @@ export function useRouteElements() {
         {/* Payment routes */}
         <Route
           path="payment/pro"
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            </Suspense>
+          }
+        />
+        <Route
+          path="chat"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <ChatPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="about"
           element={
             <Suspense fallback={<LoadingSpinner />}>
               <ProPage />
@@ -108,6 +126,9 @@ export function useRouteElements() {
       </Route>
 
       {/* Help routes - independent pages WITHOUT MainLayout */}
+        />      </Route>
+
+      {/* Help routes - independent pages */}
       <Route
         path="help"
         element={
@@ -129,6 +150,14 @@ export function useRouteElements() {
         element={
           <Suspense fallback={<LoadingSpinner />}>
             <HelpBuyer />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/after-register"
+        element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <AfterRegisterPage />
           </Suspense>
         }
       />

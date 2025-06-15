@@ -13,20 +13,6 @@ const apiClient: AxiosInstance = axios.create({
   },
 });
 
-// Request interceptor to add auth token
-// apiClient.interceptors.request.use(
-//   (config) => {
-//     const token = storage.get<string>(STORAGE_KEYS.token);
-//     if (token) {
-//       config.headers.Authorization = `Bearer ${token}`;
-//     }
-//     return config;
-//   },
-//   (error) => {
-//     return Promise.reject(error);
-//   }
-// );
-
 apiClient.interceptors.request.use(
   async (config) => {
     if (keycloak.authenticated) {
@@ -36,6 +22,10 @@ apiClient.interceptors.request.use(
     return config;
   },
   (error) => {
+    // Handle token refresh or redirect to login if needed
+    if (error.response?.status === 401) {
+      // Handle token refresh or redirect to login
+    }
     return Promise.reject(error);
   }
 );
@@ -67,7 +57,7 @@ apiClient.interceptors.response.use(
           storage.remove(STORAGE_KEYS.token);
           storage.remove(STORAGE_KEYS.user);
           // Redirect to login page
-          window.location.href = '/login';
+          window.location.href = '/';
           break;
         case 403:
           apiError.message = 'Access forbidden';
