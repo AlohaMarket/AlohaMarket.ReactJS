@@ -33,16 +33,23 @@ export default defineConfig(({ mode }) => {
       open: true,
       proxy: {
         '/api': {
-          // Khi frontend gọi bất kỳ URL nào bắt đầu bằng /api (ví dụ: /api/Payment/payment-url)
-          target: env['VITE_API_TARGET'] || 'https://localhost:7131', // Sẽ được forward đến https://localhost:7131
+          // Payment API proxy
+          target: env['VITE_API_PAYMENT_URL'] || 'https://localhost:7131',
           changeOrigin: true,
           secure: false,
-          // Bỏ rewrite hoặc sửa lại. Nếu bỏ, Vite sẽ nối path gốc (/api/Payment/payment-url) vào target.
-          // Kết quả: https://localhost:7131/api/Payment/payment-url
-          // Hoặc nếu bạn muốn giữ log:
           rewrite: (path) => {
-            console.log('🔄 Proxy rewriting (no change):', path, '→', path); // Path không đổi
-            return path; // Trả về path gốc
+            console.log('🔄 Payment API Proxy:', path, '→', path);
+            return path;
+          },
+        },
+        '/plans-api': {
+          // Plan API proxy - thêm proxy mới cho plan service
+          target: env['VITE_API_PLAN_URL'] || 'https://localhost:7007',
+          changeOrigin: true,
+          secure: false,
+          rewrite: (path) => {
+            console.log('🔄 Plan API Proxy:', path, '→', path.replace('/plans-api', '/api'));
+            return path.replace('/plans-api', '/api'); // /plans-api/plans -> /api/plans
           },
         },
       },

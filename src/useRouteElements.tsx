@@ -37,7 +37,7 @@ export function useRouteElements() {
         />
 
         <Route
-          path="/product/:id"
+          path="product/:id"
           element={
             <Suspense fallback={<LoadingSpinner />}>
               <ProductDetailPage />
@@ -74,22 +74,6 @@ export function useRouteElements() {
         {/* Payment routes */}
         <Route
           path="payment/pro"
-              <ProtectedRoute>
-                <ProfilePage />
-              </ProtectedRoute>
-            </Suspense>
-          }
-        />
-        <Route
-          path="chat"
-          element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <ChatPage />
-            </Suspense>
-          }
-        />
-        <Route
-          path="about"
           element={
             <Suspense fallback={<LoadingSpinner />}>
               <ProPage />
@@ -123,10 +107,16 @@ export function useRouteElements() {
             </Suspense>
           }
         />
-      </Route>
 
-      {/* Help routes - independent pages WITHOUT MainLayout */}
-        />      </Route>
+        <Route
+          path="chat"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <ChatPage />
+            </Suspense>
+          }
+        />
+      </Route>
 
       {/* Help routes - independent pages */}
       <Route

@@ -13,7 +13,7 @@ export default function SuccessPage() {
 
   useEffect(() => {
     const mockUserId = 'user_550e8400-e29b-41d4-a716-446655440000';
-    const mockPlanId = 'plan_550e8400-e29b-41d4-a716-446655440000';
+    const mockPlanId = '1';
 
     const priceParam = parseInt(searchParams.get('amount') || searchParams.get('price') || '0');
     const statusParam = searchParams.get('status') || 'success';
