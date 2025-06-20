@@ -12,11 +12,8 @@ import {
   Phone,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  paymentAPI,
-  formatPaymentInformation,
-  formatMomoPaymentRequest, // Import the new formatter
-} from '@/apis/payment';
+import { paymentAPI, formatPaymentInformation, formatMomoPaymentRequest } from '@/apis/payment';
+import { planAPI, PlanResponse, formatPlanPrice, formatPlanDuration } from '@/apis/plan';
 
 interface CheckoutItem {
   id: string;
@@ -24,6 +21,7 @@ interface CheckoutItem {
   price: number;
   duration: string;
   features: string[];
+  planId: number;
 }
 
 // Mock user data để test
@@ -41,23 +39,11 @@ export default function CheckoutPage() {
   const user = mockUser;
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('vnpay');
   const [isProcessing, setIsProcessing] = useState(false);
-  const categoryId = searchParams.get('category');
-  const categoryTitle = searchParams.get('title');
+  const [isLoading, setIsLoading] = useState(true);
+  const [checkoutItems, setCheckoutItems] = useState<CheckoutItem[]>([]);
 
-  const [checkoutItems] = useState<CheckoutItem[]>([
-    {
-      id: categoryId || 'pro-monthly',
-      name: `Gói PRO - ${categoryTitle || 'Không xác định'}`,
-      price: 10000,
-      duration: '30 ngày',
-      features: [
-        'Đăng tin không giới hạn',
-        'Tin được ưu tiên hiển thị',
-        'Hỗ trợ khách hàng VIP',
-        'Thống kê chi tiết',
-      ],
-    },
-  ]);
+  const planId = searchParams.get('planId');
+  const planTitle = searchParams.get('title');
 
   const paymentMethods = [
     {
@@ -88,37 +74,60 @@ export default function CheckoutPage() {
 
   const totalAmount = checkoutItems.reduce((sum, item) => sum + item.price, 0);
 
+  // Bỏ useEffect fetch API, lấy data từ URL params
   useEffect(() => {
-    if (!categoryId || !categoryTitle) {
+    if (!planId) {
       navigate('/payment/pro');
+      return;
     }
-  }, [categoryId, categoryTitle, navigate]);
+
+    const price = parseInt(searchParams.get('price') || '0');
+    const duration = parseInt(searchParams.get('duration') || '0');
+    const maxPosts = parseInt(searchParams.get('maxPosts') || '0');
+    const maxPushes = parseInt(searchParams.get('maxPushes') || '0');
+
+    const checkoutItem: CheckoutItem = {
+      id: `plan-${planId}`,
+      name: `${planTitle} - Gói dịch vụ`,
+      price: price,
+      duration: formatPlanDuration(duration),
+      features: [
+        `Đăng tối đa ${maxPosts} tin`,
+        `${maxPushes} lần đẩy tin`,
+        'Hỗ trợ khách hàng',
+        'Thống kê cơ bản',
+      ],
+      planId: parseInt(planId),
+    };
+
+    setCheckoutItems([checkoutItem]);
+    setIsLoading(false);
+  }, [planId, planTitle, searchParams, navigate]);
 
   const handlePayment = async () => {
-    if (isProcessing) return;
+    if (isProcessing || checkoutItems.length === 0) return;
     setIsProcessing(true);
 
     try {
+      const selectedItem = checkoutItems[0];
+
       if (selectedPaymentMethod === 'vnpay') {
         const paymentData = formatPaymentInformation(
-          1001, // Assuming a default quotationId or you might want to generate/fetch this
+          selectedItem.planId, // Sử dụng planId thực tế
           totalAmount,
-          categoryTitle!,
+          planTitle!,
           user.name
         );
         const paymentResponse = await paymentAPI.createPaymentUrl(paymentData);
-        // The backend for VNPay returns { message: string, data: string (url) }
-        // So, we need to access paymentResponse.data for the URL
+
         if (paymentResponse) {
           window.location.href = paymentResponse;
         } else {
           throw new Error('Không nhận được URL thanh toán từ VNPay');
         }
       } else if (selectedPaymentMethod === 'momo') {
-        // For Momo, we need a unique orderId. Let's generate one for now.
-        // In a real application, this might come from your backend or be generated more robustly.
         const momoOrderId = `MOMO_ORDER_${Date.now()}`;
-        const momoOrderInfo = `${user.name} Thanh toán gói ${categoryTitle} ${totalAmount} qua MoMo`;
+        const momoOrderInfo = `${user.name} Thanh toán ${selectedItem.name} ${totalAmount}`;
 
         const momoPaymentData = formatMomoPaymentRequest(
           user.name,
@@ -127,14 +136,13 @@ export default function CheckoutPage() {
           totalAmount
         );
         const momoResponse = await paymentAPI.createMomoPaymentUrl(momoPaymentData);
-        // Assuming Momo response is also { message: string, data: string (url) }
+
         if (momoResponse) {
           window.location.href = momoResponse;
         } else {
           throw new Error('Không nhận được URL thanh toán từ MoMo');
         }
       } else {
-        // Handle other payment methods or show an error
         console.warn('Phương thức thanh toán chưa được hỗ trợ:', selectedPaymentMethod);
         setIsProcessing(false);
         return;
@@ -144,22 +152,33 @@ export default function CheckoutPage() {
       const errorMessage =
         error instanceof Error ? error.message : 'Đã có lỗi xảy ra trong quá trình thanh toán.';
       navigate(`/payment/failed?status=failed&message=${encodeURIComponent(errorMessage)}`);
-    } finally {
-      // setIsProcessing(false); // Only set to false if not redirecting or if an error occurred before redirect
+      setIsProcessing(false);
     }
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-    }).format(amount);
+    return formatPlanPrice(amount);
   };
 
   const getPaymentMethodLabel = () => {
     const method = paymentMethods.find((m) => m.id === selectedPaymentMethod);
     return method ? method.name : 'Thanh toán ngay';
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
+              <p className="text-gray-600">Đang tải thông tin gói dịch vụ...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -176,9 +195,6 @@ export default function CheckoutPage() {
           </Button>
           <h1 className="text-3xl font-bold text-gray-900">Thanh toán</h1>
           <p className="text-gray-600">Hoàn tất đơn hàng của bạn</p>
-
-          {/* Test Mode Controls */}
-          <div className="mt-4 space-y-3"></div>
         </div>
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -201,6 +217,7 @@ export default function CheckoutPage() {
                       <div>
                         <h3 className="font-semibold text-gray-900">{item.name}</h3>
                         <p className="text-sm text-gray-600">Thời hạn: {item.duration}</p>
+                        <p className="text-sm text-gray-500">Plan ID: {item.planId}</p>
                         <ul className="mt-2 space-y-1">
                           {item.features.map((feature, index) => (
                             <li key={index} className="flex items-center text-sm text-gray-600">
@@ -304,7 +321,7 @@ export default function CheckoutPage() {
 
               <Button
                 onClick={handlePayment}
-                disabled={isProcessing}
+                disabled={isProcessing || checkoutItems.length === 0}
                 className="mt-6 w-full bg-orange-500 py-3 text-lg font-semibold text-white hover:bg-orange-600 disabled:bg-gray-400"
               >
                 {isProcessing ? (
