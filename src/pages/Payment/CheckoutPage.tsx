@@ -48,7 +48,7 @@ export default function CheckoutPage() {
     {
       id: categoryId || 'pro-monthly',
       name: `Gói PRO - ${categoryTitle || 'Không xác định'}`,
-      price: 15000,
+      price: 10000,
       duration: '30 ngày',
       features: [
         'Đăng tin không giới hạn',
