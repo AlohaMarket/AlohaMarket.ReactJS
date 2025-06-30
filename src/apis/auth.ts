@@ -7,24 +7,27 @@ import type {
 
 export const authApi = {
   // Get user profile
-  getProfile: async (): Promise<ApiResponse<User>> => {
-    return api.get<ApiResponse<User>>(API_ENDPOINTS.auth.profile);
+  getProfile: async (): Promise<User> => {
+    const response = await api.get<User>(API_ENDPOINTS.auth.profile);
+    return response;
   },
 
   // Update user profile
-  updateProfile: async (data: Partial<User>): Promise<ApiResponse<User>> => {
-    return api.put<ApiResponse<User>>(API_ENDPOINTS.auth.updateProfile, data);
+  updateProfile: async (data: Partial<User>): Promise<User> => {
+    const response = await api.put<User>(API_ENDPOINTS.auth.updateProfile, data);
+    return response;
   },
 
   // Initialize user profile
-  initUserProfile: async (): Promise<ApiResponse<User>> => {
+  initUserProfile: async (): Promise<User> => {
     // Send the request through YARP API gateway
-    return api.post<ApiResponse<User>>(API_ENDPOINTS.auth.register, null);
+    const response = await api.post<ApiResponse<User>>(API_ENDPOINTS.auth.register, null);
+    return response.data;
   },
 
   // Upload avatar image
-  uploadAvatar: async (formData: FormData): Promise<ApiResponse<User>> => {
-    return api.patch<ApiResponse<User>>(
+  uploadAvatar: async (formData: FormData): Promise<User> => {
+    const response = await api.patch<ApiResponse<User>>(
       API_ENDPOINTS.auth.uploadAvatar,
       formData,
       {
@@ -33,5 +36,6 @@ export const authApi = {
         },
       }
     );
+    return response.data;
   },
 };

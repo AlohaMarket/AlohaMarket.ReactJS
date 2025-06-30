@@ -120,26 +120,35 @@ export enum OrderStatus {
   CANCELLED = 'cancelled',
 }
 
-// API types
+// API types - Updated to match backend structure
 export interface ApiResponse<T> {
+  message: string;
   data: T;
-  message?: string;
+}
+
+export interface ApiErrorResponse {
+  message: string;
+  data?: unknown;
 }
 
 export interface PaginatedResponse<T> {
-  data: T[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
+  items: T[];
+  meta: {
+    total_pages: number;
+    total_items: number;
+    current_page: number;
+    page_size: number;
   };
 }
 
 export interface ApiError {
   message: string;
-  code?: string;
-  field?: string;
+  code: string;
+  data?: unknown;
+  validationErrors?: {
+    field: string;
+    message: string;
+  }[];
 }
 
 // Search and Filter types

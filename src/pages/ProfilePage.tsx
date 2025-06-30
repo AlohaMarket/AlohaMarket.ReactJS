@@ -29,8 +29,8 @@ export default function ProfilePage() {
     const fetchUserProfile = async () => {
       try {
         const response = await authApi.getProfile();
-        if (response.data) {
-          setUser(response.data);
+        if (response) {
+          setUser(response);
           hasFetchedProfile.current = true;
         }
       } catch (error) {
@@ -55,7 +55,6 @@ export default function ProfilePage() {
 
   return (
     <div className="container mx-auto px-4 py-4">
-      {/* Breadcrumb navigation - Chotot style */}
       <div className="flex items-center text-sm mb-4">
         <a href="/" className="text-gray-600 hover:text-yellow-600">
           Aloha Market

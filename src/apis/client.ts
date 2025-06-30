@@ -1,7 +1,7 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import { API_CONFIG, STORAGE_KEYS } from '@/constants';
 import { storage } from '@/utils';
-import { type ApiError } from '@/types';
+import { type ApiError, type ApiResponse, type ApiErrorResponse } from '@/types';
 import { keycloak } from '@/lib/keycloak';
 
 // Create axios instance
@@ -32,7 +32,8 @@ apiClient.interceptors.request.use(
 
 // Response interceptor for error handling
 apiClient.interceptors.response.use(
-  (response: AxiosResponse) => {
+  (response: AxiosResponse<ApiResponse<unknown>>) => {
+    // Backend always returns { message, data } structure
     return response;
   },
   (error) => {
@@ -42,54 +43,56 @@ apiClient.interceptors.response.use(
     };
 
     if (error.response) {
-      // Server responded with error status
-      const { status, data } = error.response;
+      const { status, data }: { status: number; data: ApiErrorResponse } = error.response;
+
+      // Backend returns { message, data } structure for errors too
+      apiError.message = data.message || 'Something went wrong';
+      apiError.data = data.data;
 
       switch (status) {
         case 400:
-          apiError.message = data.message || 'Bad request';
           apiError.code = 'BAD_REQUEST';
           break;
         case 401:
-          apiError.message = 'Authentication required';
           apiError.code = 'UNAUTHORIZED';
-          // Clear stored auth data on 401
-          storage.remove(STORAGE_KEYS.token);
-          storage.remove(STORAGE_KEYS.user);
-          // Redirect to login page
-          window.location.href = '/';
+          // Clear tokens and redirect for Keycloak
+          if (keycloak.authenticated) {
+            keycloak.logout();
+          } else {
+            storage.remove(STORAGE_KEYS.token);
+            storage.remove(STORAGE_KEYS.user);
+            window.location.href = '/';
+          }
           break;
         case 403:
-          apiError.message = 'Access forbidden';
           apiError.code = 'FORBIDDEN';
           break;
         case 404:
-          apiError.message = 'Resource not found';
           apiError.code = 'NOT_FOUND';
           break;
         case 422:
-          apiError.message = data.message || 'Validation error';
           apiError.code = 'VALIDATION_ERROR';
-          apiError.field = data.field;
+          // Handle validation errors from backend
+          if (data.data && typeof data.data === 'object' && data.data !== null) {
+            apiError.validationErrors = Object.entries(data.data as Record<string, string[]>).map(([field, messages]) => ({
+              field,
+              message: Array.isArray(messages) ? messages[0] : String(messages),
+            }));
+          }
           break;
         case 429:
-          apiError.message = 'Too many requests';
           apiError.code = 'RATE_LIMIT';
           break;
         case 500:
-          apiError.message = 'Internal server error';
           apiError.code = 'SERVER_ERROR';
           break;
         default:
-          apiError.message = data.message || `HTTP ${status} error`;
           apiError.code = `HTTP_${status}`;
       }
     } else if (error.request) {
-      // Network error
       apiError.message = 'Network error. Please check your connection.';
       apiError.code = 'NETWORK_ERROR';
     } else {
-      // Request setup error
       apiError.message = error.message || 'Request failed';
       apiError.code = 'REQUEST_ERROR';
     }
@@ -98,22 +101,29 @@ apiClient.interceptors.response.use(
   }
 );
 
+
 // Generic API methods
 export const api = {
   get: <T>(url: string, config?: AxiosRequestConfig): Promise<T> =>
-    apiClient.get(url, config).then((response) => response.data),
+    apiClient.get<ApiResponse<T>>(url, config).then((response) => response.data.data),
 
-  post: <T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> =>
-    apiClient.post(url, data, config).then((response) => response.data),
+  post: <T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> =>
+    apiClient.post<ApiResponse<T>>(url, data, config).then((response) => response.data.data),
 
-  put: <T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> =>
-    apiClient.put(url, data, config).then((response) => response.data),
+  put: <T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> =>
+    apiClient.put<ApiResponse<T>>(url, data, config).then((response) => response.data.data),
 
-  patch: <T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> =>
-    apiClient.patch(url, data, config).then((response) => response.data),
+  patch: <T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> =>
+    apiClient.patch<ApiResponse<T>>(url, data, config).then((response) => response.data.data),
 
   delete: <T>(url: string, config?: AxiosRequestConfig): Promise<T> =>
-    apiClient.delete(url, config).then((response) => response.data),
+    apiClient.delete<ApiResponse<T>>(url, config).then((response) => response.data.data),
+
+  getPaginated: <T>(url: string, config?: AxiosRequestConfig): Promise<{ items: T[]; meta: { total_pages: number; total_items: number; current_page: number; page_size: number } }> =>
+    apiClient.get(url, config).then((response) => response.data.data),
+
+  getFullResponse: <T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> =>
+    apiClient.get<ApiResponse<T>>(url, config).then((response) => response.data),
 };
 
 export default apiClient;

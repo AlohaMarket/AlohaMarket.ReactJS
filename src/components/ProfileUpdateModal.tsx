@@ -108,8 +108,8 @@ export default function ProfileUpdateModal({ isOpen, onClose }: ProfileUpdateMod
 
             const response = await authApi.updateProfile(submitData);
 
-            if (response.data) {
-                setUser(response.data);
+            if (response) {
+                setUser(response);
                 toast.success(t('profile.updateSuccess'));
 
                 // If the user wasn't verified before, show verification sent message

@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from '@/layouts/MainLayout';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ProtectedRoute from './components/ProtectedRoute';
+import ProfilePage from './pages/ProfilePage';
 
 // Lazy load components
 const HomePage = lazy(() => import('@/pages/HomePage'));
