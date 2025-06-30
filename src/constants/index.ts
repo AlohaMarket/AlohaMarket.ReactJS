@@ -48,6 +48,15 @@ export const API_ENDPOINTS = {
     addToWishlist: '/user/wishlist/add',
     removeFromWishlist: (id: string) => `/user/wishlist/remove/${id}`,
   },
+  // Payment - THÊM MỚI
+  payment: {
+    createOrder: '/Payment',
+    createPaymentUrl: '/Payment/payment-url',
+    getById: (id: string) => `/Payment/${id}`,
+    getUserHistory: (userId: string) => `/Payment/user/${userId}`,
+    ipn: '/Payment/ipn',
+    callback: '/Payment/callback',
+  },
 } as const;
 
 // Local storage keys

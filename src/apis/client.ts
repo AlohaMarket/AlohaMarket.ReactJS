@@ -1,7 +1,7 @@
-import axios,{type AxiosInstance,type AxiosRequestConfig,type AxiosResponse } from 'axios';
+import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import { API_CONFIG, STORAGE_KEYS } from '@/constants';
 import { storage } from '@/utils';
-import {type ApiError } from '@/types';
+import { type ApiError } from '@/types';
 import { keycloak } from '@/lib/keycloak';
 
 // Create axios instance
@@ -44,7 +44,7 @@ apiClient.interceptors.response.use(
     if (error.response) {
       // Server responded with error status
       const { status, data } = error.response;
-      
+
       switch (status) {
         case 400:
           apiError.message = data.message || 'Bad request';
@@ -116,4 +116,4 @@ export const api = {
     apiClient.delete(url, config).then((response) => response.data),
 };
 
-export default apiClient; 
+export default apiClient;
