@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { productsApi } from '@/apis/products';
+import { productsApi } from '@/apis/post';
 
 // Mock the API client
 vi.mock('@/apis/client', () => ({
