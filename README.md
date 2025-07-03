@@ -212,6 +212,20 @@ The project is configured for deployment on:
 - Write tests for new features
 - Use semantic commit messages
 
+## 👥 Contributors
+
+Thanks to all the amazing people who have contributed to this project! ✨
+
+<div align="center">
+
+<a href="https://github.com/AlohaMarket/AlohaMarket.ReactJS/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=AlohaMarket/AlohaMarket.ReactJS" />
+</a>
+
+</div>
+
+---
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

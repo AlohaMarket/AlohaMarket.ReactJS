@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from '@/layouts/MainLayout';
+import AdminLayout from '@/layouts/AdminLayout';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ProfilePage from './pages/ProfilePage/ProfilePage';
 import PostDetailPage from './pages/PostDetailPage/PostDetailPage';
@@ -22,6 +23,14 @@ const CheckoutPage = lazy(() => import('@/pages/Payment/CheckoutPage'));
 const SuccessPage = lazy(() => import('@/pages/Payment/SuccessPage'));
 const AfterRegisterPage = lazy(() => import('@/pages/AfterRegisterPage'));
 const ChatPage = lazy(() => import('@/pages/ChatPage/ChatApp'));
+
+// Admin components
+const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
+const UsersManagement = lazy(() => import('@/pages/admin/UsersManagement'));
+const ProductsManagement = lazy(() => import('@/pages/admin/ProductsManagement'));
+const OrdersManagement = lazy(() => import('@/pages/admin/OrdersManagement'));
+const Analytics = lazy(() => import('@/pages/admin/Analytics'));
+const AdminSettings = lazy(() => import('@/pages/admin/AdminSettings'));
 
 export function useRouteElements() {
   return (
@@ -132,6 +141,66 @@ export function useRouteElements() {
           element={
             <Suspense fallback={<LoadingSpinner />}>
               <ChatPage />
+            </Suspense>
+          }
+        />
+      </Route>
+
+      {/* Admin routes */}
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route
+          index
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Navigate to="/admin/dashboard" replace />
+            </Suspense>
+          }
+        />
+        <Route
+          path="dashboard"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <AdminDashboard />
+            </Suspense>
+          }
+        />
+        <Route
+          path="users"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <UsersManagement />
+            </Suspense>
+          }
+        />
+        <Route
+          path="products"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <ProductsManagement />
+            </Suspense>
+          }
+        />
+        <Route
+          path="orders"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <OrdersManagement />
+            </Suspense>
+          }
+        />
+        <Route
+          path="analytics"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Analytics />
+            </Suspense>
+          }
+        />
+        <Route
+          path="settings"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <AdminSettings />
             </Suspense>
           }
         />
