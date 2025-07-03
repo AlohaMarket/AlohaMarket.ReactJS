@@ -2,12 +2,12 @@ import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from '@/layouts/MainLayout';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
-import ProtectedRoute from './components/ProtectedRoute';
-import ProfilePage from './pages/ProfilePage';
+import ProfilePage from './pages/ProfilePage/ProfilePage';
+import PostDetailPage from './pages/PostDetailPage/PostDetailPage';
 
 // Lazy load components
 const HomePage = lazy(() => import('@/pages/HomePage'));
-const ProductDetailPage = lazy(() => import('@/pages/ProductDetail/ProductDetailPage'));
+const PostListPage = lazy(() => import('@/pages/PostListPage/PostListPage'));
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 const HelpCenter = lazy(() => import('@/pages/Help/HelpCenter'));
@@ -37,11 +37,21 @@ export function useRouteElements() {
           }
         />
 
+        {/* Search/Posts listing route */}
         <Route
-          path="product/:id"
+          path="posts"
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <ProductDetailPage />
+              <PostListPage />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="post/:id"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <PostDetailPage />
             </Suspense>
           }
         />
@@ -51,12 +61,11 @@ export function useRouteElements() {
           path="profile"
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <ProtectedRoute>
-                <ProfilePage />
-              </ProtectedRoute>
+              <ProfilePage />
             </Suspense>
           }
-        />        <Route
+        />
+        <Route
           path="about"
           element={
             <Suspense fallback={<LoadingSpinner />}>
@@ -161,15 +170,6 @@ export function useRouteElements() {
           </Suspense>
         }
       />
-      <Route
-        path="/after-register"
-        element={
-          <Suspense fallback={<LoadingSpinner />}>
-            <AfterRegisterPage />
-          </Suspense>
-        }
-      />
-
       {/* Auth routes */}
       <Route
         path="/auth"
