@@ -1,52 +1,57 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useChat } from '@/hooks/useChat';
 import {
-  ChevronDown,
-  Menu,
-  MapPin,
+  Search,
   Bell,
   MessageSquare,
   Briefcase,
-  Grid,
+  MapPin,
+  ChevronDown,
   User,
-  Search,
-  LogOut,
+  Grid,
+  LogOut
 } from 'lucide-react';
-import { useApp, useAuth } from '@/hooks/useApp';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { useApp, useAuth } from '@/contexts';
+import { LocationModal } from './LocationModal';
+import { LocationType } from '@/types/location.type';
 
 export default function Header() {
   const navigate = useNavigate();
-  // const { isAuthenticated } = useApp();
-  // const { getUnreadCount } = useChat();
   const [selectedAddress, setSelectedAddress] = useState('Toàn Quốc');
-  const [showAddress, setShowAddress] = useState(false);
+  const [selectedLocationId, setSelectedLocationId] = useState<number>(0);
+  const [selectedLocationLevel, setSelectedLocationLevel] = useState<LocationType>(LocationType.PROVINCE);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showLocationModal, setShowLocationModal] = useState(false);
   const [showAccount, setShowAccount] = useState(false);
-  const [showCategory, setShowCategory] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('');
   const { isAuthenticated, login, logout, register } = useAuth();
   const { user } = useApp();
   const { user: authUser } = useAuth();
 
-  // const unreadCount = isAuthenticated ? getUnreadCount() : 0;
-
-  const handleSelectAddress = (address: string) => {
-    setSelectedAddress(address);
-    setShowAddress(false);
+  const handleSelectLocation = (locationId: number, locationLevel: LocationType, displayText: string) => {
+    setSelectedLocationId(locationId);
+    setSelectedLocationLevel(locationLevel);
+    setSelectedAddress(displayText);
+    setShowLocationModal(false);
   };
 
-  const handleSelectCategory = (category: string) => {
-    setSelectedCategory(category);
-    setShowCategory(false);
-  };
+  const handleSearch = () => {
+    // Navigate to post list page with search params
+    const params = new URLSearchParams();
 
-  // const handleAuthAction = (action: 'login' | 'register') => {
-  //   setShowAccount(false);
-  //   navigate(`/auth?mode=${action}`);
-  // };
+    if (searchTerm.trim()) {
+      params.set('searchTerm', searchTerm.trim());
+    }
+
+    if (selectedLocationId > 0) {
+      params.set('locationId', selectedLocationId.toString());
+      params.set('locationLevel', selectedLocationLevel);
+    }
+
+    const queryString = params.toString();
+    navigate(`/posts${queryString ? `?${queryString}` : ''}`);
+  };
 
   return (
     <header className="bg-blue-600 text-white">
@@ -82,124 +87,81 @@ export default function Header() {
 
       {/* Main header bar */}
       <div className="flex items-center justify-between bg-blue-600 px-4 py-3">
-        {/* left - điều chỉnh để chiếm nhiều không gian hơn */}
         <div className="flex flex-grow items-center gap-4">
-          {/* Logo nổi bật hơn */}
+          {/* Logo */}
           <a href="/" className="flex items-center justify-center">
             <img
               src="/src/assets/imgs/logo.png"
               alt="Aloha Market Logo"
-              className="h-8 w-auto"
-              style={{ filter: 'brightness(0) invert(1)' }} // chuyển icon sang trắng
+              className="h-12 w-auto"
+              style={{ filter: 'brightness(0) invert(1)' }}
             />
           </a>
-          {/* Danh mục có dropdown */}
-          <div className="relative">
-            <div
-              className="flex cursor-pointer items-center gap-1 rounded px-2 py-1 transition hover:bg-blue-500"
-              onClick={() => setShowCategory((v) => !v)}
-            >
-              <Menu size={18} className="text-white" />
-              <span className="text-sm font-medium">{selectedCategory || 'Danh mục'}</span>
-              <ChevronDown size={16} className="text-white" />
-            </div>
-            {showCategory && (
-              <div className="animate-fadeIn absolute left-0 top-full z-20 mt-2 w-48 rounded bg-white text-gray-800 shadow-lg">
-                {['Điện thoại', 'Xe cộ', 'Đồ điện tử', 'Thời trang', 'Bất động sản'].map((cat) => (
-                  <div
-                    key={cat}
-                    className="cursor-pointer px-4 py-2 transition hover:bg-blue-50"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Ngăn sự kiện click lan tỏa lên phần tử cha
-                      handleSelectCategory(cat);
-                    }}
-                  >
-                    {cat}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
 
-          {/* search/address - điều chỉnh để flex-grow có giá trị cao hơn */}
+          {/* Search and Address */}
           <div className="min-w-6xl relative flex-grow">
             <div className="flex items-center overflow-hidden rounded-md border border-gray-300 bg-white shadow-sm">
-              <div
-                className="flex cursor-pointer select-none items-center gap-1 px-4 py-2 transition hover:bg-gray-100"
-                onClick={() => setShowAddress((v) => !v)}
-              >
-                <MapPin size={18} className="text-gray-600" />
-                <span className="text-sm font-medium text-gray-700">{selectedAddress}</span>
-                <ChevronDown size={16} className="text-gray-600" />
+              <div className="flex flex-1 items-center justify-between rounded-lg bg-white px-4 py-2 shadow-lg">
+                <div
+                  className="relative flex cursor-pointer items-center space-x-2 border-r border-gray-200 pr-4"
+                  onClick={() => setShowLocationModal(true)}
+                >
+                  <MapPin size={16} className="text-gray-600" />
+                  <span className="text-sm font-medium text-gray-700">{selectedAddress}</span>
+                  <ChevronDown size={16} className="text-gray-600" />
+                </div>
+                <Input
+                  className="flex-1 border-none bg-white px-4 py-2 text-gray-800 placeholder-gray-400 focus:ring-0"
+                  placeholder="Tìm kiếm trên Chợ Tốt Xe"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSearch();
+                    }
+                  }}
+                />
+                <button
+                  className="flex items-center justify-center bg-orange-500 px-4 py-2 text-white transition hover:bg-orange-600"
+                  onClick={handleSearch}
+                >
+                  <Search size={20} />
+                </button>
               </div>
-              <Input
-                className="flex-1 border-none bg-white px-4 py-2 text-gray-800 placeholder-gray-400 focus:ring-0"
-                placeholder="Tìm kiếm trên Chợ Tốt Xe"
-              />
-              <button className="flex items-center justify-center bg-orange-500 px-4 py-2 text-white transition hover:bg-orange-600">
-                <Search size={20} />
-              </button>
             </div>
-            {showAddress && (
-              <div className="absolute left-0 top-full z-10 mt-1 w-56 rounded bg-white shadow-lg">
-                {['Toàn Quốc', 'Tp HCM', 'Hà Nội', 'Đà Nẵng'].map((city) => (
-                  <div
-                    key={city}
-                    className="cursor-pointer px-4 py-2 text-gray-800 transition hover:bg-orange-100 hover:text-orange-600"
-                    onClick={() => handleSelectAddress(city)}
-                  >
-                    {city}
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
-        </div>        {/* right - thu gọn các phần tử để nhường không gian cho ô tìm kiếm */}
-        <div className="ml-4 flex items-center gap-4">
-          <Bell
-            size={20}
-            className="cursor-pointer text-white transition hover:text-gray-200"
-          />
+        </div>
 
-          {/* Chat Icon with Unread Count */}
+        {/* Right side icons and account */}
+        <div className="ml-4 flex items-center gap-4">
+          <Bell size={20} className="cursor-pointer text-white transition hover:text-gray-200" />
+
           <div className="relative">
             <MessageSquare
               size={20}
               className="cursor-pointer text-white transition hover:text-gray-200"
               onClick={() => navigate('/chat')}
             />
-            {/* {isAuthenticated && unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
-            )} */}
           </div>
 
-          <Briefcase
-            size={20}
-            className="cursor-pointer text-white transition hover:text-gray-200"
-          />
-          <Grid
-            size={20}
-            className="cursor-pointer text-white transition hover:text-gray-200"
-          />
+          <Briefcase size={20} className="cursor-pointer text-white transition hover:text-gray-200" />
 
+          {/* Account dropdown */}
           <div className="relative">
             <div
               className="flex cursor-pointer items-center gap-1 transition hover:text-gray-200"
-              onClick={() => setShowAccount((v) => !v)}
+              onClick={() => setShowAccount(!showAccount)}
             >
-              <User size={20} className="text-white" />
-              <span className="text-sm">
-                {isAuthenticated ? (user?.userName) : 'Tài khoản'}
-              </span>
-              <ChevronDown size={16} className="text-white" />
+              <User size={20} />
+              <span className="text-sm">Tài khoản</span>
+              <ChevronDown size={16} />
             </div>
+
             {showAccount && (
-              <div className="absolute right-0 top-full mt-2 w-48 rounded bg-white p-2 shadow-lg z-50">
+              <div className="animate-fadeIn absolute right-0 top-full z-20 mt-2 w-64 rounded bg-white text-gray-800 shadow-lg">
                 {isAuthenticated ? (
                   <>
-                    <div className="mb-2 border-b border-gray-100 pb-2">
+                    <div className="border-b border-gray-200 p-3">
                       <div className="flex items-center gap-2 px-2 py-1">
                         <div className="h-8 w-8 overflow-hidden rounded-full bg-gray-200">
                           {user?.avatarUrl ? (
@@ -267,14 +229,7 @@ export default function Header() {
 
           <Button className="rounded-lg bg-orange-500 px-4 py-2 font-bold text-white shadow-lg transition hover:bg-orange-600">
             <span className="flex items-center gap-2">
-              <svg
-                width="18"
-                height="18"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
+              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path d="M12 5v14m7-7H5" />
               </svg>
               ĐĂNG TIN
@@ -282,6 +237,13 @@ export default function Header() {
           </Button>
         </div>
       </div>
+
+      <LocationModal
+        isOpen={showLocationModal}
+        onClose={() => setShowLocationModal(false)}
+        onSelectLocation={handleSelectLocation}
+      />
+
     </header>
   );
 }
