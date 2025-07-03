@@ -33,7 +33,7 @@ export function useAuth() {
         // Fetch user profile only if not in registration flow
         authApi.getProfile()
           .then((user) => {
-            setUser(user.data);
+            setUser(user);
           })
           .catch((error) => {
             console.error('Failed to fetch user info:', error);

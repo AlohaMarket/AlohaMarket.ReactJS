@@ -1,9 +1,9 @@
 import { api } from './client';
 import { API_ENDPOINTS } from '@/constants';
 import type {
-  User,
   ApiResponse,
 } from '@/types';
+import type { Seller, User } from '@/types/user.type';
 
 export const authApi = {
   // Get user profile
@@ -38,4 +38,9 @@ export const authApi = {
     );
     return response.data;
   },
+
+  getSellerInfo: async (userId: string): Promise<Seller> => {
+    const response = await api.get<Seller>(`${API_ENDPOINTS.auth.sellerInfo(userId)}`);
+    return response;
+  }
 };
