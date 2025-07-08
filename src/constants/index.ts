@@ -11,9 +11,8 @@ export const APP_CONFIG = {
 
 // API configuration
 export const API_CONFIG = {
-  // baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api',
   baseURL: 'https://localhost:7000/api',
-  timeout: 10000,
+  timeout: 30000,
   retries: 3,
 } as const;
 
@@ -27,7 +26,7 @@ export const API_ENDPOINTS = {
     verifyProfile: '/user/verify-profile',
     uploadAvatar: '/user/profile/avatar',
     removeAvatar: '/user/profile/avatar',
-    sellerInfo: (userId: string) => `/user/${userId}`,
+    sellerInfo: (userId: string) => `user/seller/${userId}`,
   },
 
   // Posts
@@ -35,6 +34,8 @@ export const API_ENDPOINTS = {
     list: '/post',
     detail: (id: string) => `/post/${id}`,
     byUser: (userId: string) => `/post/user/${userId}`,
+    create: '/post/create',
+    afterCreate: (id: string) => `/post/${id}/after-create`,
   },
 
   // Categories
@@ -54,6 +55,13 @@ export const API_ENDPOINTS = {
     getUserHistory: (userId: string) => `/Payment/user/${userId}`,
     ipn: '/Payment/ipn',
     callback: '/Payment/callback',
+  },
+
+  // User Plans
+  userPlans: {
+    list: '/plan',
+    detail: (id: string) => `/plan/${id}`,
+    me: '/plan/me',
   },
 } as const;
 
@@ -118,9 +126,10 @@ export const VALIDATION = {
 
 // Image configuration
 export const IMAGE_CONFIG = {
-  maxSize: 5 * 1024 * 1024, // 5MB
+  maxSize: 3 * 1024 * 1024, // 5MB
   allowedTypes: ['image/jpeg', 'image/png', 'image/webp'],
   placeholder: '/images/placeholder.jpg',
+  maxImagesPerPost: 8,
 } as const;
 
 // Social media links

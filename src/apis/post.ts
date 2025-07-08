@@ -1,28 +1,31 @@
+import type { PaginatedResponse } from '@/types';
+import type { PostCreateResponse, PostDetailResponse, PostFilters, PostListResponse, UserPostFilters } from '@/types/post.type';
 import { api } from './client';
 import { API_ENDPOINTS } from '@/constants';
-import type {
-  PaginatedResponse,
-} from '@/types';
-import type { PostDetailResponse, PostListResponse, PostFilters } from '@/types/post.type';
 
 export const postsApi = {
-  getPosts: async (filters?: PostFilters): Promise<PaginatedResponse<PostListResponse>> => {
-    const params = new URLSearchParams();
+  getPosts: (filters?: PostFilters) =>
+    api.get<PaginatedResponse<PostListResponse>>(API_ENDPOINTS.posts.list, { params: filters }),
 
-    if (filters) {
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== '') {
-          params.append(key, value.toString());
-        }
-      });
-    }
+  getPost: (id: string) =>
+    api.get<PostDetailResponse>(`${API_ENDPOINTS.posts.detail(id)}`),
 
-    const url = `${API_ENDPOINTS.posts.list}${params.toString() ? `?${params.toString()}` : ''}`;
-    return api.get<PaginatedResponse<PostListResponse>>(url);
-  },
+  createPost: (formData: FormData) =>
+    api.post<PostCreateResponse>(API_ENDPOINTS.posts.create, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }),
 
-  // Get single Post by ID
-  getPost: async (id: string): Promise<PostDetailResponse> => {
-    return api.get<PostDetailResponse>(API_ENDPOINTS.posts.detail(id));
-  },
+  // Get posts created by the logged-in user
+  getMyPosts: (filters?: UserPostFilters) =>
+    api.get<PaginatedResponse<PostListResponse>>(`${API_ENDPOINTS.posts.list}/me`, { params: filters }),
+
+  // get post after created data (for validation view)
+  getPostAfterCreate: (id: string) =>
+    api.get<PostCreateResponse>(`${API_ENDPOINTS.posts.afterCreate(id)}`),
+
+  // Get posts by a specific seller
+  getPostsBySeller: (sellerId: string, filters?: UserPostFilters) =>
+    api.get<PaginatedResponse<PostListResponse>>(`${API_ENDPOINTS.posts.byUser(sellerId)}`, { params: filters }),
 };

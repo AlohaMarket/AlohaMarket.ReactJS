@@ -33,7 +33,10 @@ apiClient.interceptors.request.use(
 // Response interceptor for error handling
 apiClient.interceptors.response.use(
   (response: AxiosResponse<ApiResponse<unknown>>) => {
-    // Backend always returns { message, data } structure
+    // // Show success toast if message exists
+    // if (response.data.message) {
+    //   toast.success(response.data.message);
+    // }
     return response;
   },
   (error) => {

@@ -64,6 +64,8 @@ export interface PostListResponse {
     districtText: string | null;
     wardText: string | null;
     image: PostImageResponse;
+    status: PostStatus;
+    createdAt: string;
 }
 
 export interface PostImageResponse {
@@ -106,4 +108,11 @@ export interface PostCreateRequest {
     districtCode: number;
     wardCode: number;
     attributes: Record<string, string>;
+    images: File[];
+}
+
+export interface UserPostFilters {
+    page?: number;
+    pageSize?: number;
+    status?: PostStatus;
 }
