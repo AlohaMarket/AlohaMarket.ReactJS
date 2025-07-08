@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { User } from '@/types';
+import type { User } from '@/types/user.type';
 import { getStoredToken, getStoredData, setStoredData } from '@/utils';
 
 export type Theme = 'light' | 'dark';

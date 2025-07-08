@@ -5,7 +5,6 @@ import {
     MapPin
 } from 'lucide-react';
 import { Button } from '../ui/button';
-import { Input } from '../ui/input';
 import { useLocation } from '@/hooks/useLocation';
 import { LocationType, type Province, type District, type Ward } from '@/types/location.type';
 
@@ -32,10 +31,8 @@ export const LocationModal = ({
         provinces,
         getDistrictsByProvince,
         getWardsByDistrict,
-        searchProvincesByName
     } = useLocation();
 
-    const [searchTerm, setSearchTerm] = useState('');
     const [selectedLocation, setSelectedLocation] = useState<SelectedLocation>(initialLocation || {});
 
     // Popular cities data
@@ -44,14 +41,6 @@ export const LocationModal = ({
         { name: 'Hà Nội', code: 1 },
         { name: 'Đà Nẵng', code: 48 }
     ];
-
-    // Reset search term when modal opens, but keep selected location
-    useEffect(() => {
-        if (isOpen) {
-            setSearchTerm('');
-            // Don't reset selectedLocation to preserve user's previous selection
-        }
-    }, [isOpen]);
 
     // Sync with initialLocation when it changes
     useEffect(() => {
@@ -72,10 +61,6 @@ export const LocationModal = ({
             : [];
     }, [selectedLocation.province, selectedLocation.district, getWardsByDistrict]);
 
-    // Filter provinces based on search
-    const filteredProvinces = useMemo(() => {
-        return searchProvincesByName(searchTerm);
-    }, [searchTerm, searchProvincesByName]);
 
     if (!isOpen) return null;
 
@@ -144,17 +129,6 @@ export const LocationModal = ({
                     </button>
                 </div>
 
-                {/* Search Input */}
-                <div className="mb-4">
-                    <Input
-                        type="text"
-                        placeholder="Nhập vị trí và khoảng cách tìm kiếm"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-200"
-                    />
-                </div>
-
                 {/* Location Selection */}
                 <div className="mb-6">
                     <h3 className="mb-3 flex items-center gap-2 text-sm font-medium text-gray-700">
@@ -191,7 +165,7 @@ export const LocationModal = ({
                                 className="w-full appearance-none rounded-lg border border-gray-300 bg-white px-3 py-2 pr-8 text-sm text-gray-900 focus:border-orange-500 focus:ring-2 focus:ring-orange-200"
                             >
                                 <option value="" className="text-gray-500">Chọn tỉnh thành</option>
-                                {filteredProvinces.map((province) => (
+                                {provinces.map((province) => (
                                     <option key={province.code} value={province.code} className="text-gray-900 bg-white">
                                         {province.name}
                                     </option>

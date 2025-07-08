@@ -54,13 +54,6 @@ const CategorySection = () => {
                             DANH MỤC
                         </h2>
                     </div>
-                    <button
-                        className="flex items-center text-orange-500 hover:text-orange-600 text-sm font-medium transition-colors group"
-                        onClick={() => navigate('/categories')}
-                    >
-                        Xem tất cả
-                        <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                    </button>
                 </div>
 
                 {/* Slider Container */}

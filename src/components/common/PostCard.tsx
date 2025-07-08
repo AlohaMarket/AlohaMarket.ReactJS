@@ -1,6 +1,5 @@
 import { Clock, MapPin } from 'lucide-react';
 import type { PostListResponse } from '@/types/post.type';
-import { formatRelativeTime } from '@/utils';
 
 interface PostCardProps {
     post: PostListResponse;

@@ -73,26 +73,18 @@ export default function ProfileImageUploadModal({ isOpen, onClose }: ProfileImag
         setIsUploading(true);
 
         try {
-            // Create FormData with the file
             const formData = new FormData();
             formData.append('file', selectedFile);
-
-            // Log for debugging
-            console.log('Uploading file:', selectedFile.name, selectedFile.type, selectedFile.size);
-
-            // Use a try-catch specifically for the API call
             const response = await authApi.uploadAvatar(formData);
 
-            if (response.data) {
-                setUser(response.data);
+            if (response) {
+                setUser(response);
                 toast.success(t('profile.avatarUpdateSuccess'));
                 onClose();
             }
         } catch (error: any) {
             console.error('Upload error details:', error);
-            // More specific error message
-            const errorMsg = error.message || t('profile.avatarUpdateError');
-            toast.error(errorMsg);
+            // Error toasting is handled by interceptor
         } finally {
             setIsUploading(false);
         }
