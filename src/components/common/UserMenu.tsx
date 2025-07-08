@@ -57,6 +57,13 @@ export default function UserMenu() {
             {t('navigation.profile')}
           </Link>
           <Link
+            to="/my-posts"
+            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            onClick={() => setIsOpen(false)}
+          >
+            {t('navigation.myPosts', 'Bài đăng của tôi')}
+          </Link>
+          <Link
             to="/orders"
             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
             onClick={() => setIsOpen(false)}
@@ -84,4 +91,4 @@ export default function UserMenu() {
       )}
     </div>
   );
-} 
+}

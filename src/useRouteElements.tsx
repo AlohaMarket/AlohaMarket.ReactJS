@@ -5,12 +5,16 @@ import AdminLayout from '@/layouts/AdminLayout';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ProfilePage from './pages/ProfilePage/ProfilePage';
 import PostDetailPage from './pages/PostDetailPage/PostDetailPage';
+import AuthCallback from './pages/AuthCallback';
+import CreatePostPage from './pages/CreatePostPage/CreatePostPage';
+import PostStatusPage from './pages/PostStatusPage/PostStatusPage';
+import MyPostsPage from './pages/ProfilePage/MyPostsPage';
 
 // Lazy load components
 const HomePage = lazy(() => import('@/pages/HomePage'));
 const PostListPage = lazy(() => import('@/pages/PostListPage/PostListPage'));
-const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
+const SellerProfilePage = lazy(() => import('@/pages/SellerProfilePage/SellerProfilePage'));
 const HelpCenter = lazy(() => import('@/pages/Help/HelpCenter'));
 const HelpSeller = lazy(() => import('@/pages/Help/HelpSeller'));
 const HelpBuyer = lazy(() => import('@/pages/Help/HelpBuyer'));
@@ -21,7 +25,6 @@ const TermsOfServicePage = lazy(() => import('@/pages/TermsOfServicePage'));
 const ProPage = lazy(() => import('@/pages/Payment/ProPage'));
 const CheckoutPage = lazy(() => import('@/pages/Payment/CheckoutPage'));
 const SuccessPage = lazy(() => import('@/pages/Payment/SuccessPage'));
-const AfterRegisterPage = lazy(() => import('@/pages/AfterRegisterPage'));
 const ChatPage = lazy(() => import('@/pages/ChatPage/ChatApp'));
 
 // Admin components
@@ -35,6 +38,16 @@ const AdminSettings = lazy(() => import('@/pages/admin/AdminSettings'));
 export function useRouteElements() {
   return (
     <Routes>
+      {/* Auth callback route */}
+      <Route
+        path="/auth/callback"
+        element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <AuthCallback />
+          </Suspense>
+        }
+      />
+
       {/* Main layout routes */}
       <Route path="/" element={<MainLayout />}>
         <Route
@@ -65,6 +78,33 @@ export function useRouteElements() {
           }
         />
 
+        <Route
+          path="post/:id/status"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <PostStatusPage />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="create-post"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <CreatePostPage />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="post-status"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <PostStatusPage />
+            </Suspense>
+          }
+        />
+
         {/* About pages */}
         <Route
           path="profile"
@@ -74,6 +114,16 @@ export function useRouteElements() {
             </Suspense>
           }
         />
+
+        <Route
+          path="my-posts"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <MyPostsPage />
+            </Suspense>
+          }
+        />
+
         <Route
           path="about"
           element={
@@ -141,6 +191,15 @@ export function useRouteElements() {
           element={
             <Suspense fallback={<LoadingSpinner />}>
               <ChatPage />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="seller/:id"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <SellerProfilePage />
             </Suspense>
           }
         />
@@ -231,28 +290,6 @@ export function useRouteElements() {
           </Suspense>
         }
       />
-      <Route
-        path="/after-register"
-        element={
-          <Suspense fallback={<LoadingSpinner />}>
-            <AfterRegisterPage />
-          </Suspense>
-        }
-      />
-      {/* Auth routes */}
-      <Route
-        path="/auth"
-        element={
-          <Suspense fallback={<LoadingSpinner />}>
-            <LoginPage />
-          </Suspense>
-        }
-      />
-
-      {/* Redirect old routes */}
-      <Route path="/login" element={<Navigate to="/auth?mode=login" replace />} />
-      <Route path="/register" element={<Navigate to="/auth?mode=register" replace />} />
-
       <Route
         path="*"
         element={

@@ -16,9 +16,13 @@ import { Input } from '../ui/input';
 import { useApp, useAuth } from '@/contexts';
 import { LocationModal } from './LocationModal';
 import { LocationType } from '@/types/location.type';
+import { useTranslation } from 'react-i18next';
+import { LANGUAGES } from '@/constants';
 
 export default function Header() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { language, changeLanguage } = useApp();
   const [selectedAddress, setSelectedAddress] = useState('Toàn Quốc');
   const [selectedLocationId, setSelectedLocationId] = useState<number>(0);
   const [selectedLocationLevel, setSelectedLocationLevel] = useState<LocationType>(LocationType.PROVINCE);
@@ -53,11 +57,29 @@ export default function Header() {
     navigate(`/posts${queryString ? `?${queryString}` : ''}`);
   };
 
+  // Add language switcher in the top navigation
+  const renderLanguageSelector = () => (
+    <div className="relative">
+      <select
+        value={language}
+        onChange={(e) => changeLanguage(e.target.value as 'en' | 'vi')}
+        className="bg-transparent text-white text-sm cursor-pointer"
+      >
+        {LANGUAGES.map(({ code, flag }) => (
+          <option key={code} value={code} className="text-black">
+            {flag}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+
   return (
     <header className="bg-blue-600 text-white">
       {/* Top navigation bar */}
       <div className="flex items-center justify-between border-b border-blue-800 bg-blue-700 px-4 py-2 text-sm text-white">
         <div className="flex space-x-6">
+          {renderLanguageSelector()}
           {['Chợ Tốt', 'Nhà Tốt', 'Chợ Tốt Xe', 'Việc Làm Tốt'].map((label) => (
             <a key={label} href="#" className="transition hover:text-gray-200">
               {label}
@@ -153,7 +175,13 @@ export default function Header() {
               onClick={() => setShowAccount(!showAccount)}
             >
               <User size={20} />
-              <span className="text-sm">Tài khoản</span>
+              {isAuthenticated ? (
+                <span className="text-sm">{user?.userName}</span>
+              ) : authUser ? (
+                <span className="text-sm">{authUser.email}</span>
+              ) : (
+                <span className="text-sm">Tài khoản</span>
+              )}
               <ChevronDown size={16} />
             </div>
 
@@ -227,7 +255,8 @@ export default function Header() {
             )}
           </div>
 
-          <Button className="rounded-lg bg-orange-500 px-4 py-2 font-bold text-white shadow-lg transition hover:bg-orange-600">
+          <Button className="rounded-lg bg-orange-500 px-4 py-2 font-bold text-white shadow-lg transition hover:bg-orange-600"
+            onClick={() => navigate('/create-post')}>
             <span className="flex items-center gap-2">
               <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path d="M12 5v14m7-7H5" />
