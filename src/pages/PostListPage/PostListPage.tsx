@@ -2,7 +2,7 @@ import { postsApi } from "@/apis/post"
 import useQueryConfig from "@/hooks/useQueryConfig"
 import type { PostFilters } from "@/types/post.type"
 import { keepPreviousData, useQuery } from "@tanstack/react-query"
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import PostCard from '@/components/common/PostCard';
 
 import AsideFilter from "@/components/common/AsideFilter";
@@ -11,11 +11,14 @@ import type { RootState } from "@/store";
 import { useSelector } from "react-redux";
 import MobileFilterModal from "@/components/common/MobileFilterModal";
 import Pagination from "@/components/common/Pagination";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function PostListPage() {
     const queryConfig = useQueryConfig();
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [showMobileFilter, setShowMobileFilter] = useState(false);
+    const navigate = useNavigate();
+    const location = useLocation();
 
     // Fetch posts với query config
     const { data: postsData, isLoading: postsLoading } = useQuery({
@@ -24,6 +27,13 @@ export default function PostListPage() {
         placeholderData: keepPreviousData,
         staleTime: 3 * 60 * 1000
     });
+
+    useEffect(() => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }, [location.pathname, location.search]);
 
     const { nestedCategories } = useSelector((state: RootState) => state.categories);
 
@@ -71,7 +81,11 @@ export default function PostListPage() {
                                                 key={post.id}
                                                 post={post}
                                                 layout={viewMode}
-                                                onClick={() => window.open(`/posts/${post.id}`, '_blank')}
+                                                onClick={() => (
+                                                    navigate(`/post/${post.id}`, {
+                                                        state: { from: 'post-list' }
+                                                    })
+                                                )}
                                             />
                                         ))}
                                     </div>
@@ -87,7 +101,7 @@ export default function PostListPage() {
                                     )}
                                 </>
                             ) : (
-                                <EmptyState queryConfig={queryConfig} />
+                                <EmptyState />
                             )}
                         </main>
                     </div>

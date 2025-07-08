@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import {
     ArrowLeft,
     MapPin,
@@ -11,8 +11,9 @@ import {
     Heart,
     Share2,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { postsApi } from '@/apis/post';
 import { authApi } from '@/apis/auth';
@@ -22,14 +23,22 @@ import { Button } from '@/components/ui/button';
 import { formatCurrency, formatRelativeTime } from '@/utils';
 import type { PostFilters } from '@/types/post.type';
 import toast from 'react-hot-toast';
+import { ATTRIBUTE_TRANSLATIONS } from '@/constants/productAttributes';
+import { LocationType } from '@/types/location.type';
+import { useApp } from '@/contexts';
+
+
 
 export default function PostDetailPage() {
+    const { i18n } = useTranslation();
     const navigate = useNavigate();
+    const location = useLocation();
     const { id } = useParams<{ id: string }>();
     const [currentIndexImages, setCurrentIndexImages] = useState([0, 5]);
     const [activeImage, setActiveImage] = useState('');
     const [isWishlisted, setIsWishlisted] = useState(false);
     const imageRef = useRef<HTMLImageElement>(null);
+    const user = useApp().user;
 
     // Fetch post detail
     const { data: postDetailData, isLoading, error } = useQuery({
@@ -52,11 +61,21 @@ export default function PostDetailPage() {
         [post, currentIndexImages]
     );
 
+    // Scroll to top when location changes (handles all navigation cases)
+    useEffect(() => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }, [location.pathname, location.search]);
+
     // Filters for similar posts (same category and location)
     const similarPostsFilters: PostFilters = useMemo(() => ({
-        categoryId: post?.categoryId ? undefined : undefined,
-        locationId: post?.provinceCode ? undefined : undefined,
-        pageSize: 8
+        categoryId: post?.categoryId || undefined,
+        locationId: post?.provinceCode || undefined,
+        locationLevel: post?.provinceCode ? LocationType.PROVINCE : undefined,
+        pageSize: 8,
+        excludePostId: post?.id // Optional: exclude current post from simi lar posts
     }), [post]);
 
     useEffect(() => {
@@ -105,7 +124,7 @@ export default function PostDetailPage() {
 
     const handleContactSeller = () => {
         // Navigate to chat or show contact modal
-        // toast.info('Tính năng liên hệ người bán đang được phát triển');
+        toast.success('Tính năng liên hệ người bán đang được phát triển');
     };
 
     const handleToggleWishlist = () => {
@@ -277,41 +296,36 @@ export default function PostDetailPage() {
                                 </div>
                             </div>
 
-                            {/* Description */}
-                            <div className="mb-8">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-3">Mô tả chi tiết</h3>
-                                <div
-                                    className="prose prose-sm max-w-none text-gray-700 leading-relaxed"
-                                    dangerouslySetInnerHTML={{
-                                        __html: post.description
-                                    }}
-                                />
-                            </div>
-
                             {/* Action Buttons */}
-                            <div className="flex flex-col sm:flex-row gap-3">
-                                <Button
-                                    onClick={handleContactSeller}
-                                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-                                >
-                                    <MessageCircle className="w-4 h-4 mr-2" />
-                                    Liên hệ người bán
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    onClick={handleContactSeller}
-                                    className="flex-1"
-                                >
-                                    <Phone className="w-4 h-4 mr-2" />
-                                    Gọi điện
-                                </Button>
-                            </div>
+                            {user && user.id !== post.userId && (
+                                <div className="flex flex-col sm:flex-row gap-3">
+                                    <Button
+                                        onClick={handleContactSeller}
+                                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                                    >
+                                        <MessageCircle className="w-4 h-4 mr-2" />
+                                        Liên hệ người bán
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        onClick={handleContactSeller}
+                                        className="flex-1"
+                                    >
+                                        <Phone className="w-4 h-4 mr-2" />
+                                        Gọi điện
+                                    </Button>
+                                </div>
+                            )}
 
                             {/* Seller Info */}
                             <div className="mt-6 p-4 bg-gray-50 rounded-xl">
                                 <h4 className="font-semibold text-gray-900 mb-3">Thông tin người bán</h4>
                                 <div className="flex items-center">
-                                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <div
+                                        className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center cursor-pointer transition ring-2 ring-transparent hover:ring-blue-400"
+                                        onClick={() => navigate(`/seller/${post.userId}`)}
+                                        title="Xem trang người bán"
+                                    >
                                         {seller?.avatarUrl ? (
                                             <img
                                                 src={seller.avatarUrl}
@@ -323,7 +337,11 @@ export default function PostDetailPage() {
                                         )}
                                     </div>
                                     <div className="ml-3">
-                                        <p className="font-medium text-gray-900">
+                                        <p
+                                            className="font-medium text-gray-900 cursor-pointer transition hover:text-blue-600"
+                                            onClick={() => navigate(`/seller/${post.userId}`)}
+                                            title="Xem trang người bán"
+                                        >
                                             {seller?.userName || `Người bán #${post.userId}`}
                                         </p>
                                         <p className="text-sm text-gray-600">
@@ -339,6 +357,46 @@ export default function PostDetailPage() {
                             </div>
                         </div>
                     </div>
+                </div>
+
+
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mt-6">
+                    {/* Description */}
+                    <div className="mb-8 p-4">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-3">Mô tả chi tiết</h3>
+                        <div
+                            className="prose prose-sm max-w-none text-gray-700 leading-relaxed"
+                            dangerouslySetInnerHTML={{
+                                __html: post.description
+                            }}
+                        />
+                        {/* Product Attributes Table */}
+                        {post.attributes && Object.keys(post.attributes).length > 0 && (
+                            <div className="mt-6">
+                                <h3 className="text-lg font-semibold text-gray-900 mb-3">Thông tin chi tiết</h3>
+                                <div className="bg-white rounded-lg border border-gray-200 w-1/3">
+                                    <table className="w-full">
+                                        <tbody>
+                                            {Object.entries(post.attributes).map(([key, value]) => (
+                                                <tr key={key} className="border-b last:border-b-0 border-gray-200">
+                                                    <td className="py-2 px-4 bg-gray-50 w-1/3 capitalize">
+                                                        {(ATTRIBUTE_TRANSLATIONS.keys[i18n.language as 'en' | 'vi'] as Record<string, string>)[key] ||
+                                                            key.replace(/([A-Z])/g, ' $1')}
+                                                    </td>
+                                                    <td className="py-2 px-4">
+                                                        {ATTRIBUTE_TRANSLATIONS.values[i18n.language as 'en' | 'vi'][
+                                                            value as keyof typeof ATTRIBUTE_TRANSLATIONS.values['vi']
+                                                        ] || String(value)}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
                 </div>
 
                 {/* Similar Posts Section */}
