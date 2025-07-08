@@ -2,7 +2,6 @@ import { useContext, useEffect } from 'react';
 import { AppContext } from '@/contexts/AppContext';
 import { useKeycloak } from '@react-keycloak/web';
 import { authApi } from '@/apis/auth';
-import { useLocation } from 'react-router-dom';
 
 export function useApp() {
   const context = useContext(AppContext);
@@ -15,9 +14,6 @@ export function useApp() {
 export function useAuth() {
   const { keycloak, initialized } = useKeycloak();
   const { setUser, setIsAuthLoading } = useApp();
-  const location = useLocation(); // Get current route
-
-  const isRegistrationFlow = location.pathname === '/after-register';
 
   useEffect(() => {
     if (!initialized) return;
@@ -25,41 +21,42 @@ export function useAuth() {
     setIsAuthLoading(true);
 
     if (keycloak.authenticated) {
+      // Always save tokens when authenticated
       localStorage.setItem('token', keycloak.token ?? '');
       localStorage.setItem('refreshToken', keycloak.refreshToken ?? '');
       localStorage.setItem('user', JSON.stringify(keycloak.tokenParsed));
 
-      if (!isRegistrationFlow) {
-        // Fetch user profile only if not in registration flow
+      // Fetch user profile if not in auth callback
+      if (!window.location.pathname.startsWith('/auth/callback')) {
         authApi.getProfile()
-          .then((user) => {
+          .then(user => {
             setUser(user);
+            setIsAuthLoading(false);
           })
-          .catch((error) => {
+          .catch(error => {
             console.error('Failed to fetch user info:', error);
-          })
-          .finally(() => {
             setIsAuthLoading(false);
           });
       } else {
-        // Skip fetching user profile during registration flow
         setIsAuthLoading(false);
       }
 
+      // Setup token refresh handler
       keycloak.onTokenExpired = () => {
         keycloak.updateToken(70).then((refreshed) => {
           if (refreshed) {
             localStorage.setItem('token', keycloak.token ?? '');
             localStorage.setItem('refreshToken', keycloak.refreshToken ?? '');
+            localStorage.setItem('user', JSON.stringify(keycloak.tokenParsed));
           }
         }).catch((error) => {
           console.error('Failed to refresh token:', error);
-          // Don't automatically logout on token refresh failure
-          // This prevents logout loops
         });
       };
+    } else {
+      setIsAuthLoading(false);
     }
-  }, [initialized, keycloak.authenticated]);
+  }, [initialized, keycloak.authenticated, setUser, setIsAuthLoading, keycloak]);
 
   const logout = () => {
     localStorage.clear();
@@ -77,11 +74,9 @@ export function useAuth() {
     refreshToken: localStorage.getItem('refreshToken'),
     isAuthenticated: initialized && keycloak.authenticated,
     isLoading: !initialized,
-    login: () => keycloak.login({ redirectUri: window.location.origin }),
+    login: () => keycloak.login(),
     logout,
-    register: () => keycloak.register({
-      redirectUri: window.location.origin + '/after-register'
-    }),
+    register: () => keycloak.register(),
   };
 }
 

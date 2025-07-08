@@ -1,29 +1,21 @@
 import Keycloak from 'keycloak-js';
 
-export const keycloakConfig = {
+const keycloak = new Keycloak({
     url: import.meta.env['VITE_KEYCLOAK_URL'],
     realm: import.meta.env['VITE_KEYCLOAK_REALM'],
-    clientId: import.meta.env['VITE_KEYCLOAK_CLIENT_ID']
-}
+    clientId: import.meta.env['VITE_KEYCLOAK_CLIENT_ID'],
+});
 
-class KeycloakInstance extends Keycloak {
-    private isInitialized = false;
+// Configure default options
+const defaultOptions = {
+    redirectUri: window.location.origin + '/auth/callback'
+};
 
-    async customInit(options: Keycloak.KeycloakInitOptions) {
-        if (this.isInitialized) {
-            console.log('Keycloak already initialized');
-            return;
-        }
-        
-        try {
-            const auth = await this.init(options);
-            this.isInitialized = true;
-            return auth;
-        } catch (error) {
-            console.error('Failed to initialize Keycloak:', error);
-            throw error;
-        }
-    }
-}
+// Wrap original methods to always use our callback URL
+const originalLogin = keycloak.login.bind(keycloak);
+const originalRegister = keycloak.register.bind(keycloak);
 
-export const keycloak = new KeycloakInstance(keycloakConfig);
+keycloak.login = (options = {}) => originalLogin({ ...defaultOptions, ...options });
+keycloak.register = (options = {}) => originalRegister({ ...defaultOptions, ...options });
+
+export { keycloak };
