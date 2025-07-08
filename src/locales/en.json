@@ -36,7 +36,11 @@
     "orders": "Orders",
     "settings": "Settings",
     "privacy": "Privacy Policy",
-    "terms": "Terms of Service"
+    "terms": "Terms of Service",
+    "help": "Help Center",
+    "posts": "Posts",
+    "myPosts": "My Posts",
+    "sellerProfile": "Seller Profile"
   },
   "auth": {
     "login": "Login",
@@ -223,7 +227,10 @@
     "limitedFeature1": "Uploading and selling products",
     "limitedFeature2": "Contact and buying from sellers",
     "limitedFeature3": "Leaving reviews and ratings for sellers",
-    "completeVerification": "Complete Verification"
+    "completeVerification": "Complete Verification",
+    "joined": "Joined",
+    "validatedListings": "Displaying Posts",
+    "archivedListings": "Archived Posts"
   },
   "privacy": {
     "title": "Privacy Policy",

@@ -20,7 +20,8 @@
     "viewAll": "Xem tất cả",
     "showMore": "Xem thêm",
     "showLess": "Ẩn bớt"
-  },  "navigation": {
+  },
+  "navigation": {
     "home": "Trang chủ",
     "products": "Sản phẩm",
     "categories": "Danh mục",
@@ -35,7 +36,10 @@
     "orders": "Đơn hàng",
     "settings": "Cài đặt",
     "privacy": "Chính Sách Bảo Mật",
-    "terms": "Điều Khoản Dịch Vụ"
+    "terms": "Điều Khoản Dịch Vụ",
+    "posts": "Tin đăng",
+    "myPosts": "Bài đăng của tôi",
+    "sellerProfile": "Hồ sơ người bán"
   },
   "auth": {
     "login": "Đăng nhập",
@@ -188,7 +192,8 @@
   "validation": {
     "required": "Trường này là bắt buộc",
     "emailInvalid": "Vui lòng nhập địa chỉ email hợp lệ",
-    "passwordTooShort": "Mật khẩu phải có ít nhất 8 ký tự",    "passwordMismatch": "Mật khẩu không khớp",
+    "passwordTooShort": "Mật khẩu phải có ít nhất 8 ký tự",
+    "passwordMismatch": "Mật khẩu không khớp",
     "phoneInvalid": "Vui lòng nhập số điện thoại hợp lệ",
     "minLength": "Phải có ít nhất {{min}} ký tự",
     "maxLength": "Không được quá {{max}} ký tự",
@@ -196,14 +201,34 @@
     "max": "Không được quá {{max}}"
   },
   "profile": {
-    "currentInfo": "Thông tin hiện tại",
-    "updateProfile": "Cập nhật hồ sơ",
-    "firstName": "Tên",
-    "lastName": "Họ",
-    "email": "Email",
-    "updateButton": "Cập nhật hồ sơ",
+    "update": "Cập nhật hồ sơ",
+    "currentInfo": "Thông tin hồ sơ",
+    "edit": "Chỉnh sửa hồ sơ",
+    "name": "Tên",
+    "phone": "Điện thoại",
+    "avatar": "Ảnh đại diện",
+    "verifyNotice": "Tài khoản của bạn cần được xác minh",
+    "accountNotVerified": "Tài khoản của bạn chưa được xác minh.",
+    "verifyNow": "Xác minh ngay",
+    "phoneFormat": "Định dạng: 0123456789",
     "updateSuccess": "Cập nhật hồ sơ thành công",
-    "updateError": "Cập nhật hồ sơ thất bại"
+    "updateError": "Cập nhật hồ sơ thất bại",
+    "notVerified": "Tài khoản của bạn chưa được xác minh.",
+    "requestVerification": "Yêu cầu xác minh",
+    "verificationSent": "Email xác minh đã được gửi",
+    "verificationError": "Gửi email xác minh thất bại",
+    "verificationInstructions": "Email xác minh đã được gửi",
+    "checkEmail": "Vui lòng kiểm tra email của bạn để hoàn tất xác minh.",
+    "accountLimited": "Tài khoản chưa được xác minh - Chức năng hạn chế",
+    "limitedFunctionality": "Tài khoản của bạn có quyền truy cập hạn chế cho đến khi xác minh hoàn tất.",
+    "limitedFeaturesList": "Các tính năng yêu cầu xác minh:",
+    "limitedFeature1": "Tải lên và bán sản phẩm",
+    "limitedFeature2": "Liên hệ và mua hàng từ người bán",
+    "limitedFeature3": "Để lại đánh giá và xếp hạng cho người bán",
+    "completeVerification": "Hoàn tất xác minh",
+    "joined": "Tham gia",
+    "validatedListings": "Bài đăng đang hiển thị",
+    "archivedListings": "Bài đăng đã bán"
   },
   "privacy": {
     "title": "Chính Sách Bảo Mật",
