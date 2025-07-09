@@ -18,6 +18,7 @@ import { LocationModal } from './LocationModal';
 import { LocationType } from '@/types/location.type';
 import { useTranslation } from 'react-i18next';
 import { LANGUAGES } from '@/constants';
+import toast from 'react-hot-toast';
 
 export default function Header() {
   const navigate = useNavigate();
@@ -38,6 +39,14 @@ export default function Header() {
     setSelectedLocationLevel(locationLevel);
     setSelectedAddress(displayText);
     setShowLocationModal(false);
+  };
+
+  const handleCreatePost = () => {
+    if (user?.isVerify) {
+      navigate('/create-post');
+    } else {
+      toast.error(t('header.createPost.verifyRequired'));
+    }
   };
 
   const handleSearch = () => {
@@ -255,15 +264,17 @@ export default function Header() {
             )}
           </div>
 
-          <Button className="rounded-lg bg-orange-500 px-4 py-2 font-bold text-white shadow-lg transition hover:bg-orange-600"
-            onClick={() => navigate('/create-post')}>
-            <span className="flex items-center gap-2">
-              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M12 5v14m7-7H5" />
-              </svg>
-              ĐĂNG TIN
-            </span>
-          </Button>
+          {isAuthenticated && (
+            <Button className="rounded-lg bg-orange-500 px-4 py-2 font-bold text-white shadow-lg transition hover:bg-orange-600"
+              onClick={() => handleCreatePost()}>
+              <span className="flex items-center gap-2">
+                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path d="M12 5v14m7-7H5" />
+                </svg>
+                ĐĂNG TIN
+              </span>
+            </Button>
+          )}
         </div>
       </div>
 

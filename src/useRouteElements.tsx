@@ -3,6 +3,8 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from '@/layouts/MainLayout';
 import AdminLayout from '@/layouts/AdminLayout';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import { ROLES } from '@/utils/role';
 import ProfilePage from './pages/ProfilePage/ProfilePage';
 import PostDetailPage from './pages/PostDetailPage/PostDetailPage';
 import AuthCallback from './pages/AuthCallback';
@@ -10,10 +12,14 @@ import CreatePostPage from './pages/CreatePostPage/CreatePostPage';
 import PostStatusPage from './pages/PostStatusPage/PostStatusPage';
 import MyPostsPage from './pages/ProfilePage/MyPostsPage';
 
+// Add RequiredLoginPage import
+const RequiredLoginPage = lazy(() => import('@/pages/RequiredLoginPage'));
+
 // Lazy load components
 const HomePage = lazy(() => import('@/pages/HomePage'));
 const PostListPage = lazy(() => import('@/pages/PostListPage/PostListPage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
+const UnauthorizedPage = lazy(() => import('@/pages/UnauthorizedPage'));
 const SellerProfilePage = lazy(() => import('@/pages/SellerProfilePage/SellerProfilePage'));
 const HelpCenter = lazy(() => import('@/pages/Help/HelpCenter'));
 const HelpSeller = lazy(() => import('@/pages/Help/HelpSeller'));
@@ -48,8 +54,29 @@ export function useRouteElements() {
         }
       />
 
+      {/* Unauthorized route */}
+      <Route
+        path="/unauthorized"
+        element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <UnauthorizedPage />
+          </Suspense>
+        }
+      />
+
+      {/* Required login route */}
+      <Route
+        path="/required-login"
+        element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <RequiredLoginPage />
+          </Suspense>
+        }
+      />
+
       {/* Main layout routes */}
       <Route path="/" element={<MainLayout />}>
+        {/* Public routes - no protection needed */}
         <Route
           index
           element={
@@ -59,7 +86,6 @@ export function useRouteElements() {
           }
         />
 
-        {/* Search/Posts listing route */}
         <Route
           path="posts"
           element={
@@ -74,52 +100,6 @@ export function useRouteElements() {
           element={
             <Suspense fallback={<LoadingSpinner />}>
               <PostDetailPage />
-            </Suspense>
-          }
-        />
-
-        <Route
-          path="post/:id/status"
-          element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <PostStatusPage />
-            </Suspense>
-          }
-        />
-
-        <Route
-          path="create-post"
-          element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <CreatePostPage />
-            </Suspense>
-          }
-        />
-
-        <Route
-          path="post-status"
-          element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <PostStatusPage />
-            </Suspense>
-          }
-        />
-
-        {/* About pages */}
-        <Route
-          path="profile"
-          element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <ProfilePage />
-            </Suspense>
-          }
-        />
-
-        <Route
-          path="my-posts"
-          element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <MyPostsPage />
             </Suspense>
           }
         />
@@ -149,52 +129,6 @@ export function useRouteElements() {
           }
         />
 
-        {/* Payment routes */}
-        <Route
-          path="payment/pro"
-          element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <ProPage />
-            </Suspense>
-          }
-        />
-
-        <Route
-          path="payment/checkout"
-          element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <CheckoutPage />
-            </Suspense>
-          }
-        />
-
-        <Route
-          path="payment/success"
-          element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <SuccessPage />
-            </Suspense>
-          }
-        />
-
-        <Route
-          path="payment/failed"
-          element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <SuccessPage /> {/* Đổi thành SuccessPage vì nó handle cả success và failed */}
-            </Suspense>
-          }
-        />
-
-        <Route
-          path="chat"
-          element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <ChatPage />
-            </Suspense>
-          }
-        />
-
         <Route
           path="seller/:id"
           element={
@@ -203,18 +137,120 @@ export function useRouteElements() {
             </Suspense>
           }
         />
-      </Route>
 
-      {/* Admin routes */}
-      <Route path="/admin" element={<AdminLayout />}>
+        {/* Protected routes - require authentication */}
         <Route
-          index
+          path="post/:id/status"
           element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <Navigate to="/admin/dashboard" replace />
-            </Suspense>
+            <ProtectedRoute>
+              <Suspense fallback={<LoadingSpinner />}>
+                <PostStatusPage />
+              </Suspense>
+            </ProtectedRoute>
           }
         />
+
+        <Route
+          path="create-post"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<LoadingSpinner />}>
+                <CreatePostPage />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="profile"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<LoadingSpinner />}>
+                <ProfilePage />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="my-posts"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<LoadingSpinner />}>
+                <MyPostsPage />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Payment routes - require authentication */}
+        <Route
+          path="payment/pro"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<LoadingSpinner />}>
+                <ProPage />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="payment/checkout"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<LoadingSpinner />}>
+                <CheckoutPage />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="payment/success"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<LoadingSpinner />}>
+                <SuccessPage />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="payment/failed"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<LoadingSpinner />}>
+                <SuccessPage />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="chat"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<LoadingSpinner />}>
+                <ChatPage />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+      </Route>
+
+      {/* Admin routes - protected by role */}
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute requiredRole={ROLES.ADMIN} allowAutoLogin={true}>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Navigate to="/admin/dashboard" replace />} />
+
         <Route
           path="dashboard"
           element={
@@ -265,7 +301,8 @@ export function useRouteElements() {
         />
       </Route>
 
-      {/* Help routes - independent pages */}
+
+      {/* Help routes - public pages */}
       <Route
         path="help"
         element={
@@ -290,6 +327,8 @@ export function useRouteElements() {
           </Suspense>
         }
       />
+
+      {/* 404 route */}
       <Route
         path="*"
         element={
