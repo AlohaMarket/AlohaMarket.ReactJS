@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useApp } from '@/hooks/useApp';
 import ConversationList from './ConversationList';
 import ChatWindow from './ChatWindow';
-import UserLogin from './UserLogin';
 import './ChatApp.css';
 import { SignalRService } from '@/services/signalRService';
 import { ChatApiService } from '@/services/chatApiService';
-import type { Conversation, Message } from '@/types/chat.types';
+import type { Conversation, Message, CreateConversationRequest } from '@/types/chat.types';
 
 const ChatApp: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user } = useApp();
+  
   const [signalRService] = useState(new SignalRService());
   const [chatApiService] = useState(new ChatApiService());
   const [currentUserId, setCurrentUserId] = useState<string>('');
@@ -15,7 +20,13 @@ const ChatApp: React.FC = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);  // Setup SignalR event listeners function
+  const [loading, setLoading] = useState<boolean>(false);
+  const [autoCreateInProgress, setAutoCreateInProgress] = useState<boolean>(false);
+
+  // Parse URL parameters for auto-conversation creation
+  const urlParams = new URLSearchParams(location.search);
+  const targetUserId = urlParams.get('userId');
+  const postId = urlParams.get('postId');  // Setup SignalR event listeners function
   const setupEventListeners = () => {
     signalRService.onReceiveMessage((message: Message) => {
       setMessages(prevMessages => {
@@ -178,13 +189,100 @@ const ChatApp: React.FC = () => {
     }
   };
 
+  // Auto-login effect when user is authenticated via Keycloak
+  useEffect(() => {
+    if (user && user.id && !isConnected && !currentUserId) {
+      console.log('Auto-login triggered for user:', user.id);
+      handleLogin(user.id);
+    }
+  }, [user, isConnected, currentUserId]);
+
+  // Auto-create conversation effect when URL parameters are present
+  useEffect(() => {
+    if (isConnected && currentUserId && targetUserId && !autoCreateInProgress) {
+      console.log('Auto-create conversation triggered:', {
+        currentUserId,
+        targetUserId,
+        postId,
+        conversationsCount: conversations.length
+      });
+      autoCreateConversation();
+    }
+  }, [isConnected, currentUserId, targetUserId, postId, conversations.length]);
+
+  const autoCreateConversation = async () => {
+    if (!targetUserId || !currentUserId) {
+      return;
+    }
+
+    // Prevent user from chatting with themselves
+    if (targetUserId === currentUserId) {
+      console.log('Cannot create conversation with yourself');
+      navigate('/chat', { replace: true });
+      return;
+    }
+
+    try {
+      setAutoCreateInProgress(true);
+      setLoading(true);
+
+      // Check if conversation already exists between these users
+      const existingConversation = conversations.find(conv => 
+        conv.participants.some(p => p.userId === targetUserId) &&
+        conv.participants.some(p => p.userId === currentUserId) &&
+        (!postId || conv.productId === postId)
+      );
+
+      if (existingConversation) {
+        console.log('Existing conversation found, selecting it');
+        await handleConversationSelect(existingConversation);
+        // Clear URL parameters after successful conversation selection
+        navigate('/chat', { replace: true });
+        return;
+      }
+
+      // Create new conversation
+      const createRequest: CreateConversationRequest = {
+        userIds: [currentUserId, targetUserId]
+      };
+
+      if (postId) {
+        createRequest.productId = postId;
+      }
+
+      console.log('Creating new conversation with request:', createRequest);
+      const newConversation = await chatApiService.createConversation(createRequest);
+      
+      // Add to conversations list and select it
+      setConversations(prev => [newConversation, ...prev]);
+      await handleConversationSelect(newConversation);
+      
+      // Clear URL parameters after successful conversation creation
+      navigate('/chat', { replace: true });
+      
+      console.log('Auto-created conversation:', newConversation);
+    } catch (error) {
+      console.error('Failed to auto-create conversation:', error);
+      // Don't show error to user, just log it and clear URL params
+      navigate('/chat', { replace: true });
+    } finally {
+      setLoading(false);
+      setAutoCreateInProgress(false);
+    }
+  };
+
   if (!isConnected) {
-    return (
-      <UserLogin 
-        onLogin={handleLogin} 
-        loading={loading}
-      />
-    );
+    // Show loading if user is authenticated but not yet connected to chat
+    if (user && !loading) {
+      return (
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Connecting to chat...</p>
+          </div>
+        </div>
+      );
+    }
   }
 
   return (
@@ -210,7 +308,15 @@ const ChatApp: React.FC = () => {
           />
         </div>
           <div className="main-chat">
-          {selectedConversation ? (
+          {autoCreateInProgress ? (
+            <div className="no-conversation-selected">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <h3>Creating conversation...</h3>
+                <p>Setting up your chat with the seller</p>
+              </div>
+            </div>
+          ) : selectedConversation ? (
             <ChatWindow
               conversation={selectedConversation}
               messages={messages}
@@ -231,4 +337,4 @@ const ChatApp: React.FC = () => {
   );
 };
 
-export default ChatApp; 
+export default ChatApp;

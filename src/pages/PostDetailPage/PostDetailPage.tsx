@@ -123,8 +123,23 @@ export default function PostDetailPage() {
     };
 
     const handleContactSeller = () => {
-        // Navigate to chat or show contact modal
-        toast.success('Tính năng liên hệ người bán đang được phát triển');
+        // Navigate to chat with seller and post context
+        if (post) {
+            if (user) {
+                // Check if user is trying to contact themselves
+                if (user.id === post.userId) {
+                    toast.error('Bạn không thể liên hệ với chính mình');
+                    return;
+                }
+                // If user is logged in, navigate to chat with seller's ID
+                navigate(`/chat?userId=${post.userId}&postId=${post.id}`);
+            } else {
+                // If user is not logged in, show error
+                toast.error('Bạn cần đăng nhập để liên hệ người bán');
+            }
+        } else {
+            toast.error('Không thể tải thông tin bài đăng');
+        }
     };
 
     const handleToggleWishlist = () => {
@@ -297,7 +312,7 @@ export default function PostDetailPage() {
                             </div>
 
                             {/* Action Buttons */}
-                            {user && user.id !== post.userId && (
+                            {(!user || user.id !== post.userId) && (
                                 <div className="flex flex-col sm:flex-row gap-3">
                                     <Button
                                         onClick={handleContactSeller}

@@ -228,14 +228,13 @@ export function useRouteElements() {
           }
         />
 
+        {/* Chat route - no protection needed, can be accessed with userId/postId from URL */}
         <Route
           path="chat"
           element={
-            <ProtectedRoute>
-              <Suspense fallback={<LoadingSpinner />}>
-                <ChatPage />
-              </Suspense>
-            </ProtectedRoute>
+            <Suspense fallback={<LoadingSpinner />}>
+              <ChatPage />
+            </Suspense>
           }
         />
       </Route>
