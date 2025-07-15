@@ -112,20 +112,63 @@ export default function CheckoutPage() {
       const selectedItem = checkoutItems[0];
 
       if (selectedPaymentMethod === 'vnpay') {
+        console.log('🚀 Bắt đầu thanh toán VNPay...');
+
         const paymentData = formatPaymentInformation(
-          selectedItem.planId, // Sử dụng planId thực tế
+          selectedItem.planId,
           totalAmount,
           planTitle!,
           user.name
         );
+
+        console.log('📤 Dữ liệu gửi đi:', JSON.stringify(paymentData, null, 2));
+
         const paymentResponse = await paymentAPI.createPaymentUrl(paymentData);
 
-        if (paymentResponse) {
-          window.location.href = paymentResponse;
+        console.log('📥 Response nhận được:', JSON.stringify(paymentResponse, null, 2));
+        console.log('📥 Type of response:', typeof paymentResponse);
+        console.log(
+          '📥 Response keys:',
+          paymentResponse ? Object.keys(paymentResponse) : 'null/undefined'
+        );
+
+        // Thêm các kiểm tra bổ sung
+        if (!paymentResponse) {
+          console.error('❌ paymentResponse is null/undefined');
+          throw new Error('Không nhận được phản hồi từ server');
+        }
+
+        // Kiểm tra nhiều trường hợp có thể
+        let paymentUrl = null;
+
+        if (paymentResponse.data) {
+          paymentUrl = paymentResponse.data;
+        } else if (typeof paymentResponse === 'string') {
+          paymentUrl = paymentResponse;
+        } else if (paymentResponse.url) {
+          paymentUrl = paymentResponse.url;
+        }
+
+        if (paymentUrl && typeof paymentUrl === 'string') {
+          console.log('🔗 URL thanh toán tìm thấy:', paymentUrl);
+
+          try {
+            new URL(paymentUrl); // Validate URL
+            console.log('✅ URL hợp lệ, đang chuyển hướng...');
+
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            window.location.href = paymentUrl;
+          } catch (urlError) {
+            console.error('❌ URL không hợp lệ:', urlError);
+            throw new Error('URL thanh toán không hợp lệ');
+          }
         } else {
+          console.error('❌ Không tìm thấy URL thanh toán trong response:', paymentResponse);
           throw new Error('Không nhận được URL thanh toán từ VNPay');
         }
       } else if (selectedPaymentMethod === 'momo') {
+        console.log('🚀 Bắt đầu thanh toán MoMo...');
+
         const momoOrderId = `MOMO_ORDER_${Date.now()}`;
         const momoOrderInfo = `${user.name} Thanh toán ${selectedItem.name} ${totalAmount}`;
 
@@ -135,20 +178,39 @@ export default function CheckoutPage() {
           momoOrderInfo,
           totalAmount
         );
+
+        console.log('📤 Dữ liệu MoMo gửi đi:', JSON.stringify(momoPaymentData, null, 2));
+
         const momoResponse = await paymentAPI.createMomoPaymentUrl(momoPaymentData);
 
-        if (momoResponse) {
-          window.location.href = momoResponse;
+        console.log('📥 MoMo Response:', JSON.stringify(momoResponse, null, 2));
+
+        // ✅ ĐÚNG - Lấy URL từ thuộc tính data
+        if (momoResponse && momoResponse.data) {
+          console.log('🔗 MoMo URL:', momoResponse.data);
+
+          try {
+            new URL(momoResponse.data); // Validate URL
+            console.log('✅ MoMo URL hợp lệ, đang chuyển hướng...');
+
+            await new Promise((resolve) => setTimeout(resolve, 500));
+
+            window.location.href = momoResponse.data; // ✅ ĐÚNG
+          } catch (urlError) {
+            console.error('❌ MoMo URL không hợp lệ:', urlError);
+            throw new Error('URL thanh toán MoMo không hợp lệ');
+          }
         } else {
+          console.error('❌ MoMo Response không có data:', momoResponse);
           throw new Error('Không nhận được URL thanh toán từ MoMo');
         }
       } else {
-        console.warn('Phương thức thanh toán chưa được hỗ trợ:', selectedPaymentMethod);
+        console.warn('⚠️ Phương thức thanh toán chưa được hỗ trợ:', selectedPaymentMethod);
         setIsProcessing(false);
         return;
       }
     } catch (error) {
-      console.error('Payment error:', error);
+      console.error('❌ Payment error:', error);
       const errorMessage =
         error instanceof Error ? error.message : 'Đã có lỗi xảy ra trong quá trình thanh toán.';
       navigate(`/payment/failed?status=failed&message=${encodeURIComponent(errorMessage)}`);

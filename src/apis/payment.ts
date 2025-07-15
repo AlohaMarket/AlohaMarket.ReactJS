@@ -68,23 +68,57 @@ export const paymentAPI = {
   // POST /api/Payment/payment-url - Tạo payment URL (REAL API)
   createPaymentUrl: async (data: PaymentInformationModel): Promise<PaymentUrlResponse> => {
     try {
-      const response = await api.post('/Payment/payment-url', data);
+      console.log('🚀 Gọi API VNPay với dữ liệu:', JSON.stringify(data, null, 2));
 
-      // Backend trả về format: { message: string, data: string }
-      return response.data;
+      const response = await api.postFullResponse<string>('/Payment/payment-url', data);
+
+      console.log('📦 Full response từ API:', JSON.stringify(response, null, 2));
+      console.log('📋 Response message:', response.message);
+      console.log('📋 Response data (URL):', response.data);
+
+      // Kiểm tra response có tồn tại không
+      if (!response) {
+        console.error('❌ Response is null/undefined');
+        throw new Error('No response received from server');
+      }
+
+      // Kiểm tra response.data có tồn tại không
+      if (!response.data) {
+        console.error('❌ Response.data is null/undefined');
+        throw new Error('No data in response from server');
+      }
+
+      // Trả về response theo format PaymentUrlResponse
+      return {
+        message: response.message || 'VNPay URL created successfully',
+        data: response.data,
+      };
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Không thể tạo URL thanh toán');
+      console.error('❌ API Error:', error);
+      throw new Error(error.message || 'Không thể tạo URL thanh toán');
     }
   },
 
   // POST /api/Payment/momo-payment-url - Tạo Momo payment URL
   createMomoPaymentUrl: async (data: MomoPaymentRequestModel): Promise<PaymentUrlResponse> => {
     try {
-      const response = await api.post('/Payment/momo-payment-url', data);
-      // Assuming Momo response is similar to VNPay's { message: string, data: string (url) }
-      return response.data;
+      console.log('🚀 Gọi API MoMo với dữ liệu:', JSON.stringify(data, null, 2));
+
+      const response = await api.postFullResponse<string>('/Payment/momo-payment-url', data);
+
+      console.log('📦 MoMo Full response từ API:', JSON.stringify(response, null, 2));
+
+      if (!response || !response.data) {
+        throw new Error('No response data from MoMo API');
+      }
+
+      return {
+        message: response.message || 'MoMo URL created successfully',
+        data: response.data,
+      };
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Không thể tạo URL thanh toán MoMo');
+      console.error('❌ MoMo API Error:', error);
+      throw new Error(error.message || 'Không thể tạo URL thanh toán MoMo');
     }
   },
 
