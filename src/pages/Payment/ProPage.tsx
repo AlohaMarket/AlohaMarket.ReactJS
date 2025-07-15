@@ -6,11 +6,13 @@ import { useQuery } from '@tanstack/react-query';
 import { Crown, CheckCircle, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { planAPI, PlanResponse, formatPlanPrice, formatPlanDuration } from '@/apis/plan';
+import { useApp } from '@/contexts';
 
 export default function ProPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
+  const { user } = useApp();
 
   // React Query - auto cache, refetch on stale
   const {
@@ -32,6 +34,7 @@ export default function ProPage() {
     staleTime: 5 * 60 * 1000, // Cache 5 phút
     gcTime: 10 * 60 * 1000, // Giữ cache 10 phút (cacheTime đã đổi thành gcTime trong React Query mới)
   });
+  console.log(user?.id);
 
   const handlePlanSelect = (planId: number) => {
     setSelectedPlanId(planId);
@@ -40,6 +43,12 @@ export default function ProPage() {
   const handlePurchase = () => {
     if (!selectedPlanId) {
       alert('Vui lòng chọn gói dịch vụ trước khi mua!');
+      return;
+    }
+
+    // Kiểm tra đăng nhập
+    if (!user) {
+      navigate('/login?redirectTo=' + encodeURIComponent('/payment/pro'));
       return;
     }
 
