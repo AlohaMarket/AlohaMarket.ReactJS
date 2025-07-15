@@ -187,44 +187,36 @@ export function useRouteElements() {
         <Route
           path="payment/pro"
           element={
-            <ProtectedRoute>
-              <Suspense fallback={<LoadingSpinner />}>
-                <ProPage />
-              </Suspense>
-            </ProtectedRoute>
+            <Suspense fallback={<LoadingSpinner />}>
+              <ProPage />
+            </Suspense>
           }
         />
 
         <Route
           path="payment/checkout"
           element={
-            <ProtectedRoute>
-              <Suspense fallback={<LoadingSpinner />}>
-                <CheckoutPage />
-              </Suspense>
-            </ProtectedRoute>
+            <Suspense fallback={<LoadingSpinner />}>
+              <CheckoutPage />
+            </Suspense>
           }
         />
 
         <Route
           path="payment/success"
           element={
-            <ProtectedRoute>
-              <Suspense fallback={<LoadingSpinner />}>
-                <SuccessPage />
-              </Suspense>
-            </ProtectedRoute>
+            <Suspense fallback={<LoadingSpinner />}>
+              <SuccessPage />
+            </Suspense>
           }
         />
 
         <Route
           path="payment/failed"
           element={
-            <ProtectedRoute>
-              <Suspense fallback={<LoadingSpinner />}>
-                <SuccessPage />
-              </Suspense>
-            </ProtectedRoute>
+            <Suspense fallback={<LoadingSpinner />}>
+              <SuccessPage />
+            </Suspense>
           }
         />
 
@@ -300,7 +292,6 @@ export function useRouteElements() {
           }
         />
       </Route>
-
 
       {/* Help routes - public pages */}
       <Route
