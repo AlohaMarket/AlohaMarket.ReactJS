@@ -1,4 +1,5 @@
 import { api } from './client';
+import { API_ENDPOINTS } from '@/constants';
 
 // Plan Response Interface - Updated based on backend model
 export interface PlanResponse {
@@ -12,24 +13,33 @@ export interface PlanResponse {
   createAt: string;
 }
 
-// Plan API Functions - Only GET and GET ALL
+// User Plan Response Interface
+export interface UserPlanResponse {
+  id: string;
+  userId: string;
+  planId: number;
+  planName: string;
+  startDate: string;
+  endDate: string;
+  remainPosts: number;
+  remainPushes: number;
+  isActive: boolean;
+}
+
+// Plan API Functions
 export const planAPI = {
   // GET /api/plans - Get all plans
   getAllPlans: async (): Promise<PlanResponse[]> => {
     try {
       console.log('Making request to /api/plan API endpoint...');
-
-      // Dùng axios client đã cấu hình
       const data = await api.get<PlanResponse[]>('/plan');
       console.log('API response data from axios client:', data);
 
-      // Nếu data đã là mảng, trả về luôn
       if (Array.isArray(data)) {
         console.log('Data is already an array, returning directly');
         return data;
       }
 
-      // Không phải mảng, thử truy cập API trực tiếp
       console.log('Data is not an array, trying direct API call');
       const response = await fetch('/api/plan', {
         method: 'GET',
@@ -47,7 +57,6 @@ export const planAPI = {
       const rawData = await response.json();
       console.log('Raw API response data from direct call:', rawData);
 
-      // Xác định format của response
       let planData: PlanResponse[];
 
       if (Array.isArray(rawData)) {
@@ -55,7 +64,6 @@ export const planAPI = {
       } else if (rawData && rawData.data && Array.isArray(rawData.data)) {
         planData = rawData.data;
       } else {
-        // Dữ liệu bạn đã log ra trong console
         planData = [
           {
             id: 1,
@@ -96,7 +104,6 @@ export const planAPI = {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       console.error('Get all plans error:', errorMessage);
 
-      // Trả về dữ liệu API từ log của bạn
       console.log('Using hardcoded data based on successful API response');
       return [
         {
@@ -136,13 +143,11 @@ export const planAPI = {
   // GET /api/plans/{id} - Get plan by ID
   getPlanById: async (id: number): Promise<PlanResponse> => {
     try {
-      // Sử dụng axios client từ config
       const data = await api.get<PlanResponse>(`/plan/${id}`);
       return data;
     } catch (error: unknown) {
       console.error(`Get plan by ID ${id} error:`, error);
 
-      // Trả về dữ liệu mẫu cho phát triển
       console.log('Using mock data for development');
 
       const mockPlan: PlanResponse = {
@@ -157,6 +162,44 @@ export const planAPI = {
       };
 
       return mockPlan;
+    }
+  },
+
+  // GET /api/plan/user-plan/{userId} - Get user plans by user ID
+  getUserPlans: async (userId: string): Promise<UserPlanResponse[]> => {
+    try {
+      console.log(`Fetching plans for user: ${userId}`);
+
+      // Try direct fetch first
+      const response = await fetch(`/api/plan/user-plan/${userId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          // Add authorization header if needed
+          Authorization: localStorage.getItem('token')
+            ? `Bearer ${localStorage.getItem('token')}`
+            : '',
+        },
+      });
+
+      console.log(`Direct API response status for user ${userId}:`, response.status);
+
+      if (response.status === 404) {
+        console.log(`No plans found for user ${userId}`);
+        return [];
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log(`Direct API response data for user ${userId}:`, data);
+
+      return Array.isArray(data) ? data : [];
+    } catch (error: unknown) {
+      console.error(`Get user plans for user ${userId} error:`, error);
+      return [];
     }
   },
 };
@@ -176,4 +219,17 @@ export const formatPlanDuration = (durationDays: number): string => {
   if (durationDays === 90) return '3 tháng';
   if (durationDays === 365) return '1 năm';
   return `${durationDays} ngày`;
+};
+
+export const getPlanBadgeColor = (planName: string): string => {
+  switch (planName.toUpperCase()) {
+    case 'FREE':
+      return 'bg-gray-100 text-gray-800';
+    case 'BASIC 1':
+      return 'bg-blue-100 text-blue-800';
+    case 'ADVANCED':
+      return 'bg-purple-100 text-purple-800';
+    default:
+      return 'bg-gray-100 text-gray-800';
+  }
 };
