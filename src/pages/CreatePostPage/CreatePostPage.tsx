@@ -619,7 +619,7 @@ const CreatePostPage = () => {
                     <SelectContent>
                       {categories?.map((category) => (
                         <SelectItem key={category.id} value={String(category.id)}>
-                          {category.name}
+                          {category.displayName}
                         </SelectItem>
                       ))}
                     </SelectContent>

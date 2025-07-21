@@ -92,14 +92,25 @@ export default function CheckoutPage() {
 
     localStorage.setItem('payment_plan_info', JSON.stringify(planInfo));
 
-    const price = parseInt(searchParams.get('price') || '0');
-    const duration = parseInt(searchParams.get('duration') || '0');
-    const maxPosts = parseInt(searchParams.get('maxPosts') || '0');
-    const maxPushes = parseInt(searchParams.get('maxPushes') || '0');
-    console.log(user.id);
+    // Đảm bảo parse an toàn các giá trị number
+    const price = parseInt(searchParams.get('price') || '0') || 0;
+    const duration = parseInt(searchParams.get('duration') || '0') || 0;
+    const maxPosts = parseInt(searchParams.get('maxPosts') || '0') || 0;
+    const maxPushes = parseInt(searchParams.get('maxPushes') || '0') || 0;
+
+    console.log('CheckoutPage - User ID:', user.id);
+    console.log('CheckoutPage - Plan data:', {
+      planId,
+      planTitle,
+      price,
+      duration,
+      maxPosts,
+      maxPushes,
+    });
+
     const checkoutItem: CheckoutItem = {
       id: `plan-${planId}`,
-      name: `${planTitle} - Gói dịch vụ`,
+      name: `${planTitle || 'Gói dịch vụ'} - Gói dịch vụ`,
       price: price,
       duration: formatPlanDuration(duration),
       features: [
@@ -108,7 +119,7 @@ export default function CheckoutPage() {
         'Hỗ trợ khách hàng',
         'Thống kê cơ bản',
       ],
-      planId: parseInt(planId),
+      planId: parseInt(planId) || 0,
     };
 
     setCheckoutItems([checkoutItem]);
@@ -122,13 +133,45 @@ export default function CheckoutPage() {
     try {
       const selectedItem = checkoutItems[0];
 
+      // Nếu là gói FREE (giá = 0), chuyển thẳng đến success page
+      if (totalAmount === 0) {
+        // Lưu thông tin để success page xử lý
+        const freePaymentInfo = {
+          planId: String(selectedItem.planId),
+          title: String(planTitle || ''),
+          price: '0',
+          amount: '0',
+          status: 'success',
+          method: 'free',
+          duration: String(searchParams.get('duration') || ''),
+          maxPosts: String(searchParams.get('maxPosts') || ''),
+          maxPushes: String(searchParams.get('maxPushes') || ''),
+        };
+
+        localStorage.setItem('payment_plan_info', JSON.stringify(freePaymentInfo));
+
+        // Chuyển đến success page với params
+        const params = new URLSearchParams({
+          planId: String(selectedItem.planId),
+          title: String(planTitle || ''),
+          price: '0',
+          amount: '0',
+          status: 'success',
+          method: 'free',
+        });
+
+        navigate(`/payment/success?${params.toString()}`);
+        return;
+      }
+
+      // Xử lý thanh toán có phí như cũ
       if (selectedPaymentMethod === 'vnpay') {
         const paymentData = formatPaymentInformation(
           selectedItem.planId,
           totalAmount,
-          planTitle!,
-          user.userName,
-          window.location.origin + '/payment/return' // Thay vì /payment/success
+          String(planTitle || ''),
+          String(user.userName || ''),
+          window.location.origin + '/payment/return'
         );
 
         const paymentResponse = await paymentAPI.createPaymentUrl(paymentData);
@@ -152,14 +195,14 @@ export default function CheckoutPage() {
         }
       } else if (selectedPaymentMethod === 'momo') {
         const momoOrderId = `MOMO_ORDER_${Date.now()}`;
-        const momoOrderInfo = `${user.userName} Thanh toán ${selectedItem.name} ${totalAmount}`;
+        const momoOrderInfo = `${String(user.userName || '')} Thanh toán ${selectedItem.name} ${totalAmount}`;
 
         const momoPaymentData = formatMomoPaymentRequest(
-          user.userName,
+          String(user.userName || ''),
           momoOrderId,
           momoOrderInfo,
           totalAmount,
-          window.location.origin + '/payment/return' // Thay vì /payment/success
+          window.location.origin + '/payment/return'
         );
 
         const momoResponse = await paymentAPI.createMomoPaymentUrl(momoPaymentData);
@@ -180,9 +223,12 @@ export default function CheckoutPage() {
         return;
       }
     } catch (error) {
+      console.error('Payment error:', error);
       const errorMessage =
         error instanceof Error ? error.message : 'Đã có lỗi xảy ra trong quá trình thanh toán.';
       navigate(`/payment/failed?status=failed&message=${encodeURIComponent(errorMessage)}`);
+      setIsProcessing(false);
+    } finally {
       setIsProcessing(false);
     }
   };
@@ -358,12 +404,16 @@ export default function CheckoutPage() {
                 {isProcessing ? (
                   <>
                     <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                    {selectedPaymentMethod === 'vnpay'
-                      ? 'Đang chuyển hướng sang VNPay...'
-                      : selectedPaymentMethod === 'momo'
-                        ? 'Đang chuyển hướng sang MoMo...'
-                        : 'Đang xử lý...'}
+                    {totalAmount === 0
+                      ? 'Đang kích hoạt gói FREE...'
+                      : selectedPaymentMethod === 'vnpay'
+                        ? 'Đang chuyển hướng sang VNPay...'
+                        : selectedPaymentMethod === 'momo'
+                          ? 'Đang chuyển hướng sang MoMo...'
+                          : 'Đang xử lý...'}
                   </>
+                ) : totalAmount === 0 ? (
+                  'Kích hoạt gói FREE'
                 ) : (
                   `Thanh toán qua ${getPaymentMethodLabel()}`
                 )}

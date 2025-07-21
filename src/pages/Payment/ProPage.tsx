@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { Crown, CheckCircle, ArrowRight } from 'lucide-react';
+import { Crown, CheckCircle, ArrowRight, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { planAPI, PlanResponse, formatPlanPrice, formatPlanDuration } from '@/apis/plan';
 import { useApp } from '@/contexts';
@@ -14,29 +14,59 @@ export default function ProPage() {
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
   const { user } = useApp();
 
-  // React Query - auto cache, refetch on stale
+  // React Query - get all plans
   const {
     data: plans = [] as PlanResponse[],
-    isLoading,
-    error,
+    isLoading: isLoadingPlans,
+    error: plansError,
   } = useQuery<PlanResponse[]>({
     queryKey: ['plans'],
     queryFn: async () => {
       console.log('Fetching plans from API...');
       const plansData = await planAPI.getAllPlans();
       console.log('Plans received in queryFn:', plansData);
-      // Đảm bảo không filter nếu plansData là undefined hoặc null
       if (!plansData) return [];
-      const activePlans = plansData.filter((plan) => plan.isActive !== false); // Coi tất cả gói không có isActive: false là active
+      const activePlans = plansData.filter((plan) => plan.isActive !== false);
       console.log('Active plans after filtering:', activePlans);
       return activePlans;
     },
-    staleTime: 5 * 60 * 1000, // Cache 5 phút
-    gcTime: 10 * 60 * 1000, // Giữ cache 10 phút (cacheTime đã đổi thành gcTime trong React Query mới)
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
+
+  // React Query - get user's current plans
+  const { data: userPlans = [], isLoading: isLoadingUserPlans } = useQuery({
+    queryKey: ['userPlans', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      console.log(`Fetching user plans for user: ${user.id}`);
+      const userPlansData = await planAPI.getUserPlans(user.id);
+      console.log('User plans received:', userPlansData);
+      return userPlansData || [];
+    },
+    enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000,
+  });
+
   console.log(user?.id);
 
+  // Check if user has a specific plan (active or not)
+  const userHasPlan = (planId: number) => {
+    if (!userPlans || userPlans.length === 0) return false;
+    return userPlans.some((userPlan) => userPlan.planId === planId);
+  };
+
+  // Check if user has an active plan of specific type
+  const userHasActivePlan = (planId: number) => {
+    if (!userPlans || userPlans.length === 0) return false;
+    return userPlans.some((userPlan) => userPlan.planId === planId && userPlan.isActive);
+  };
+
   const handlePlanSelect = (planId: number) => {
+    // Chỉ chặn plan FREE (planId = 1) nếu user đã có
+    if (planId === 1 && userHasPlan(planId)) {
+      return;
+    }
     setSelectedPlanId(planId);
   };
 
@@ -67,6 +97,8 @@ export default function ProPage() {
     navigate(`/payment/checkout?${params.toString()}`);
   };
 
+  const isLoading = isLoadingPlans || isLoadingUserPlans;
+
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
@@ -78,17 +110,13 @@ export default function ProPage() {
     );
   }
 
-  // Log để debug
-  console.log('Plans state in component:', plans);
-  console.log('Error state:', error);
-
-  if (error) {
+  if (plansError) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
           <p className="text-gray-600">Đã xảy ra lỗi khi tải gói dịch vụ</p>
           <p className="mb-3 text-sm text-red-500">
-            {error instanceof Error ? error.message : 'Unknown error'}
+            {plansError instanceof Error ? plansError.message : 'Unknown error'}
           </p>
           <Button onClick={() => window.location.reload()} className="mt-4">
             Thử lại
@@ -132,34 +160,67 @@ export default function ProPage() {
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {plans.map((plan) => {
                 const isSelected = selectedPlanId === plan.id;
+                const userOwnsThisPlan = userHasPlan(plan.id);
+                const userHasActiveThisPlan = userHasActivePlan(plan.id);
+                // Chỉ disable plan FREE (planId = 1) nếu user đã có
+                const isDisabled = plan.id === 1 && userOwnsThisPlan;
+
                 return (
                   <div
                     key={plan.id}
-                    className={`cursor-pointer rounded-lg border-2 p-6 transition-all ${
-                      isSelected
-                        ? 'scale-105 border-purple-500 bg-purple-50 shadow-lg'
-                        : 'border-gray-200 bg-white hover:border-purple-300 hover:shadow-md'
+                    className={`relative rounded-lg border-2 p-6 transition-all ${
+                      isDisabled
+                        ? 'border-gray-300 bg-gray-100 opacity-60'
+                        : isSelected
+                          ? 'scale-105 cursor-pointer border-purple-500 bg-purple-50 shadow-lg'
+                          : 'cursor-pointer border-gray-200 bg-white hover:border-purple-300 hover:shadow-md'
                     }`}
-                    onClick={() => handlePlanSelect(plan.id)}
+                    onClick={() => !isDisabled && handlePlanSelect(plan.id)}
                   >
+                    {/* Disabled overlay - chỉ hiện cho plan FREE */}
+                    {isDisabled && (
+                      <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-gray-900/10">
+                        <div className="flex flex-col items-center text-gray-600">
+                          <Lock className="mb-2 h-6 w-6" />
+                          <span className="text-sm font-medium">
+                            {userHasActiveThisPlan ? 'Đang sử dụng' : 'Đã sở hữu'}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
                     <div className="text-center">
                       <div className="mb-4 flex justify-center">
                         <div
                           className={`flex h-16 w-16 items-center justify-center rounded-full ${
-                            isSelected ? 'bg-purple-200' : 'bg-purple-100'
+                            isDisabled
+                              ? 'bg-gray-200'
+                              : isSelected
+                                ? 'bg-purple-200'
+                                : 'bg-purple-100'
                           }`}
                         >
                           <Crown
                             className={`h-8 w-8 ${
-                              isSelected ? 'text-purple-700' : 'text-purple-600'
+                              isDisabled
+                                ? 'text-gray-400'
+                                : isSelected
+                                  ? 'text-purple-700'
+                                  : 'text-purple-600'
                             }`}
                           />
                         </div>
                       </div>
 
-                      <h4 className="mb-2 text-xl font-bold text-gray-900">{plan.name}</h4>
+                      <h4
+                        className={`mb-2 text-xl font-bold ${isDisabled ? 'text-gray-500' : 'text-gray-900'}`}
+                      >
+                        {plan.name}
+                      </h4>
 
-                      <div className="mb-4 text-3xl font-bold text-purple-600">
+                      <div
+                        className={`mb-4 text-3xl font-bold ${isDisabled ? 'text-gray-400' : 'text-purple-600'}`}
+                      >
                         {formatPlanPrice(plan.price)}
                       </div>
 
@@ -169,9 +230,19 @@ export default function ProPage() {
                         <p>🚀 {plan.maxPushes} lần đẩy tin</p>
                       </div>
 
-                      {isSelected && (
+                      {isSelected && !isDisabled && (
                         <div className="flex justify-center">
                           <CheckCircle className="h-6 w-6 text-purple-500" />
+                        </div>
+                      )}
+
+                      {/* Hiện badge "Đang hoạt động" cho tất cả plan đang active, không chỉ FREE */}
+                      {userHasActiveThisPlan && (
+                        <div className="flex justify-center">
+                          <div className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-green-800">
+                            <CheckCircle className="mr-1 h-4 w-4" />
+                            <span className="text-xs font-medium">Đang hoạt động</span>
+                          </div>
                         </div>
                       )}
                     </div>
