@@ -1,14 +1,37 @@
 import { Crown, X } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { userPlanApi } from '@/apis/userplan';
+import { useApp } from '@/contexts';
+import type { UserPlanResponse } from '@/types/userplan.type';
 
 export default function ProFloatingButton() {
   const [isVisible, setIsVisible] = useState(true);
   const navigate = useNavigate();
+  const { user } = useApp();
+
+  // Lấy thông tin gói đăng tin của user
+  const { data: userPlans, isLoading: isLoadingPlans } = useQuery<UserPlanResponse[]>({
+    queryKey: ['userPlans'],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const response = await userPlanApi.getCurrentUserPlans();
+      return response;
+    },
+    enabled: !!user?.id,
+  });
+
+  // Kiểm tra xem user có gói Pro không
+  const activePlans = userPlans?.filter((plan: UserPlanResponse) => plan.remainPosts > 0) || [];
+  const hasActivePlans = activePlans.length > 0;
 
   const handleUpgradeClick = () => {
-    // Cho phép truy cập Pro page mà không cần đăng nhập để test
-    navigate('/payment/pro');
+    if (!user) {
+      navigate('/required-login');
+    } else {
+      navigate('/payment/pro');
+    }
   };
 
   const handleClose = (e: React.MouseEvent) => {
@@ -16,7 +39,8 @@ export default function ProFloatingButton() {
     setIsVisible(false);
   };
 
-  if (!isVisible) return null;
+  // Ẩn floating button nếu user đã có gói Pro hoặc đang loading hoặc user đóng
+  if (!isVisible || isLoadingPlans || hasActivePlans) return null;
 
   return (
     <div className="group fixed bottom-6 right-6 z-50">
@@ -35,8 +59,10 @@ export default function ProFloatingButton() {
         <div className="relative flex items-center gap-3">
           <Crown size={24} className="animate-pulse text-yellow-200" />
           <div className="hidden sm:block">
-            <div className="text-sm font-bold">NÂNG CẤP PRO</div>
-            <div className="text-xs opacity-90">Tính năng cao cấp</div>
+            <div className="text-sm font-bold">{!user ? 'ĐĂNG NHẬP' : 'NÂNG CẤP PRO'}</div>
+            <div className="text-xs opacity-90">
+              {!user ? 'Để nâng cấp PRO' : 'Tính năng cao cấp'}
+            </div>
           </div>
         </div>
 
@@ -57,7 +83,7 @@ export default function ProFloatingButton() {
       {/* Tooltip */}
       <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block">
         <div className="whitespace-nowrap rounded-lg bg-gray-900 px-3 py-2 text-xs text-white">
-          Mở khóa tính năng PRO!
+          {!user ? 'Đăng nhập để mở khóa PRO!' : 'Mở khóa tính năng PRO!'}
           <div className="absolute right-4 top-full border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
         </div>
       </div>
