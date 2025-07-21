@@ -873,23 +873,27 @@ export default function Chats() {
                   <IconArrowLeft />
                 </Button>
                 {selectedConversation && (
-                  <div className='flex items-center gap-2 lg:gap-4'>
-                    <Avatar className='size-9 lg:size-11'>
-                      <AvatarImage
-                        src={selectedConversation.productContext?.productImage}
-                        alt={selectedConversation.productContext?.productName || 'Product'}
-                      />
-                      <AvatarFallback>
-                        {selectedConversation.productContext?.productName?.charAt(0).toUpperCase() || 'P'}
-                      </AvatarFallback>
-                    </Avatar>
+                  <div className='flex items-center gap-3 lg:gap-4'>
+                    <div className='w-16 h-12 lg:w-20 lg:h-16 rounded-lg overflow-hidden bg-muted flex items-center justify-center'>
+                      {selectedConversation.productContext?.productImage ? (
+                        <img
+                          src={selectedConversation.productContext.productImage}
+                          alt={selectedConversation.productContext.productName || 'Product'}
+                          className='w-full h-full object-cover'
+                        />
+                      ) : (
+                        <span className='text-xs font-medium text-muted-foreground'>
+                          {selectedConversation.productContext?.productName?.charAt(0).toUpperCase() || 'P'}
+                        </span>
+                      )}
+                    </div>
                     <div>
                       <span className='col-start-2 row-span-2 text-sm font-medium lg:text-base'>
                         {selectedConversation.productContext?.productName || 'No Product'}
                       </span>
                       <span className='col-start-2 row-span-2 row-start-2 line-clamp-1 block max-w-32 text-ellipsis text-nowrap text-xs text-muted-foreground lg:max-w-none lg:text-sm'>
                         {selectedConversation.productContext?.productPrice 
-                          ? `$${selectedConversation.productContext.productPrice.toFixed(2)}` 
+                          ? `VND ${selectedConversation.productContext.productPrice.toLocaleString('vi-VN')}` 
                           : 'Price not available'
                         }
                       </span>
