@@ -28,25 +28,35 @@ export default function SuccessPage() {
     const statusParam = searchParams.get('status') || 'success';
 
     // Nếu không có planId hoặc title trong URL, thử lấy từ localStorage
-    if (!planIdParam || !title || !priceParam) {
+    if (!planIdParam || !title || priceParam === null || isNaN(priceParam)) {
       const savedPlan = localStorage.getItem('payment_plan_info');
       if (savedPlan) {
         try {
           const planData = JSON.parse(savedPlan);
           if (!planIdParam && planData.planId) planIdParam = planData.planId;
           if (!title && planData.title) title = planData.title;
-          if (!priceParam && planData.price) priceParam = parseInt(planData.price);
+          if ((priceParam === null || isNaN(priceParam)) && planData.price !== undefined) {
+            priceParam = parseInt(planData.price) || 0;
+          }
         } catch (e) {
           console.error('Không thể parse thông tin gói từ localStorage', e);
         }
       }
     }
 
-    // Chỉ set giá trị nếu có dữ liệu thực sự
+    // Set giá trị - luôn set price, kể cả khi là 0
     if (planIdParam) setPlanId(planIdParam);
     if (title) setPlanTitle(title);
-    if (priceParam) setPrice(priceParam);
+    setPrice(priceParam || 0); // Đảm bảo price luôn có giá trị, mặc định là 0
     setStatus(statusParam === 'success' ? 'success' : 'failed');
+
+    // Debug log
+    console.log('SuccessPage - Parsed data:', {
+      planIdParam,
+      title,
+      priceParam,
+      statusParam,
+    });
 
     // Xóa dữ liệu payment_plan_info sau khi đã xử lý xong
     setTimeout(() => {
@@ -87,13 +97,14 @@ export default function SuccessPage() {
   // Tách logic tạo order riêng và chỉ chạy khi có đủ điều kiện
   useEffect(() => {
     const statusParam = searchParams.get('status') || 'success';
+    const methodParam = searchParams.get('method');
 
     // Kiểm tra tất cả điều kiện cần thiết - chỉ tạo order khi có đủ thông tin thực sự
     if (
       statusParam === 'success' &&
       user?.id &&
       planId &&
-      price > 0 &&
+      price >= 0 && // Chấp nhận cả giá 0 cho gói FREE
       !orderCreatedRef.current &&
       !isCreatingOrder
     ) {
@@ -106,16 +117,22 @@ export default function SuccessPage() {
             userId: user.id,
             planId,
             price,
+            method: methodParam,
           });
 
+          // Đối với gói FREE, có thể cần API khác hoặc xử lý đặc biệt
           const response = await paymentAPI.createOrder({
             userId: user.id,
             planId,
             price,
+            method: methodParam || 'free',
           });
 
           if (response?.id) {
             setOrderId(response.id);
+          } else if (price === 0) {
+            // Đối với gói FREE, tạo orderId giả
+            setOrderId(`FREE_${Date.now()}`);
           }
         } catch (error) {
           console.error('Lỗi khi tạo đơn hàng:', error);
@@ -144,8 +161,8 @@ export default function SuccessPage() {
     );
   }
 
-  // Nếu thiếu thông tin cần thiết, hiển thị thông báo lỗi
-  if (!planId || !planTitle || price <= 0) {
+  // Sửa điều kiện: chỉ báo lỗi khi thiếu planId hoặc planTitle, KHÔNG kiểm tra price <= 0
+  if (!planId || !planTitle) {
     return (
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="container mx-auto px-4">
@@ -240,7 +257,9 @@ export default function SuccessPage() {
               <div className="flex justify-between border-b border-gray-100 py-2">
                 <span className="text-gray-600">Phương thức:</span>
                 <span className="font-medium capitalize text-gray-900">
-                  {searchParams.get('method') || 'VNPay'}
+                  {searchParams.get('method') === 'free'
+                    ? 'Gói miễn phí'
+                    : searchParams.get('method') || 'VNPay'}
                 </span>
               </div>
 
@@ -265,17 +284,26 @@ export default function SuccessPage() {
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  {[
-                    'Đăng tin không giới hạn',
-                    'Tin được ưu tiên hiển thị',
-                    'Hỗ trợ khách hàng VIP',
-                    'Thống kê chi tiết',
-                  ].map((benefit, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      <span className="text-gray-700">{benefit}</span>
-                    </div>
-                  ))}
+                  {price === 0
+                    ? [
+                        // Quyền lợi cho gói FREE
+                        'Đăng tin cơ bản',
+                        'Hiển thị tin thường',
+                        'Hỗ trợ khách hàng cơ bản',
+                        'Thống kê cơ bản',
+                      ]
+                    : [
+                        // Quyền lợi cho gói PRO
+                        'Đăng tin không giới hạn',
+                        'Tin được ưu tiên hiển thị',
+                        'Hỗ trợ khách hàng VIP',
+                        'Thống kê chi tiết',
+                      ].map((benefit, index) => (
+                        <div key={index} className="flex items-center space-x-2">
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          <span className="text-gray-700">{benefit}</span>
+                        </div>
+                      ))}
                 </div>
               </div>
 
