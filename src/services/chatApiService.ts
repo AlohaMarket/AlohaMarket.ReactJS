@@ -1,4 +1,4 @@
-import type { Conversation, CreateConversationRequest, Message } from "@/types/chat.types";
+import type { Conversation, CreateConversationRequest, Message, UpdateConversationProductRequest } from "@/types/chat.types";
 
 const API_BASE_URL = 'https://localhost:7273/api/chat';
 
@@ -23,6 +23,21 @@ export class ChatApiService {
     
     if (!response.ok) {
       throw new Error('Failed to create conversation');
+    }
+    return response.json();
+  }
+
+  async updateConversationProduct(request: UpdateConversationProductRequest): Promise<Conversation> {
+    const response = await fetch(`${API_BASE_URL}/conversations/${request.conversationId}/product`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ productId: request.productId }),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to update conversation product context');
     }
     return response.json();
   }

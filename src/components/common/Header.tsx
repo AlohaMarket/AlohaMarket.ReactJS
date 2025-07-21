@@ -127,14 +127,17 @@ export default function Header() {
       <div className="flex items-center justify-between bg-blue-600 px-4 py-3">
         <div className="flex flex-grow items-center gap-4">
           {/* Logo */}
-          <a href="/" className="flex items-center justify-center">
+          <div
+            className="flex items-center justify-center cursor-pointer"
+            onClick={() => navigate('/')}
+          >
             <img
               src="/src/assets/imgs/logo.png"
               alt="Aloha Market Logo"
               className="h-12 w-auto"
               style={{ filter: 'brightness(0) invert(1)' }}
             />
-          </a>
+          </div>
 
           {/* Search and Address */}
           <div className="min-w-6xl relative flex-grow">

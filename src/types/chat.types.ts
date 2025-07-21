@@ -97,6 +97,11 @@ export interface CreateConversationRequest {
   productId?: string;
 }
 
+export interface UpdateConversationProductRequest {
+  conversationId: string;
+  productId: string;
+}
+
 export interface UserDto {
   id: string;
   name: string;

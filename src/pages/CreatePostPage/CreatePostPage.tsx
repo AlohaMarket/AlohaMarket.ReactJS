@@ -7,6 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import React from 'react';
+import { Image as ImageIcon, Package, Sparkles } from 'lucide-react';
 import {
     Select,
     SelectContent,
@@ -35,7 +37,6 @@ import type { UserPlanResponse } from '@/types/userplan.type';
 import type { LocationValue } from '@/components/LocationSelector/types';
 import { IMAGE_CONFIG } from '@/constants';
 import ProductAttributes from '@/components/ProductAttributes/ProductAttributes';
-
 // Type definitions
 export type CreatePostFormData = Omit<PostCreateRequest, 'images'> & {
     images: File[];
@@ -246,6 +247,8 @@ const CreatePostPage = () => {
         setValue('categoryPath', categoryPath);
     };
 
+
+
     const handleLocationSelect = (location: LocationValue) => {
         setSelectedLocation(location);
         setValue('provinceCode', location.provinceCode);
@@ -283,244 +286,371 @@ const CreatePostPage = () => {
     }, [isPosting]);
 
     return (
-        <div className="container py-8">
-            <form onSubmit={onSubmit} className="space-y-8">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{t('createPost.title')}</CardTitle>
-                        <CardDescription>{t('createPost.description')}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-8">
-                        {/* User Plan Selection */}
-                        <div className="space-y-4">
-                            <Label htmlFor="userPlanId">Chọn gói đăng tin</Label>
-                            <Select
-                                onValueChange={(value) => setValue('userPlanId', value)}
-                                value={watch('userPlanId')}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Chọn gói đăng tin" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {isLoadingPlans ? (
-                                        <SelectItem value="loading" disabled>Đang tải...</SelectItem>
-                                    ) : activePlans?.length === 0 ? (
-                                        <SelectItem value="no-plans" disabled>Không có gói đăng tin nào khả dụng</SelectItem>
-                                    ) : (
-                                        activePlans?.map((plan) => (
-                                            <SelectItem key={plan.id} value={plan.id}>
-                                                {plan.planName} - Còn {plan.remainPosts} tin
-                                            </SelectItem>
-                                        ))
-                                    )}
-                                </SelectContent>
-                            </Select>
-                            {errors.userPlanId && (
-                                <p className="text-red-500 text-sm">{errors.userPlanId.message}</p>
-                            )}
-                            {activePlans?.length === 0 && (
-                                <div className="text-sm text-orange-600">
-                                    Bạn cần <a href="/payment/pro" className="text-orange-600 underline">mua gói đăng tin</a> để có thể đăng bài
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+            <div className="container max-w-4xl mx-auto py-12 px-4">
+                <form onSubmit={onSubmit} className="space-y-8">
+                    {/* Header Card */}
+                    <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+                        <CardHeader className="flex flex-row items-center gap-4 py-8">
+                            <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full">
+                                <Sparkles className="w-8 h-8 text-white" />
+                            </div>
+                            <div>
+                                <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                                    {t('Tạo bài đăng mới')}
+                                </CardTitle>
+                                <CardDescription className="text-lg text-gray-600 mt-2">
+                                    {t('Chia sẻ sản phẩm của bạn với cộng đồng Aloha Market')}
+                                </CardDescription>
+                            </div>
+                        </CardHeader>
+                    </Card>
+
+
+                    {/* Main Content Card */}
+                    <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
+                        <CardContent className="p-8 space-y-10">
+                            {/* User Plan Selection */}
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="p-2 bg-gradient-to-r from-orange-400 to-pink-500 rounded-lg">
+                                        <Package className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div>
+                                        <Label className="text-lg font-semibold text-gray-800">Chọn gói đăng tin</Label>
+                                        <p className="text-sm text-gray-500">Chọn gói phù hợp để đăng tin của bạn</p>
+                                    </div>
                                 </div>
-                            )}
-                        </div>
 
-                        {/* Images section */}
-                        <div className="space-y-4">
-                            <Label htmlFor="images">{t('createPost.images')}</Label>
-                            <input
-                                type="file"
-                                id="images"
-                                multiple
-                                accept={IMAGE_CONFIG.allowedTypes.join(',')}
-                                className="hidden"
-                                {...register('images')}
-                                onChange={handleImageChange}
-                            />
-                            <div className="flex gap-4">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => document.getElementById('images')?.click()}
-                                >
-                                    <Upload className="w-4 h-4 mr-2" />
-                                    {t('createPost.chooseImages')}
-                                </Button>
-                                <span className="text-sm text-gray-500">
-                                    {watch('images')?.length || 0}/{IMAGE_CONFIG.maxImagesPerPost} {t('createPost.imagesSelected')}
-                                </span>
-                            </div>
-
-                            {/* Image guidelines */}
-                            <div className="text-xs text-gray-500">
-                                <p>• Định dạng: {IMAGE_CONFIG.allowedTypes.map(type => type.split('/')[1]).join(', ')}</p>
-                                <p>• Kích thước tối đa: {IMAGE_CONFIG.maxSize / (1024 * 1024)}MB mỗi ảnh</p>
-                                <p>• Bạn có thể tải lên tối đa {IMAGE_CONFIG.maxImagesPerPost} ảnh</p>
-                            </div>
-
-                            {/* Image preview grid */}
-                            {watch('images')?.length > 0 && (
-                                <div className="grid grid-cols-4 gap-4">
-                                    {watch('images').map((file, index) => (
-                                        <div key={index} className="relative">
-                                            <img
-                                                src={URL.createObjectURL(file)}
-                                                alt={`Preview ${index + 1}`}
-                                                className="w-full h-32 object-cover rounded-lg"
-                                            />
-                                            <Button
-                                                type="button"
-                                                variant="destructive"
-                                                size="icon"
-                                                className="absolute -top-2 -right-2 h-6 w-6"
-                                                onClick={() => removeImage(index)}
-                                            >
-                                                <X className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-
-                            {errors.images && (
-                                <p className="text-red-500 text-sm">{errors.images.message}</p>
-                            )}
-                        </div>
-
-                        {/* Form fields */}
-                        <div className="space-y-4">
-                            <div>
-                                <Label htmlFor="title">{t('createPost.titleLabel')}</Label>
-                                <Input id="title" {...register('title')} />
-                                {errors.title && (
-                                    <p className="text-red-500 text-sm">{errors.title.message}</p>
-                                )}
-                            </div>
-
-                            <div>
-                                <Label htmlFor="description">{t('createPost.descriptionLabel')}</Label>
-                                <Textarea id="description" {...register('description')} />
-                                {errors.description && (
-                                    <p className="text-red-500 text-sm">{errors.description.message}</p>
-                                )}
-                            </div>
-
-                            <div>
-                                <Label htmlFor="categoryId">{t('createPost.categoryLabel')}</Label>
-                                <Select onValueChange={handleCategoryChange}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder={t('createPost.selectCategory')} />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {categories?.map((category) => (
-                                            <SelectItem
-                                                key={category.id}
-                                                value={String(category.id)}
-                                            >
-                                                {category.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                {errors.categoryId && (
-                                    <p className="text-red-500 text-sm">{errors.categoryId.message}</p>
-                                )}
-                            </div>
-
-                            <div>
-                                <Label htmlFor="price">{t('createPost.priceLabel')}</Label>
                                 <div className="relative">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2">₫</span>
-                                    <Input
-                                        id="price"
-                                        type="number"
-                                        className="pl-8"
-                                        {...register('price')}
-                                    />
+                                    <Select
+                                        onValueChange={(value) => setValue('userPlanId', value)}
+                                        value={watch('userPlanId')}
+                                    >
+                                        <SelectTrigger className="h-12 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200">
+                                            <SelectValue placeholder="Chọn gói đăng tin" />
+                                        </SelectTrigger>
+                                        <SelectContent className="rounded-xl border-2 border-gray-100 shadow-xl">
+                                            {isLoadingPlans ? (
+                                                <SelectItem value="loading" disabled>
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                                                        Đang tải...
+                                                    </div>
+                                                </SelectItem>
+                                            ) : activePlans?.length === 0 ? (
+                                                <SelectItem value="no-plans" disabled>
+                                                    <div className="text-gray-500">Không có gói đăng tin nào khả dụng</div>
+                                                </SelectItem>
+                                            ) : (
+                                                activePlans?.map((plan) => (
+                                                    <SelectItem key={plan.id} value={plan.id} className="rounded-lg">
+                                                        <div className="flex items-center justify-between w-full">
+                                                            <span className="font-medium">{plan.planName}</span>
+                                                            <span className="text-sm bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                                                                Còn {plan.remainPosts} tin
+                                                            </span>
+                                                        </div>
+                                                    </SelectItem>
+                                                ))
+                                            )}
+                                        </SelectContent>
+                                    </Select>
                                 </div>
-                                {errors.price && (
-                                    <p className="text-red-500 text-sm">{errors.price.message}</p>
+
+                                {errors.userPlanId && (
+                                    <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                        <p className="text-red-600 text-sm font-medium">{errors.userPlanId.message}</p>
+                                    </div>
+                                )}
+
+                                {activePlans?.length === 0 && (
+                                    <div className="p-4 bg-gradient-to-r from-orange-50 to-yellow-50 border border-orange-200 rounded-xl">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-orange-100 rounded-lg">
+                                                <Package className="w-5 h-5 text-orange-600" />
+                                            </div>
+                                            <div>
+                                                <p className="text-orange-800 font-medium">Cần mua gói đăng tin</p>
+                                                <p className="text-sm text-orange-600">
+                                                    Bạn cần{' '}
+                                                    <a href="/payment/pro" className="font-semibold underline hover:text-orange-800 transition-colors">
+                                                        mua gói đăng tin
+                                                    </a>{' '}
+                                                    để có thể đăng bài
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 )}
                             </div>
 
-                            <div>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => setIsLocationModalOpen(true)}
-                                    className="w-full justify-between"
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <MapPin className="h-4 w-4" />
-                                        <span>
-                                            {selectedLocation.displayText || t('createPost.selectLocation')}
+                            {/* Images Section */}
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="p-2 bg-gradient-to-r from-purple-400 to-pink-500 rounded-lg">
+                                        <ImageIcon className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div>
+                                        <Label className="text-lg font-semibold text-gray-800">{t('Hình ảnh sản phẩm')}</Label>
+                                        <p className="text-sm text-gray-500">Thêm hình ảnh để tin đăng hấp dẫn hơn</p>
+                                    </div>
+                                </div>
+
+                                <input
+                                    type="file"
+                                    id="images"
+                                    multiple
+                                    accept={IMAGE_CONFIG.allowedTypes.join(',')}
+                                    className="hidden"
+                                    {...register('images')}
+                                    onChange={handleImageChange}
+                                />
+
+                                <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => document.getElementById('images')?.click()}
+                                        className="h-12 px-6 border-2 border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50 rounded-xl transition-all duration-200 group"
+                                    >
+                                        <Upload className="w-5 h-5 mr-3 group-hover:text-blue-600 transition-colors" />
+                                        <span className="font-medium">{t('Tải ảnh lên')}</span>
+                                    </Button>
+
+                                    <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-lg">
+                                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                        <span className="text-sm font-medium text-gray-700">
+                                            {watch('images')?.length || 0}/{IMAGE_CONFIG.maxImagesPerPost} {t('Ảnh đã chọn')}
                                         </span>
                                     </div>
-                                </Button>
-                                {(errors.provinceCode || errors.districtCode || errors.wardCode) && (
-                                    <p className="text-red-500 text-sm mt-2">
-                                        {t('createPost.locationRequired')}
-                                    </p>
+                                </div>
+
+                                {/* Image Guidelines */}
+                                <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                                    <h4 className="font-medium text-gray-800 mb-2">Hướng dẫn tải ảnh:</h4>
+                                    <div className="space-y-1 text-sm text-gray-600">
+                                        <p>• Định dạng: {IMAGE_CONFIG.allowedTypes.map(type => type.split('/')[1]).join(', ')}</p>
+                                        <p>• Kích thước tối đa: {IMAGE_CONFIG.maxSize / (1024 * 1024)}MB mỗi ảnh</p>
+                                        <p>• Số lượng: Tối đa {IMAGE_CONFIG.maxImagesPerPost} ảnh</p>
+                                    </div>
+                                </div>
+
+                                {/* Image Preview Grid */}
+                                {watch('images')?.length > 0 && (
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                                        {watch('images').map((file, index) => (
+                                            <div key={index} className="relative group">
+                                                <div className="relative overflow-hidden rounded-xl border-2 border-gray-200 bg-white shadow-sm">
+                                                    <img
+                                                        src={URL.createObjectURL(file)}
+                                                        alt={`Preview ${index + 1}`}
+                                                        className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-200"
+                                                    />
+                                                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200"></div>
+                                                    <Button
+                                                        type="button"
+                                                        variant="destructive"
+                                                        size="icon"
+                                                        className="absolute -top-2 -right-2 h-7 w-7 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-200"
+                                                        onClick={() => removeImage(index)}
+                                                    >
+                                                        <X className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {errors.images && (
+                                    <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                        <p className="text-red-600 text-sm font-medium">{errors.images.message}</p>
+                                    </div>
                                 )}
                             </div>
 
-                            {/* Product attributes section */}
-                            <ProductAttributes
-                                setValue={setValue}
-                                getValues={getValues}
-                                watch={watch}
-                                control={control} // Add this line
-                            />
-                        </div>
-                    </CardContent>
-                </Card>
+                            {/* Form Fields */}
+                            <div className="space-y-8">
+                                {/* Title */}
+                                <div className="space-y-3">
+                                    <Label htmlFor="title" className="text-base font-semibold text-gray-800">
+                                        {t('Tiêu đề')}
+                                    </Label>
+                                    <Input
+                                        id="title"
+                                        {...register('title')}
+                                        className="h-12 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                                        placeholder="Nhập tiêu đề hấp dẫn cho tin đăng của bạn"
+                                    />
+                                    {errors.title && (
+                                        <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                            <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                            <p className="text-red-600 text-sm font-medium">{errors.title.message}</p>
+                                        </div>
+                                    )}
+                                </div>
 
-                {/* Submit button */}
-                <Button
-                    type="submit"
-                    disabled={isSubmitting || isPosting}
-                    className="w-full"
-                >
-                    {isSubmitting || isPosting ? (
-                        <div className="flex items-center justify-center">
-                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            {t('common.submitting')}
-                        </div>
-                    ) : (
-                        t('createPost.submit')
-                    )}
-                </Button>
+                                {/* Description */}
+                                <div className="space-y-3">
+                                    <Label htmlFor="description" className="text-base font-semibold text-gray-800">
+                                        {t('Mô tả')}
+                                    </Label>
+                                    <Textarea
+                                        id="description"
+                                        {...register('description')}
+                                        className="min-h-32 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 resize-none"
+                                        placeholder="Mô tả chi tiết về sản phẩm của bạn"
+                                    />
+                                    {errors.description && (
+                                        <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                            <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                            <p className="text-red-600 text-sm font-medium">{errors.description.message}</p>
+                                        </div>
+                                    )}
+                                </div>
 
-                {/* Location selector */}
-                <LocationSelector
-                    open={isLocationModalOpen}
-                    onOpenChange={setIsLocationModalOpen}
-                    onLocationSelect={handleLocationSelect}
-                    initialValue={selectedLocation}
-                />
-            </form>
+                                {/* Category */}
+                                <div>
+                                    <Label htmlFor="categoryId">{t('Danh mục')}</Label>
+                                    <Select onValueChange={handleCategoryChange}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder={t('Mặt hàng của bạn thuộc danh mục nào')} />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {categories?.map((category) => (
+                                                <SelectItem
+                                                    key={category.id}
+                                                    value={String(category.id)}
+                                                >
+                                                    {category.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {errors.categoryId && (
+                                        <p className="text-red-500 text-sm">{errors.categoryId.message}</p>
+                                    )}
+                                </div>
 
-            {/* Full-page loading overlay */}
-            {isPosting && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full">
-                        <div className="text-center">
-                            <svg className="animate-spin h-12 w-12 text-primary mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            <h3 className="text-xl font-semibold text-gray-900 mb-2">Đang đăng tin...</h3>
-                            <p className="text-gray-600 mb-4">Vui lòng đợi trong khi chúng tôi đăng tin của bạn.</p>
-                            <div className="bg-blue-50 text-blue-700 p-4 rounded-md text-sm">
-                                <p>Hình ảnh đang được tải lên. Vui lòng không đóng trang này.</p>
+
+                                {/* Price */}
+                                <div className="space-y-3">
+                                    <Label htmlFor="price" className="text-base font-semibold text-gray-800">
+                                        {t('Giá bán')}
+                                    </Label>
+                                    <div className="relative">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">₫</span>
+                                        <Input
+                                            id="price"
+                                            type="number"
+                                            className="h-12 pl-10 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                                            placeholder="0"
+                                            {...register('price')}
+                                        />
+                                    </div>
+                                    {errors.price && (
+                                        <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                            <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                            <p className="text-red-600 text-sm font-medium">{errors.price.message}</p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Location */}
+                                <div className="space-y-3">
+                                    <Label className="text-base font-semibold text-gray-800">Vị trí</Label>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => setIsLocationModalOpen(true)}
+                                        className="w-full h-12 justify-start border-2 border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all duration-200"
+                                    >
+                                        <MapPin className="h-5 w-5 mr-3 text-gray-400" />
+                                        <span className={selectedLocation.displayText ? "text-gray-800" : "text-gray-500"}>
+                                            {selectedLocation.displayText || t('Chọn vị trí của sản phẩm')}
+                                        </span>
+                                    </Button>
+                                    {(errors.provinceCode || errors.districtCode || errors.wardCode) && (
+                                        <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                            <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                            <p className="text-red-600 text-sm font-medium">
+                                                {t('Vị trí là bắt buộc')}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Product Attributes */}
+                                <div className="border-t border-gray-200 pt-8">
+                                    <ProductAttributes
+                                        setValue={setValue}
+                                        getValues={getValues}
+                                        watch={watch}
+                                        control={control}
+                                    />
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Submit Button */}
+                    <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
+                        <CardContent className="p-6">
+                            <Button
+                                type="submit"
+                                disabled={isSubmitting || isPosting}
+                                className="w-full h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
+                            >
+                                {isSubmitting || isPosting ? (
+                                    <div className="flex items-center justify-center">
+                                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-3"></div>
+                                        <span>{t('common.submitting')}</span>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center justify-center">
+                                        <Sparkles className="w-5 h-5 mr-2" />
+                                        <span>{t('Đăng bài')}</span>
+                                    </div>
+                                )}
+                            </Button>
+                        </CardContent>
+                    </Card>
+
+                    {/* Location Selector */}
+                    <LocationSelector
+                        open={isLocationModalOpen}
+                        onOpenChange={setIsLocationModalOpen}
+                        onLocationSelect={handleLocationSelect}
+                        initialValue={selectedLocation}
+                    />
+                </form>
+
+                {/* Enhanced Loading Overlay */}
+                {isPosting && (
+                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+                        <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4">
+                            <div className="text-center">
+                                <div className="relative mb-6">
+                                    <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto"></div>
+                                    <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-indigo-400 rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+                                </div>
+                                <h3 className="text-2xl font-bold text-gray-900 mb-3">Đang đăng tin...</h3>
+                                <p className="text-gray-600 mb-6">Vui lòng đợi trong khi chúng tôi xử lý tin đăng của bạn.</p>
+                                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 text-blue-800 p-4 rounded-xl">
+                                    <div className="flex items-center justify-center gap-2 mb-2">
+                                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                                        <span className="font-medium">Đang xử lý</span>
+                                    </div>
+                                    <p className="text-sm">Hình ảnh đang được tải lên. Vui lòng không đóng trang này.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 }

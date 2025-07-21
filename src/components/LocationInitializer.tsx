@@ -29,7 +29,7 @@ const LocationInitializer = () => {
                 loading
             });
         }
-    }, [shouldFetchLocation, loadLocationTree, loading, loaded, provinces.length, error]);
+    }, []); // Empty dependency array to prevent re-execution
 
     useEffect(() => {
         if (provinces.length > 0) {
