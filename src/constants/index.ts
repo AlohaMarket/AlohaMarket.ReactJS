@@ -11,7 +11,9 @@ export const APP_CONFIG = {
 
 // API configuration
 export const API_CONFIG = {
-  baseURL: import.meta.env['VITE_API_GATEWAY_URL'] ? import.meta.env['VITE_API_GATEWAY_URL'] + '/api' : '/api',
+  baseURL: import.meta.env['VITE_API_GATEWAY_URL']
+    ? import.meta.env['VITE_API_GATEWAY_URL'] + '/api'
+    : '/api',
   timeout: 30000,
   retries: 3,
 } as const;
@@ -22,6 +24,9 @@ export const API_ENDPOINTS = {
   auth: {
     register: '/user/register',
     profile: '/user/profile',
+    all: '/user',
+    delete: (userId: string) => `/user/${userId}`,
+    updateStatus: (userId: string) => `/user/${userId}/status`,
     updateProfile: '/user/profile/update',
     verifyProfile: '/user/verify-profile',
     uploadAvatar: '/user/profile/avatar',
@@ -63,6 +68,7 @@ export const API_ENDPOINTS = {
     list: '/plan',
     detail: (id: string) => `/plan/${id}`,
     me: '/plan/me',
+    userId: (userId: string) => `/plan/user-plan/${userId}`,
   },
 } as const;
 
