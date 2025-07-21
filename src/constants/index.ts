@@ -71,6 +71,7 @@ export const API_ENDPOINTS = {
     detail: (id: string) => `/plan/${id}`,
     me: '/plan/me',
     userId: (userId: string) => `/plan/user-plan/${userId}`,
+    allUserPlans: '/plan/all-userplans',
   },
 } as const;
 

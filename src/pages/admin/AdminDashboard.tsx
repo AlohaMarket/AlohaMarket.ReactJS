@@ -1,8 +1,8 @@
-import { 
-  TrendingUp, 
-  Users, 
-  Package, 
-  ShoppingCart, 
+import {
+  TrendingUp,
+  Users,
+  Package,
+  ShoppingCart,
   DollarSign,
   ArrowUpRight,
   ArrowDownRight,
@@ -266,7 +266,7 @@ export default function AdminDashboard() {
         {stats.map((stat) => {
           const Icon = stat.icon;
           const isPositive = stat.change > 0;
-          
+
           return (
             <Card key={stat.title} className="relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-shadow duration-300 bg-white dark:bg-slate-800">
               <div className={`absolute inset-0 bg-gradient-to-r ${stat.color} opacity-5`} />
@@ -330,28 +330,28 @@ export default function AdminDashboard() {
                   <AreaChart data={revenueData}>
                     <defs>
                       <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0.1}/>
+                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
+                        <stop offset="95%" stopColor="#10b981" stopOpacity={0.1} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                     <XAxis dataKey="month" stroke="#64748b" />
                     <YAxis stroke="#64748b" />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'white', 
-                        border: 'none', 
-                        borderRadius: '8px', 
-                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' 
-                      }} 
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                      }}
                     />
-                    <Area 
-                      type="monotone" 
-                      dataKey="revenue" 
-                      stroke="#10b981" 
+                    <Area
+                      type="monotone"
+                      dataKey="revenue"
+                      stroke="#10b981"
                       strokeWidth={2}
-                      fillOpacity={1} 
-                      fill="url(#colorRevenue)" 
+                      fillOpacity={1}
+                      fill="url(#colorRevenue)"
                     />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -387,13 +387,13 @@ export default function AdminDashboard() {
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'white', 
-                        border: 'none', 
-                        borderRadius: '8px', 
-                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' 
-                      }} 
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                      }}
                     />
                     <Legend />
                   </RechartsPieChart>
@@ -423,13 +423,13 @@ export default function AdminDashboard() {
                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                     <XAxis dataKey="month" stroke="#64748b" />
                     <YAxis stroke="#64748b" />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'white', 
-                        border: 'none', 
-                        borderRadius: '8px', 
-                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' 
-                      }} 
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                      }}
                     />
                     <Legend />
                     <Bar dataKey="orders" fill="#3b82f6" radius={[4, 4, 0, 0]} />
@@ -462,11 +462,11 @@ export default function AdminDashboard() {
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-24 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                          <div 
-                            className="h-2 rounded-full" 
-                            style={{ 
-                              width: `${device.users}%`, 
-                              backgroundColor: device.color 
+                          <div
+                            className="h-2 rounded-full"
+                            style={{
+                              width: `${device.users}%`,
+                              backgroundColor: device.color
                             }}
                           />
                         </div>
@@ -475,7 +475,7 @@ export default function AdminDashboard() {
                     </div>
                   ))}
                 </div>
-                
+
                 <div className="mt-6 grid grid-cols-3 gap-4 text-center">
                   <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                     <Laptop className="h-6 w-6 mx-auto mb-2 text-blue-600 dark:text-blue-400" />
@@ -542,13 +542,13 @@ export default function AdminDashboard() {
                         <Cell key={`cell-${index}`} fill={['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'][index]} />
                       ))}
                     </Pie>
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'white', 
-                        border: 'none', 
-                        borderRadius: '8px', 
-                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' 
-                      }} 
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                      }}
                     />
                   </RechartsPieChart>
                 </ResponsiveContainer>
@@ -635,19 +635,19 @@ export default function AdminDashboard() {
                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                     <XAxis dataKey="month" stroke="#64748b" />
                     <YAxis stroke="#64748b" />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'white', 
-                        border: 'none', 
-                        borderRadius: '8px', 
-                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' 
-                      }} 
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                      }}
                     />
                     <Legend />
-                    <Line 
-                      type="monotone" 
-                      dataKey="revenue" 
-                      stroke="#10b981" 
+                    <Line
+                      type="monotone"
+                      dataKey="revenue"
+                      stroke="#10b981"
                       strokeWidth={3}
                       dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }}
                     />
@@ -676,13 +676,13 @@ export default function AdminDashboard() {
                       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                       <XAxis dataKey="month" stroke="#64748b" />
                       <YAxis stroke="#64748b" />
-                      <Tooltip 
-                        contentStyle={{ 
-                          backgroundColor: 'white', 
-                          border: 'none', 
-                          borderRadius: '8px', 
-                          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' 
-                        }} 
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                        }}
                       />
                       <Legend />
                       <Bar dataKey="revenue" fill="#10b981" radius={[4, 4, 0, 0]} />
@@ -712,29 +712,29 @@ export default function AdminDashboard() {
                     }))}>
                       <defs>
                         <linearGradient id="colorGrowth" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                          <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
+                          <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
+                          <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1} />
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                       <XAxis dataKey="month" stroke="#64748b" />
                       <YAxis stroke="#64748b" />
-                      <Tooltip 
-                        contentStyle={{ 
-                          backgroundColor: 'white', 
-                          border: 'none', 
-                          borderRadius: '8px', 
-                          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' 
-                        }} 
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                        }}
                         formatter={(value) => [`${typeof value === 'number' ? value.toFixed(1) : value}%`, 'Growth Rate']}
                       />
-                      <Area 
-                        type="monotone" 
-                        dataKey="growth" 
-                        stroke="#3b82f6" 
+                      <Area
+                        type="monotone"
+                        dataKey="growth"
+                        stroke="#3b82f6"
                         strokeWidth={2}
-                        fillOpacity={1} 
-                        fill="url(#colorGrowth)" 
+                        fillOpacity={1}
+                        fill="url(#colorGrowth)"
                       />
                     </AreaChart>
                   </ResponsiveContainer>
@@ -757,28 +757,28 @@ export default function AdminDashboard() {
                   <AreaChart data={revenueData}>
                     <defs>
                       <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
+                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
+                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                     <XAxis dataKey="month" stroke="#64748b" />
                     <YAxis stroke="#64748b" />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'white', 
-                        border: 'none', 
-                        borderRadius: '8px', 
-                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' 
-                      }} 
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                      }}
                     />
-                    <Area 
-                      type="monotone" 
-                      dataKey="users" 
-                      stroke="#3b82f6" 
+                    <Area
+                      type="monotone"
+                      dataKey="users"
+                      stroke="#3b82f6"
                       strokeWidth={2}
-                      fillOpacity={1} 
-                      fill="url(#colorUsers)" 
+                      fillOpacity={1}
+                      fill="url(#colorUsers)"
                     />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -847,18 +847,18 @@ export default function AdminDashboard() {
                       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                       <XAxis dataKey="hour" stroke="#64748b" />
                       <YAxis stroke="#64748b" />
-                      <Tooltip 
-                        contentStyle={{ 
-                          backgroundColor: 'white', 
-                          border: 'none', 
-                          borderRadius: '8px', 
-                          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' 
-                        }} 
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                        }}
                       />
-                      <Line 
-                        type="monotone" 
-                        dataKey="users" 
-                        stroke="#8b5cf6" 
+                      <Line
+                        type="monotone"
+                        dataKey="users"
+                        stroke="#8b5cf6"
                         strokeWidth={3}
                         dot={{ fill: '#8b5cf6', strokeWidth: 2, r: 4 }}
                       />
@@ -885,13 +885,13 @@ export default function AdminDashboard() {
                     <XAxis dataKey="month" stroke="#64748b" />
                     <YAxis yAxisId="left" stroke="#64748b" />
                     <YAxis yAxisId="right" orientation="right" stroke="#64748b" />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'white', 
-                        border: 'none', 
-                        borderRadius: '8px', 
-                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' 
-                      }} 
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                      }}
                     />
                     <Legend />
                     <Bar yAxisId="left" dataKey="orders" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
@@ -976,13 +976,13 @@ export default function AdminDashboard() {
                             <Cell key={`cell-${index}`} fill={entry.color} />
                           ))}
                         </Pie>
-                        <Tooltip 
-                          contentStyle={{ 
-                            backgroundColor: 'white', 
-                            border: 'none', 
-                            borderRadius: '8px', 
-                            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' 
-                          }} 
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: 'white',
+                            border: 'none',
+                            borderRadius: '8px',
+                            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                          }}
                         />
                       </RechartsPieChart>
                     </ResponsiveContainer>
@@ -1027,13 +1027,13 @@ export default function AdminDashboard() {
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
                   <FunnelChart data={salesFunnelData}>
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'white', 
-                        border: 'none', 
-                        borderRadius: '8px', 
-                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' 
-                      }} 
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                      }}
                     />
                     <Funnel
                       dataKey="value"
@@ -1076,13 +1076,13 @@ export default function AdminDashboard() {
                       fill="#10b981"
                       fillOpacity={0.3}
                     />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'white', 
-                        border: 'none', 
-                        borderRadius: '8px', 
-                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' 
-                      }} 
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                      }}
                     />
                   </RadarChart>
                 </ResponsiveContainer>
@@ -1110,13 +1110,13 @@ export default function AdminDashboard() {
                   <XAxis dataKey="hour" stroke="#64748b" />
                   <YAxis yAxisId="left" stroke="#64748b" />
                   <YAxis yAxisId="right" orientation="right" stroke="#64748b" />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'white', 
-                      border: 'none', 
-                      borderRadius: '8px', 
-                      boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' 
-                    }} 
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                    }}
                   />
                   <Legend />
                   <Bar yAxisId="left" dataKey="users" fill="#3b82f6" radius={[4, 4, 0, 0]} />
@@ -1145,13 +1145,12 @@ export default function AdminDashboard() {
                   {geographicData.map((item, index) => (
                     <div key={item.country} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
                       <div className="flex items-center gap-3">
-                        <div className={`w-4 h-4 rounded-full bg-gradient-to-r ${
-                          index === 0 ? 'from-blue-500 to-cyan-600' :
-                          index === 1 ? 'from-purple-500 to-pink-600' :
-                          index === 2 ? 'from-green-500 to-emerald-600' :
-                          index === 3 ? 'from-yellow-500 to-orange-600' :
-                          'from-red-500 to-pink-600'
-                        }`} />
+                        <div className={`w-4 h-4 rounded-full bg-gradient-to-r ${index === 0 ? 'from-blue-500 to-cyan-600' :
+                            index === 1 ? 'from-purple-500 to-pink-600' :
+                              index === 2 ? 'from-green-500 to-emerald-600' :
+                                index === 3 ? 'from-yellow-500 to-orange-600' :
+                                  'from-red-500 to-pink-600'
+                          }`} />
                         <span className="font-medium">{item.country}</span>
                       </div>
                       <div className="text-right">
@@ -1166,13 +1165,13 @@ export default function AdminDashboard() {
                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                     <XAxis type="number" stroke="#64748b" />
                     <YAxis type="category" dataKey="country" stroke="#64748b" width={100} />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'white', 
-                        border: 'none', 
-                        borderRadius: '8px', 
-                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' 
-                      }} 
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                      }}
                     />
                     <Bar dataKey="sales" fill="#8b5cf6" radius={[0, 4, 4, 0]} />
                   </BarChart>
@@ -1218,8 +1217,8 @@ export default function AdminDashboard() {
                       <div className="font-medium text-slate-900 dark:text-slate-100">{order.amount}</div>
                       <div className="text-sm text-slate-500 dark:text-slate-400">{order.id}</div>
                     </div>
-                    <Badge 
-                      variant="secondary" 
+                    <Badge
+                      variant="secondary"
                       className={cn(
                         "capitalize",
                         order.status === 'delivered' && "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400",
@@ -1259,7 +1258,7 @@ export default function AdminDashboard() {
               </div>
               <Progress value={80} className="h-2" />
             </div>
-            
+
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-slate-900 dark:text-slate-100">Customer Satisfaction</span>
@@ -1267,7 +1266,7 @@ export default function AdminDashboard() {
               </div>
               <Progress value={96} className="h-2" />
             </div>
-            
+
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-slate-900 dark:text-slate-100">Product Ratings</span>

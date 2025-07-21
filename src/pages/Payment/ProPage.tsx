@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Crown, CheckCircle, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { planAPI, PlanResponse, formatPlanPrice, formatPlanDuration } from '@/apis/plan';
+import { planAPI, type PlanResponse, formatPlanPrice, formatPlanDuration } from '@/apis/plan';
 import { useApp } from '@/contexts';
 
 export default function ProPage() {
@@ -135,24 +135,21 @@ export default function ProPage() {
                 return (
                   <div
                     key={plan.id}
-                    className={`cursor-pointer rounded-lg border-2 p-6 transition-all ${
-                      isSelected
+                    className={`cursor-pointer rounded-lg border-2 p-6 transition-all ${isSelected
                         ? 'scale-105 border-purple-500 bg-purple-50 shadow-lg'
                         : 'border-gray-200 bg-white hover:border-purple-300 hover:shadow-md'
-                    }`}
+                      }`}
                     onClick={() => handlePlanSelect(plan.id)}
                   >
                     <div className="text-center">
                       <div className="mb-4 flex justify-center">
                         <div
-                          className={`flex h-16 w-16 items-center justify-center rounded-full ${
-                            isSelected ? 'bg-purple-200' : 'bg-purple-100'
-                          }`}
+                          className={`flex h-16 w-16 items-center justify-center rounded-full ${isSelected ? 'bg-purple-200' : 'bg-purple-100'
+                            }`}
                         >
                           <Crown
-                            className={`h-8 w-8 ${
-                              isSelected ? 'text-purple-700' : 'text-purple-600'
-                            }`}
+                            className={`h-8 w-8 ${isSelected ? 'text-purple-700' : 'text-purple-600'
+                              }`}
                           />
                         </div>
                       </div>
@@ -197,11 +194,10 @@ export default function ProPage() {
           <div className="text-center">
             <Button
               size="lg"
-              className={`px-12 py-4 text-lg font-semibold text-white transition-all ${
-                selectedPlanId
+              className={`px-12 py-4 text-lg font-semibold text-white transition-all ${selectedPlanId
                   ? 'bg-orange-500 hover:bg-orange-600'
                   : 'cursor-not-allowed bg-gray-400'
-              }`}
+                }`}
               onClick={handlePurchase}
               disabled={!selectedPlanId}
             >
