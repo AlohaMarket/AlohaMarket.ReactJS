@@ -1,6 +1,5 @@
-import { authApi } from '@/apis/auth';
 import { useApp, useAuth } from '@/contexts';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ProfileUpdateModal from '@/components/ProfileUpdateModal';
 import ProfileImageUploadModal from '@/components/ProfileImageUploadModal';
@@ -9,37 +8,18 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 export default function ProfilePage() {
   const { t } = useTranslation();
   const { login, isAuthenticated, isLoading } = useAuth();
-  const { user, setUser } = useApp();
+  const { user } = useApp();
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isUpdateAvatarModalOpen, setIsUpdateAvatarModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('active'); // 'active', 'sold', 'favorites'
-
-  // Track if the profile was already fetched
-  const hasFetchedProfile = useRef(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
       login();
       return;
     }
-
-    // Prevent refetching
-    if (hasFetchedProfile.current) return;
-
-    const fetchUserProfile = async () => {
-      try {
-        const response = await authApi.getProfile();
-        if (response) {
-          setUser(response);
-          hasFetchedProfile.current = true;
-        }
-      } catch (error) {
-        console.error('Error fetching user profile:', error);
-      }
-    };
-
-    fetchUserProfile();
-  }, [isAuthenticated, login, setUser]);
+    // Note: User profile is automatically fetched by useAuth hook, no need to duplicate here
+  }, [isAuthenticated, login]);
 
   const handleUpdateProfile = () => {
     setIsUpdateModalOpen(true);
@@ -229,21 +209,19 @@ export default function ProfilePage() {
               {/* Tab Navigation - Chotot style */}
               <div className="flex border-b border-gray-100">
                 <button
-                  className={`flex-1 py-3 text-center font-medium ${
-                    activeTab === 'active'
+                  className={`flex-1 py-3 text-center font-medium ${activeTab === 'active'
                       ? 'border-b-2 border-yellow-500 text-yellow-600'
                       : 'text-gray-500 hover:text-gray-700'
-                  }`}
+                    }`}
                   onClick={() => setActiveTab('active')}
                 >
                   {t('activeListings')}
                 </button>
                 <button
-                  className={`flex-1 py-3 text-center font-medium ${
-                    activeTab === 'sold'
+                  className={`flex-1 py-3 text-center font-medium ${activeTab === 'sold'
                       ? 'border-b-2 border-yellow-500 text-yellow-600'
                       : 'text-gray-500 hover:text-gray-700'
-                  }`}
+                    }`}
                   onClick={() => setActiveTab('sold')}
                 >
                   {t('soldItems')}
