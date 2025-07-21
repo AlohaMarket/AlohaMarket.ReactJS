@@ -36,7 +36,7 @@ const ChatPage = lazy(() => import('@/pages/ChatPage/ChatApp'));
 // Admin components
 const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
 const UsersManagement = lazy(() => import('@/pages/admin/UsersManagement'));
-const ProductsManagement = lazy(() => import('@/pages/admin/ProductsManagement'));
+const PostsManagement = lazy(() => import('@/pages/admin/PostsManagement'));
 const OrdersManagement = lazy(() => import('@/pages/admin/OrdersManagement'));
 const Analytics = lazy(() => import('@/pages/admin/Analytics'));
 const AdminSettings = lazy(() => import('@/pages/admin/AdminSettings'));
@@ -264,7 +264,7 @@ export function useRouteElements() {
           path="products"
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <ProductsManagement />
+              <PostsManagement />
             </Suspense>
           }
         />
