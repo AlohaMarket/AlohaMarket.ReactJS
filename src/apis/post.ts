@@ -32,4 +32,36 @@ export const postsApi = {
   // Gửi report bài đăng, không cần body, chỉ cần token
   reportPost: (postId: string) =>
     api.put<{ message: string; data: any }>(API_ENDPOINTS.posts.report(postId)),
+
+  // Get violation posts (admin only)
+  getViolationPosts: (page: number = 1, pageSize: number = 10) =>
+    api.get<PaginatedResponse<PostListResponse>>(`${API_ENDPOINTS.posts.violations}`, {
+      params: { page, pageSize },
+    }),
+
+  // Get posts by status (admin only)
+  getPostsByStatus: (status?: string, page: number = 1, pageSize: number = 10) =>
+    api.get<PaginatedResponse<PostListResponse>>(`${API_ENDPOINTS.posts.status}`, {
+      params: { page, pageSize, status },
+    }),
+
+  // Get post statistics (admin only)
+  getPostStatistics: () =>
+    api.get<{
+      total: number;
+      pending: number;
+      validated: number;
+      invalid: number;
+      rejected: number;
+      archived: number;
+      violation: number;
+    }>(`${API_ENDPOINTS.posts.list}/statistics`),
+
+  // Delete post (admin only)
+  deletePost: (postId: string) =>
+    api.delete<{ message: string }>(`${API_ENDPOINTS.posts.detail(postId)}`),
+
+  // Recovery violation post (admin only) - remove violation status
+  recoveryViolationPost: (postId: string) =>
+    api.put<{ message: string; data: PostListResponse }>(`${API_ENDPOINTS.posts.list}/${postId}/recovery`),
 };
