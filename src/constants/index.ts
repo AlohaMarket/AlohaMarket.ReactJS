@@ -36,6 +36,7 @@ export const API_ENDPOINTS = {
     byUser: (userId: string) => `/post/user/${userId}`,
     create: '/post/create',
     afterCreate: (id: string) => `/post/${id}/after-create`,
+    report: (id: string) => `/post/${id}/report`, // Thêm endpoint report
   },
 
   // Categories
