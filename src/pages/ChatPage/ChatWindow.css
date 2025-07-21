@@ -74,6 +74,32 @@
   display: block;
 }
 
+.conversation-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.conversation-info h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.conversation-info .conversation-subtitle {
+  font-size: 0.85rem;
+  color: #007bff;
+  margin: 2px 0;
+  font-weight: 500;
+}
+
+.conversation-info .participant-count {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 2px;
+  display: block;
+}
+
 .product-info {
   display: flex;
   align-items: center;

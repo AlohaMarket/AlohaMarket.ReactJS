@@ -226,16 +226,48 @@ const ChatApp: React.FC = () => {
       setAutoCreateInProgress(true);
       setLoading(true);
 
-      // Check if conversation already exists between these users
+      // Check if conversation already exists between these users (regardless of product)
       const existingConversation = conversations.find(conv => 
         conv.participants.some(p => p.userId === targetUserId) &&
-        conv.participants.some(p => p.userId === currentUserId) &&
-        (!postId || conv.productId === postId)
+        conv.participants.some(p => p.userId === currentUserId)
       );
 
       if (existingConversation) {
-        console.log('Existing conversation found, selecting it');
-        await handleConversationSelect(existingConversation);
+        console.log('Existing conversation found between users');
+        
+        // If we have a new productId and it's different from the current one, update it
+        if (postId && existingConversation.productId !== postId) {
+          try {
+            console.log(`Updating conversation product context from "${existingConversation.productId}" to "${postId}"`);
+            const updatedConversation = await chatApiService.updateConversationProduct({
+              conversationId: existingConversation.id,
+              productId: postId
+            });
+            
+            // Update the conversation in our local state
+            setConversations(prev => prev.map(conv => 
+              conv.id === existingConversation.id ? updatedConversation : conv
+            ));
+            
+            // Select the updated conversation
+            await handleConversationSelect(updatedConversation);
+            console.log('Successfully updated and selected conversation with new product context');
+          } catch (updateError) {
+            console.warn('Failed to update conversation product context:', updateError);
+            // Still select the existing conversation even if update fails
+            await handleConversationSelect(existingConversation);
+          }
+        } else if (postId && existingConversation.productId === postId) {
+          console.log('Conversation already has the same product context, just selecting it');
+          await handleConversationSelect(existingConversation);
+        } else if (!postId) {
+          console.log('No product specified, selecting existing conversation as-is');
+          await handleConversationSelect(existingConversation);
+        } else {
+          // This case shouldn't happen, but just in case
+          await handleConversationSelect(existingConversation);
+        }
+        
         // Clear URL parameters after successful conversation selection
         navigate('/chat', { replace: true });
         return;
@@ -287,15 +319,6 @@ const ChatApp: React.FC = () => {
 
   return (
     <div className="chat-app">
-      <div className="chat-header">
-        <h1>Aloha Chat</h1>
-        <div className="user-info">
-          <span>Welcome, {currentUserId}</span>
-          <button onClick={handleLogout} className="logout-btn">
-            Logout
-          </button>
-        </div>
-      </div>
       
       <div className="chat-container">
         <div className="sidebar">

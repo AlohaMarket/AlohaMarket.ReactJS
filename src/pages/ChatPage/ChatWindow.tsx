@@ -198,10 +198,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   };
 
   const getConversationTitle = (): string => {
-    if (conversation.productContext) {
-      return conversation.productContext.productName;
-    }
-    
+    // Always show the other participants' names as the main title
     const otherParticipants = conversation.participants.filter(
       p => p.userId !== currentUserId
     );
@@ -213,6 +210,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     return otherParticipants.map(p => p.userName || p.userId).join(', ');
   };
 
+  const getConversationSubtitle = (): string => {
+    if (conversation.productContext) {
+      return `Discussing: ${conversation.productContext.productName}`;
+    }
+    return '';
+  };
+
   const getOnlineParticipants = (): number => {
     return conversation.participants.filter(p => p.isOnline).length;
   };
@@ -222,6 +226,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       <div className="chat-window-header">
         <div className="conversation-info">
           <h3>{getConversationTitle()}</h3>
+          {getConversationSubtitle() && (
+            <div className="conversation-subtitle">
+              {getConversationSubtitle()}
+            </div>
+          )}
           <span className="participant-count">
             {getOnlineParticipants()} of {conversation.participants.length} online
           </span>
