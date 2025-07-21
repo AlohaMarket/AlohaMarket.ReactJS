@@ -569,7 +569,7 @@ export default function Chats() {
                       <div className='flex gap-2'>
                         <Avatar>
                           <AvatarImage 
-                            src={conversation.productContext?.productImage || conversation.participants.find(p => p.userId !== currentUserId)?.userAvatar} 
+                            src={conversation.participants.find(p => p.userId !== currentUserId)?.userAvatar} 
                             alt={conversationTitle} 
                           />
                           <AvatarFallback>{conversationTitle.charAt(0).toUpperCase()}</AvatarFallback>
@@ -618,17 +618,22 @@ export default function Chats() {
                   <div className='flex items-center gap-2 lg:gap-4'>
                     <Avatar className='size-9 lg:size-11'>
                       <AvatarImage
-                        src={selectedConversation.productContext?.productImage || selectedConversation.participants.find(p => p.userId !== currentUserId)?.userAvatar}
-                        alt={getConversationTitle(selectedConversation)}
+                        src={selectedConversation.productContext?.productImage}
+                        alt={selectedConversation.productContext?.productName || 'Product'}
                       />
-                      <AvatarFallback>{getConversationTitle(selectedConversation).charAt(0).toUpperCase()}</AvatarFallback>
+                      <AvatarFallback>
+                        {selectedConversation.productContext?.productName?.charAt(0).toUpperCase() || 'P'}
+                      </AvatarFallback>
                     </Avatar>
                     <div>
                       <span className='col-start-2 row-span-2 text-sm font-medium lg:text-base'>
-                        {getConversationTitle(selectedConversation)}
+                        {selectedConversation.productContext?.productName || 'No Product'}
                       </span>
                       <span className='col-start-2 row-span-2 row-start-2 line-clamp-1 block max-w-32 text-ellipsis text-nowrap text-xs text-muted-foreground lg:max-w-none lg:text-sm'>
-                        {getConversationSubtitle(selectedConversation)}
+                        {selectedConversation.productContext?.productPrice 
+                          ? `$${selectedConversation.productContext.productPrice.toFixed(2)}` 
+                          : 'Price not available'
+                        }
                       </span>
                     </div>
                   </div>
@@ -667,7 +672,7 @@ export default function Chats() {
                 <div className='chat-text-container relative -mr-4 flex flex-1 flex-col overflow-y-hidden min-h-0'>
                   <div 
                     ref={messagesContainerRef}
-                    className='chat-flex flex flex-1 w-full flex-col justify-start gap-4 overflow-y-auto py-2 pb-4 pr-4 min-h-96 max-h-[calc(100vh-300px)]'
+                    className='chat-flex flex flex-1 w-full flex-col justify-start gap-3 overflow-y-auto py-4 pb-4 pr-4 min-h-96 max-h-[calc(100vh-300px)]'
                   >
                     {loading && Object.keys(currentMessage).length === 0 ? (
                       <div className="flex justify-center items-center h-full">
@@ -678,16 +683,20 @@ export default function Chats() {
                         {currentMessage &&
                           Object.keys(currentMessage).map((key) => (
                             <Fragment key={key}>
-                              {currentMessage[key].map((msg, index) => (
-                                <MessageItem
-                                  key={`${msg.senderId}-${msg.timestamp}-${index}`}
-                                  message={msg}
-                                  isOwn={msg.senderId === currentUserId}
-                                  onEdit={handleEditMessage}
-                                  onDelete={handleDeleteMessage}
-                                />
-                              ))}
-                              <div className='text-center text-xs'>{key}</div>
+                              <div className='text-center text-xs text-muted-foreground mb-4 mt-2'>
+                                {key}
+                              </div>
+                              <div className="space-y-3">
+                                {currentMessage[key].map((msg, index) => (
+                                  <MessageItem
+                                    key={`${msg.senderId}-${msg.timestamp}-${index}`}
+                                    message={msg}
+                                    isOwn={msg.senderId === currentUserId}
+                                    onEdit={handleEditMessage}
+                                    onDelete={handleDeleteMessage}
+                                  />
+                                ))}
+                              </div>
                             </Fragment>
                           ))}
                         
