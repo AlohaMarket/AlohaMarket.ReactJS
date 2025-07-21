@@ -1,21 +1,45 @@
 import { Crown, ArrowRight, X } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { userPlanApi } from '@/apis/userplan';
+import { useApp } from '@/contexts';
+import type { UserPlanResponse } from '@/types/userplan.type';
 
 export default function ProPromotionBanner() {
   const [isVisible, setIsVisible] = useState(true);
   const navigate = useNavigate();
+  const { user } = useApp();
+
+  // Lấy thông tin gói đăng tin của user
+  const { data: userPlans, isLoading: isLoadingPlans } = useQuery<UserPlanResponse[]>({
+    queryKey: ['userPlans'],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const response = await userPlanApi.getCurrentUserPlans();
+      return response;
+    },
+    enabled: !!user?.id,
+  });
+
+  // Kiểm tra xem user có gói Pro không
+  const activePlans = userPlans?.filter((plan: UserPlanResponse) => plan.remainPosts > 0) || [];
+  const hasActivePlans = activePlans.length > 0;
 
   const handleUpgradeClick = () => {
-    // Cho phép truy cập Pro page mà không cần đăng nhập để test
-    navigate('/payment/pro');
+    if (!user) {
+      navigate('/required-login');
+    } else {
+      navigate('/payment/pro');
+    }
   };
 
   const handleClose = () => {
     setIsVisible(false);
   };
 
-  if (!isVisible) return null;
+  // Ẩn banner nếu user đã có gói Pro hoặc đang loading
+  if (!isVisible || isLoadingPlans || hasActivePlans) return null;
 
   return (
     <div className="relative bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 px-4 py-3 text-white shadow-lg">
@@ -38,7 +62,7 @@ export default function ProPromotionBanner() {
             onClick={handleUpgradeClick}
             className="flex transform items-center gap-2 rounded-full bg-white px-6 py-2 font-bold text-orange-600 shadow-lg transition-all duration-300 hover:scale-105 hover:text-orange-700"
           >
-            <span>Tìm hiểu thêm</span>
+            <span>{!user ? 'Đăng nhập để nâng cấp' : 'Tìm hiểu thêm'}</span>
             <ArrowRight size={16} />
           </button>
 

@@ -27,15 +27,12 @@ export default function ProUpgradeButton() {
 
   const handleUpgradeClick = () => {
     if (hasActivePlans) {
-      // Nếu đã có gói Pro, chuyển đến trang quản lý gói
-      navigate('/my-plans');
+      navigate('/my-posts');
     } else {
-      // Nếu chưa có gói Pro, chuyển đến trang mua gói
       navigate('/payment/pro');
     }
   };
 
-  // Nếu đang loading
   if (isLoadingPlans) {
     return (
       <Button
@@ -50,7 +47,6 @@ export default function ProUpgradeButton() {
     );
   }
 
-  // Nếu không có user (chưa đăng nhập)
   if (!user) {
     return (
       <Button
@@ -77,7 +73,6 @@ export default function ProUpgradeButton() {
     );
   }
 
-  // Nếu đã có gói Pro
   if (hasActivePlans) {
     return (
       <Button
@@ -103,7 +98,6 @@ export default function ProUpgradeButton() {
     );
   }
 
-  // Nếu chưa có gói Pro
   return (
     <Button
       onClick={handleUpgradeClick}
