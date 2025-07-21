@@ -152,15 +152,16 @@ export default function PostDetailPage() {
         localStorage.setItem('aloha_report_check_enabled', 'true');
     }
 
-    function isPostReported(postId: string) {
+    function isPostReported(postId: string, userId: string) {
         if (localStorage.getItem('aloha_report_check_enabled') !== 'true') return false;
-        const reported = JSON.parse(localStorage.getItem('aloha_reported_posts') || '{}');
-        return !!reported[postId];
+        const allReported = JSON.parse(localStorage.getItem('aloha_reported_posts') || '{}');
+        return !!(userId && allReported[userId] && allReported[userId][postId]);
     }
-    function setPostReported(postId: string) {
-        const reported = JSON.parse(localStorage.getItem('aloha_reported_posts') || '{}');
-        reported[postId] = true;
-        localStorage.setItem('aloha_reported_posts', JSON.stringify(reported));
+    function setPostReported(postId: string, userId: string) {
+        const allReported = JSON.parse(localStorage.getItem('aloha_reported_posts') || '{}');
+        if (!allReported[userId]) allReported[userId] = {};
+        allReported[userId][postId] = true;
+        localStorage.setItem('aloha_reported_posts', JSON.stringify(allReported));
     }
 
     const [showReportModal, setShowReportModal] = useState(false);
@@ -170,13 +171,13 @@ export default function PostDetailPage() {
         setShowReportModal(true);
     };
     const handleConfirmReport = async () => {
-        if (!post) return;
+        if (!post || !user) return;
         setIsReporting(true);
         try {
             const res = await postsApi.reportPost(post.id);
             const msg = res?.message || res?.data?.message || 'Báo cáo thành công';
             toast.success(msg);
-            setPostReported(post.id);
+            setPostReported(post.id, user.id);
             setShowReportModal(false);
         } catch (err: any) {
             const msg =
@@ -312,8 +313,8 @@ export default function PostDetailPage() {
                                             variant="outline"
                                             size="sm"
                                             onClick={handleReportClick}
-                                            disabled={isPostReported(post.id)}
-                                            className={isPostReported(post.id) ? 'opacity-50 cursor-not-allowed' : ''}
+                                            disabled={isPostReported(post.id, user.id)}
+                                            className={isPostReported(post.id, user.id) ? 'opacity-50 cursor-not-allowed' : ''}
                                         >
                                             <Flag className="w-4 h-4 mr-1" />
                                             Báo cáo
