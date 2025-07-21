@@ -115,6 +115,28 @@ export class SignalRService {
         console.error('Failed to set typing status: ', err);
       }
     }
+  }
+
+  public async updateProductContext(conversationId: string, productId: string): Promise<void> {
+    if (this.connection) {
+      try {
+        await this.connection.invoke('UpdateProductContext', conversationId, productId);
+      } catch (err) {
+        console.error('Failed to update product context: ', err);
+        throw err;
+      }
+    }
+  }
+
+  public async refreshConversation(conversationId: string): Promise<void> {
+    if (this.connection) {
+      try {
+        await this.connection.invoke('RefreshConversation', conversationId);
+      } catch (err) {
+        console.error('Failed to refresh conversation: ', err);
+        // This is optional, don't throw
+      }
+    }
   }  // Event listeners
   public onReceiveMessage(callback: (message: Message) => void): void {
     if (this.connection) {
@@ -135,16 +157,15 @@ export class SignalRService {
       });
     }
   }
-  public onMessageEdited(callback: (message: Message) => void): void {
+  public onMessageEdited(callback: (data: SignalREditedMessageData) => void): void {
     if (this.connection) {
       this.connection.on('MessageEdited', (data: SignalREditedMessageData) => {
-        const partialMessage: Partial<Message> & { id: string } = {
-          id: data.id,
-          content: data.content,
-          isEdited: data.isEdited,
-          editedAt: data.editedAt,
-        };
-        callback(partialMessage as Message);
+        // Validate the data before calling the callback
+        if (data && data.id && data.content !== undefined) {
+          callback(data);
+        } else {
+          console.error('Invalid MessageEdited data received:', data);
+        }
       });
     }
   }
@@ -187,6 +208,37 @@ export class SignalRService {
   public onMessageError(callback: (error: string) => void): void {
     if (this.connection) {
       this.connection.on('MessageError', callback);
+    }
+  }
+
+  // New event handlers for conversation and product updates
+  public onConversationUpdated(callback: (conversation: any) => void): void {
+    if (this.connection) {
+      this.connection.on('ConversationUpdated', callback);
+    }
+  }
+
+  public onConversationCreated(callback: (conversation: any) => void): void {
+    if (this.connection) {
+      this.connection.on('ConversationCreated', callback);
+    }
+  }
+
+  public onProductContextUpdated(callback: (data: { conversationId: string, productContext: any }) => void): void {
+    if (this.connection) {
+      this.connection.on('ProductContextUpdated', callback);
+    }
+  }
+
+  public onParticipantJoined(callback: (data: { conversationId: string, participant: any }) => void): void {
+    if (this.connection) {
+      this.connection.on('ParticipantJoined', callback);
+    }
+  }
+
+  public onParticipantLeft(callback: (data: { conversationId: string, userId: string }) => void): void {
+    if (this.connection) {
+      this.connection.on('ParticipantLeft', callback);
     }
   }
 

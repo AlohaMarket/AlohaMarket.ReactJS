@@ -31,7 +31,7 @@ const TermsOfServicePage = lazy(() => import('@/pages/TermsOfServicePage'));
 const ProPage = lazy(() => import('@/pages/Payment/ProPage'));
 const CheckoutPage = lazy(() => import('@/pages/Payment/CheckoutPage'));
 const SuccessPage = lazy(() => import('@/pages/Payment/SuccessPage'));
-const ChatPage = lazy(() => import('@/pages/ChatPage/ChatApp'));
+const ChatPage = lazy(() => import('@/pages/ChatPage/chat'));
 
 // Admin components
 const UsersManagement = lazy(() => import('@/pages/admin/UsersManagement'));
