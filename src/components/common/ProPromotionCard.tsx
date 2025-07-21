@@ -1,13 +1,36 @@
 import { Crown, CheckCircle, ArrowRight, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { useQuery } from '@tanstack/react-query';
+import { userPlanApi } from '@/apis/userplan';
+import { useApp } from '@/contexts';
+import type { UserPlanResponse } from '@/types/userplan.type';
 
 export default function ProPromotionCard() {
   const navigate = useNavigate();
+  const { user } = useApp();
+
+  // Lấy thông tin gói đăng tin của user
+  const { data: userPlans, isLoading: isLoadingPlans } = useQuery<UserPlanResponse[]>({
+    queryKey: ['userPlans'],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const response = await userPlanApi.getCurrentUserPlans();
+      return response;
+    },
+    enabled: !!user?.id,
+  });
+
+  // Kiểm tra xem user có gói Pro không
+  const activePlans = userPlans?.filter((plan: UserPlanResponse) => plan.remainPosts > 0) || [];
+  const hasActivePlans = activePlans.length > 0;
 
   const handleUpgradeClick = () => {
-    // Cho phép truy cập Pro page mà không cần đăng nhập để test
-    navigate('/payment/pro');
+    if (!user) {
+      navigate('/required-login');
+    } else {
+      navigate('/payment/pro');
+    }
   };
 
   const benefits = [
@@ -18,6 +41,9 @@ export default function ProPromotionCard() {
     'Tính năng đẩy tin cao cấp',
     'Quản lý tin đăng nâng cao',
   ];
+
+  // Ẩn card nếu user đã có gói Pro hoặc đang loading
+  if (isLoadingPlans || hasActivePlans) return null;
 
   return (
     <div className="relative mx-auto max-w-md overflow-hidden rounded-2xl border border-orange-200 bg-gradient-to-br from-amber-50 to-orange-100 p-6 shadow-xl">
@@ -70,14 +96,16 @@ export default function ProPromotionCard() {
         >
           <div className="flex items-center justify-center gap-2">
             <Crown size={18} />
-            <span>NÂNG CẤP NGAY</span>
+            <span>{!user ? 'ĐĂNG NHẬP ĐỂ NÂNG CẤP' : 'NÂNG CẤP NGAY'}</span>
             <ArrowRight size={18} />
           </div>
         </Button>
 
         {/* Small note */}
         <p className="mt-3 text-center text-xs text-gray-500">
-          Tham gia ngay để trở thành người bán chuyên nghiệp!
+          {!user
+            ? 'Đăng nhập để trở thành người bán chuyên nghiệp!'
+            : 'Tham gia ngay để trở thành người bán chuyên nghiệp!'}
         </p>
       </div>
     </div>

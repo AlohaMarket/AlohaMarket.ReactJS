@@ -28,4 +28,8 @@ export const postsApi = {
   // Get posts by a specific seller
   getPostsBySeller: (sellerId: string, filters?: UserPostFilters) =>
     api.get<PaginatedResponse<PostListResponse>>(`${API_ENDPOINTS.posts.byUser(sellerId)}`, { params: filters }),
+
+  // Gửi report bài đăng, không cần body, chỉ cần token
+  reportPost: (postId: string) =>
+    api.put<{ message: string; data: any }>(API_ENDPOINTS.posts.report(postId)),
 };

@@ -237,7 +237,7 @@ export function useRouteElements() {
       <Route
         path="/admin"
         element={
-          <ProtectedRoute requiredRole={ROLES.ADMIN} allowAutoLogin={true}>
+          <ProtectedRoute requiredRole={ROLES.ADMIN} allowAutoLogin={false} fallbackPath="/required-login">
             <AdminLayout />
           </ProtectedRoute>
         }

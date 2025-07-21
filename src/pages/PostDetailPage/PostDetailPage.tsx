@@ -12,6 +12,7 @@ import {
     Share2,
     ChevronLeft,
     ChevronRight,
+    Flag,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -28,6 +29,40 @@ import { LocationType } from '@/types/location.type';
 import { useApp } from '@/contexts';
 
 
+// Type definition for localStorage structure
+// Lưu: { [userId: string]: { [postId: string]: true } }
+type ReportedPosts = Record<string, Record<string, boolean>>;
+
+// Initialize flag safely (chỉ chạy phía client)
+const initializeReportFlag = () => {
+    if (typeof window !== 'undefined' && localStorage.getItem('aloha_report_check_enabled') === null) {
+        localStorage.setItem('aloha_report_check_enabled', 'true');
+    }
+};
+
+function isPostReported(postId: string, userId: string): boolean {
+    if (typeof window === 'undefined') return false;
+    try {
+        if (localStorage.getItem('aloha_report_check_enabled') !== 'true') return false;
+        const allReported: ReportedPosts = JSON.parse(localStorage.getItem('aloha_reported_posts') || '{}');
+        return !!(userId && allReported[userId] && allReported[userId][postId]);
+    } catch (error) {
+        console.error('Error reading reported posts from localStorage:', error);
+        return false;
+    }
+}
+
+function setPostReported(postId: string, userId: string): void {
+    if (typeof window === 'undefined') return;
+    try {
+        const allReported: ReportedPosts = JSON.parse(localStorage.getItem('aloha_reported_posts') || '{}');
+        if (!allReported[userId]) allReported[userId] = {};
+        allReported[userId][postId] = true;
+        localStorage.setItem('aloha_reported_posts', JSON.stringify(allReported));
+    } catch (error) {
+        console.error('Error saving reported posts to localStorage:', error);
+    }
+}
 
 export default function PostDetailPage() {
     const { i18n } = useTranslation();
@@ -160,6 +195,37 @@ export default function PostDetailPage() {
         }
     };
 
+    useEffect(() => {
+        initializeReportFlag();
+    }, []);
+
+    const [showReportModal, setShowReportModal] = useState(false);
+    const [isReporting, setIsReporting] = useState(false);
+
+    const handleReportClick = () => {
+        setShowReportModal(true);
+    };
+    const handleConfirmReport = async () => {
+        if (!post || !user) return;
+        setIsReporting(true);
+        try {
+            const res = await postsApi.reportPost(post.id);
+            const msg = res?.message || res?.data?.message || 'Báo cáo thành công';
+            toast.success(msg);
+            setPostReported(post.id, user.id);
+            setShowReportModal(false);
+        } catch (err: any) {
+            const msg =
+                err?.response?.data?.message ||
+                err?.response?.message ||
+                err?.message ||
+                'Có lỗi xảy ra';
+            toast.error(msg);
+        } finally {
+            setIsReporting(false);
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -276,6 +342,19 @@ export default function PostDetailPage() {
                                     {post.title}
                                 </h1>
                                 <div className="flex items-center gap-2 ml-4">
+                                    {/* Nút Report */}
+                                    {user && user.id !== post.userId && (
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={handleReportClick}
+                                            disabled={isPostReported(post.id, user.id)}
+                                            className={isPostReported(post.id, user.id) ? 'opacity-50 cursor-not-allowed' : ''}
+                                        >
+                                            <Flag className="w-4 h-4 mr-1" />
+                                            Báo cáo
+                                        </Button>
+                                    )}
                                     <Button
                                         variant="outline"
                                         size="sm"
@@ -431,6 +510,24 @@ export default function PostDetailPage() {
                     />
                 </div>
             </div>
+
+            {/* Modal xác nhận báo cáo */}
+            {showReportModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                    <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm">
+                        <h2 className="text-lg font-semibold mb-4">Báo cáo bài đăng</h2>
+                        <p className="mb-6">Bạn muốn báo cáo bài đăng này không?</p>
+                        <div className="flex justify-end gap-2">
+                            <Button variant="outline" onClick={() => setShowReportModal(false)} disabled={isReporting}>
+                                Hủy
+                            </Button>
+                            <Button onClick={handleConfirmReport} disabled={isReporting} className="bg-red-600 hover:bg-red-700 text-white">
+                                {isReporting ? 'Đang gửi...' : 'Báo cáo'}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

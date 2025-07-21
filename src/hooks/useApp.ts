@@ -20,9 +20,9 @@ export function useAuth() {
     setIsAuthLoading(true);
 
     if (keycloak.authenticated) {
-      // Save Keycloak tokens
-      localStorage.setItem('token', keycloak.token ?? '');
-      localStorage.setItem('refreshToken', keycloak.refreshToken ?? '');
+      // Save Keycloak tokens với consistent naming
+      localStorage.setItem('access_token', keycloak.token ?? ''); // ✅ Dùng consistent key
+      localStorage.setItem('kc_refresh_token', keycloak.refreshToken ?? ''); // ✅ Consistent key
       localStorage.setItem('keycloak_user', JSON.stringify(keycloak.tokenParsed));
 
       // Fetch and persist full user profile
@@ -49,29 +49,71 @@ export function useAuth() {
           })
           .catch(error => {
             console.error('Failed to fetch user info:', error);
+            // ✅ Try to use cached user if API fails
+            if (cachedUser) {
+              try {
+                const userData = JSON.parse(cachedUser);
+                setUser(userData);
+                console.log('Using cached user profile due to API failure');
+              } catch (e) {
+                console.error('Failed to parse cached user:', e);
+              }
+            }
             setIsAuthLoading(false);
           });
       } else {
         setIsAuthLoading(false);
       }
     } else {
-      // Clear all user data on logout
-      localStorage.removeItem('user_profile');
-      localStorage.removeItem('keycloak_user');
-      setUser(null);
-      setIsAuthLoading(false);
+      // ✅ Try to recover from stored tokens before clearing
+      const storedRefreshToken = localStorage.getItem('kc_refresh_token');
+      const cachedUser = localStorage.getItem('user_profile');
+
+      if (storedRefreshToken && cachedUser) {
+        console.log('Attempting session recovery from stored data...');
+        try {
+          // Use cached user temporarily while trying to recover session
+          const userData = JSON.parse(cachedUser);
+          setUser(userData);
+          setIsAuthLoading(false);
+
+          // Note: Actual token refresh should be handled by Keycloak's event system
+          // This just provides better UX by showing cached user data
+        } catch (e) {
+          console.error('Failed to recover session:', e);
+          // Clear invalid data and reset state
+          localStorage.removeItem('user_profile');
+          localStorage.removeItem('keycloak_user');
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('kc_refresh_token');
+          setUser(null);
+          setIsAuthLoading(false);
+        }
+      } else {
+        // Clear all user data on logout
+        localStorage.removeItem('user_profile');
+        localStorage.removeItem('keycloak_user');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('kc_refresh_token');
+        setUser(null);
+        setIsAuthLoading(false);
+      }
     }
   }, [initialized, keycloak.authenticated, setUser, setIsAuthLoading, keycloak]);
 
   return {
     user: null, // ❌ Không return từ đây nữa, dùng AppContext
-    token: localStorage.getItem('token'),
-    refreshToken: localStorage.getItem('refreshToken'),
+    token: localStorage.getItem('access_token'), // ✅ Consistent key
+    refreshToken: localStorage.getItem('kc_refresh_token'), // ✅ Consistent key
     isAuthenticated: initialized && keycloak.authenticated,
     isLoading: !initialized,
     login: () => keycloak.login(),
     logout: () => {
-      localStorage.clear();
+      // ✅ Clean all auth-related data
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('kc_refresh_token');
+      localStorage.removeItem('user_profile');
+      localStorage.removeItem('keycloak_user');
       setUser(null);
       keycloak.logout({ redirectUri: window.location.origin });
     },
