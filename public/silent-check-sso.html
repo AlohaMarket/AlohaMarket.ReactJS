@@ -1,8 +1,59 @@
 <!doctype html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Silent Check SSO</title>
+    <!-- ✅ Add security headers for better browser compatibility -->
+    <meta http-equiv="Content-Security-Policy" content="frame-ancestors *;" />
+  </head>
   <body>
     <script>
-      parent.postMessage(location.href, location.origin);
+      try {
+        // ✅ Enhanced postMessage with better error handling
+        if (parent && parent !== window) {
+          // Send both current location and any error information
+          const message = {
+            type: 'keycloak-silent-check-sso',
+            url: location.href,
+            origin: location.origin,
+            timestamp: Date.now(),
+          };
+
+          // Try to get any error from URL
+          const urlParams = new URLSearchParams(location.search);
+          const error = urlParams.get('error');
+          const errorDescription = urlParams.get('error_description');
+
+          if (error) {
+            message.error = error;
+            message.errorDescription = errorDescription;
+          }
+
+          parent.postMessage(message, location.origin);
+
+          // ✅ Fallback: Also try posting just the URL for older Keycloak versions
+          setTimeout(() => {
+            parent.postMessage(location.href, location.origin);
+          }, 100);
+        }
+      } catch (e) {
+        console.error('Silent SSO check failed:', e);
+        // ✅ Try to signal failure to parent
+        if (parent && parent !== window) {
+          try {
+            parent.postMessage(
+              {
+                type: 'keycloak-silent-check-sso-error',
+                error: e.message,
+                timestamp: Date.now(),
+              },
+              '*'
+            );
+          } catch (postError) {
+            console.error('Failed to post error message:', postError);
+          }
+        }
+      }
     </script>
   </body>
 </html>

@@ -35,7 +35,6 @@ export default function Header() {
   const [showAccount, setShowAccount] = useState(false);
   const { isAuthenticated, login, logout, register } = useAuth();
   const { user } = useApp();
-  const { user: authUser } = useAuth();
 
   const handleSelectLocation = (
     locationId: number,
@@ -202,8 +201,6 @@ export default function Header() {
               <User size={20} />
               {isAuthenticated ? (
                 <span className="text-sm">{user?.userName}</span>
-              ) : authUser ? (
-                <span className="text-sm">{authUser.email}</span>
               ) : (
                 <span className="text-sm">Tài khoản</span>
               )}
@@ -229,7 +226,6 @@ export default function Header() {
                         </div>
                         <div>
                           <div className="font-medium text-gray-800">{user?.userName}</div>
-                          <div className="text-xs text-gray-500">{authUser?.email}</div>
                         </div>
                       </div>
                     </div>

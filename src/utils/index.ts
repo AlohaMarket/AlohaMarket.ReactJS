@@ -312,4 +312,7 @@ export const removeStoredToken = () => storage.remove('access_token');
 
 // Data storage utilities
 export const getStoredData = <T>(key: string): T | null => storage.get<T>(key);
-export const setStoredData = <T>(key: string, value: T): void => storage.set(key, value); 
+export const setStoredData = <T>(key: string, value: T): void => storage.set(key, value);
+
+// Export browser detection utilities
+export * from './browser-detection'; 
