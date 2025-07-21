@@ -52,7 +52,7 @@ export default function PostCard({
                             {post.title}
                         </h3>
                         <p className="text-lg font-bold text-red-600 mb-2">
-                            {post.price.toLocaleString()} đ
+                            {post.price.toLocaleString('vi-VN')} VNĐ
                         </p>
                     </div>
 

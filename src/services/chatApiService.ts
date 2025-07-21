@@ -42,6 +42,15 @@ export class ChatApiService {
     return response.json();
   }
 
+  async getConversation(conversationId: string): Promise<Conversation> {
+    const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}`);
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch conversation');
+    }
+    return response.json();
+  }
+
   async getConversationMessages(
     conversationId: string,
     userId: string,

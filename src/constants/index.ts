@@ -42,6 +42,8 @@ export const API_ENDPOINTS = {
     create: '/post/create',
     afterCreate: (id: string) => `/post/${id}/after-create`,
     report: (id: string) => `/post/${id}/report`,
+    violations: '/post/violations',
+    status: '/post/status',
   },
 
   // Categories
@@ -69,6 +71,7 @@ export const API_ENDPOINTS = {
     detail: (id: string) => `/plan/${id}`,
     me: '/plan/me',
     userId: (userId: string) => `/plan/user-plan/${userId}`,
+    allUserPlans: '/plan/all-userplans',
   },
 } as const;
 

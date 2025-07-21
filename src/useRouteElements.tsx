@@ -31,14 +31,12 @@ const TermsOfServicePage = lazy(() => import('@/pages/TermsOfServicePage'));
 const ProPage = lazy(() => import('@/pages/Payment/ProPage'));
 const CheckoutPage = lazy(() => import('@/pages/Payment/CheckoutPage'));
 const SuccessPage = lazy(() => import('@/pages/Payment/SuccessPage'));
-const ChatPage = lazy(() => import('@/pages/ChatPage/ChatApp'));
+const ChatPage = lazy(() => import('@/pages/ChatPage/chat'));
 
 // Admin components
-const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
 const UsersManagement = lazy(() => import('@/pages/admin/UsersManagement'));
-const ProductsManagement = lazy(() => import('@/pages/admin/ProductsManagement'));
-const OrdersManagement = lazy(() => import('@/pages/admin/OrdersManagement'));
-const Analytics = lazy(() => import('@/pages/admin/Analytics'));
+const PostsManagement = lazy(() => import('@/pages/admin/PostsManagement'));
+const UserPlansManagement = lazy(() => import('@/pages/admin/UserPlansManagement'));
 const AdminSettings = lazy(() => import('@/pages/admin/AdminSettings'));
 
 // Thêm import
@@ -242,16 +240,8 @@ export function useRouteElements() {
           </ProtectedRoute>
         }
       >
-        <Route index element={<Navigate to="/admin/dashboard" replace />} />
+        <Route index element={<Navigate to="/admin/posts" replace />} />
 
-        <Route
-          path="dashboard"
-          element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <AdminDashboard />
-            </Suspense>
-          }
-        />
         <Route
           path="users"
           element={
@@ -261,26 +251,18 @@ export function useRouteElements() {
           }
         />
         <Route
-          path="products"
+          path="posts"
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <ProductsManagement />
+              <PostsManagement />
             </Suspense>
           }
         />
         <Route
-          path="orders"
+          path="user-plans"
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <OrdersManagement />
-            </Suspense>
-          }
-        />
-        <Route
-          path="analytics"
-          element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <Analytics />
+              <UserPlansManagement />
             </Suspense>
           }
         />

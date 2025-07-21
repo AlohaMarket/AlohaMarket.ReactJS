@@ -372,7 +372,7 @@ export default function PostDetailPage() {
                             {/* Price */}
                             <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl">
                                 <div className="text-3xl font-bold text-blue-600">
-                                    {formatCurrency(post.price)} đ
+                                    {post.price.toLocaleString('vi-VN')} VNĐ
                                 </div>
                                 <p className="text-sm text-gray-600 mt-1">Giá có thể thương lượng</p>
                             </div>

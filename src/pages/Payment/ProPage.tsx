@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Crown, CheckCircle, ArrowRight, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { planAPI, PlanResponse, formatPlanPrice, formatPlanDuration } from '@/apis/plan';
+import { planAPI, type PlanResponse, formatPlanPrice, formatPlanDuration } from '@/apis/plan';
 import { useApp } from '@/contexts';
 
 export default function ProPage() {
@@ -176,6 +176,7 @@ export default function ProPage() {
                           : 'cursor-pointer border-gray-200 bg-white hover:border-purple-300 hover:shadow-md'
                     }`}
                     onClick={() => !isDisabled && handlePlanSelect(plan.id)}
+
                   >
                     {/* Disabled overlay - chỉ hiện cho plan FREE */}
                     {isDisabled && (
@@ -208,6 +209,7 @@ export default function ProPage() {
                                   ? 'text-purple-700'
                                   : 'text-purple-600'
                             }`}
+
                           />
                         </div>
                       </div>
@@ -268,11 +270,10 @@ export default function ProPage() {
           <div className="text-center">
             <Button
               size="lg"
-              className={`px-12 py-4 text-lg font-semibold text-white transition-all ${
-                selectedPlanId
+              className={`px-12 py-4 text-lg font-semibold text-white transition-all ${selectedPlanId
                   ? 'bg-orange-500 hover:bg-orange-600'
                   : 'cursor-not-allowed bg-gray-400'
-              }`}
+                }`}
               onClick={handlePurchase}
               disabled={!selectedPlanId}
             >
