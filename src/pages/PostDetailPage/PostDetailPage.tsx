@@ -174,11 +174,17 @@ export default function PostDetailPage() {
         setIsReporting(true);
         try {
             const res = await postsApi.reportPost(post.id);
-            toast.success(res.message);
+            const msg = res?.message || res?.data?.message || 'Báo cáo thành công';
+            toast.success(msg);
             setPostReported(post.id);
             setShowReportModal(false);
         } catch (err: any) {
-            toast.error(err?.message || err?.response?.message || 'Có lỗi xảy ra');
+            const msg =
+                err?.response?.data?.message ||
+                err?.response?.message ||
+                err?.message ||
+                'Có lỗi xảy ra';
+            toast.error(msg);
         } finally {
             setIsReporting(false);
         }
