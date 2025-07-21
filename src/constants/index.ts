@@ -11,7 +11,7 @@ export const APP_CONFIG = {
 
 // API configuration
 export const API_CONFIG = {
-  baseURL: import.meta.env.DEV ? '/api' : import.meta.env['VITE_API_GATEWAY_URL'] + '/api', // DEV dùng proxy, PROD dùng direct
+  baseURL: import.meta.env['VITE_API_GATEWAY_URL'] ? import.meta.env['VITE_API_GATEWAY_URL'] + '/api' : '/api',
   timeout: 30000,
   retries: 3,
 } as const;

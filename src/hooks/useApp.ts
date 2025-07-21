@@ -17,20 +17,34 @@ export function useAuth() {
 
   useEffect(() => {
     if (!initialized) return;
-
     setIsAuthLoading(true);
 
     if (keycloak.authenticated) {
-      // Always save tokens when authenticated
+      // Save Keycloak tokens
       localStorage.setItem('token', keycloak.token ?? '');
       localStorage.setItem('refreshToken', keycloak.refreshToken ?? '');
-      localStorage.setItem('user', JSON.stringify(keycloak.tokenParsed));
+      localStorage.setItem('keycloak_user', JSON.stringify(keycloak.tokenParsed));
 
-      // Fetch user profile if not in auth callback
+      // Fetch and persist full user profile
       if (!window.location.pathname.startsWith('/auth/callback')) {
+        const cachedUser = localStorage.getItem('user_profile');
+
+        if (cachedUser) {
+          // Use cached user first for better UX
+          try {
+            const userData = JSON.parse(cachedUser);
+            setUser(userData);
+          } catch (e) {
+            console.error('Invalid cached user data:', e);
+          }
+        }
+
+        // Then fetch fresh data
         authApi.getProfile()
           .then(user => {
             setUser(user);
+            // ✅ Persist full user profile
+            localStorage.setItem('user_profile', JSON.stringify(user));
             setIsAuthLoading(false);
           })
           .catch(error => {
@@ -40,42 +54,27 @@ export function useAuth() {
       } else {
         setIsAuthLoading(false);
       }
-
-      // Setup token refresh handler
-      keycloak.onTokenExpired = () => {
-        keycloak.updateToken(70).then((refreshed) => {
-          if (refreshed) {
-            localStorage.setItem('token', keycloak.token ?? '');
-            localStorage.setItem('refreshToken', keycloak.refreshToken ?? '');
-            localStorage.setItem('user', JSON.stringify(keycloak.tokenParsed));
-          }
-        }).catch((error) => {
-          console.error('Failed to refresh token:', error);
-        });
-      };
     } else {
+      // Clear all user data on logout
+      localStorage.removeItem('user_profile');
+      localStorage.removeItem('keycloak_user');
+      setUser(null);
       setIsAuthLoading(false);
     }
   }, [initialized, keycloak.authenticated, setUser, setIsAuthLoading, keycloak]);
 
-  const logout = () => {
-    localStorage.clear();
-    setUser(null);
-    keycloak.logout({
-      redirectUri: window.location.origin
-    });
-  };
-
   return {
-    user: keycloak.authenticated
-      ? JSON.parse(localStorage.getItem('user') || 'null')
-      : null,
+    user: null, // ❌ Không return từ đây nữa, dùng AppContext
     token: localStorage.getItem('token'),
     refreshToken: localStorage.getItem('refreshToken'),
     isAuthenticated: initialized && keycloak.authenticated,
     isLoading: !initialized,
     login: () => keycloak.login(),
-    logout,
+    logout: () => {
+      localStorage.clear();
+      setUser(null);
+      keycloak.logout({ redirectUri: window.location.origin });
+    },
     register: () => keycloak.register(),
   };
 }

@@ -53,7 +53,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
         />
       );
     }
-    
+
     // Otherwise show first letter of the other participant's name
     return (
       <div className="default-avatar">
