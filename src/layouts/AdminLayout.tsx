@@ -16,7 +16,8 @@ import {
   DollarSign,
   Moon,
   Sun,
-  Maximize2
+  Maximize2,
+  CreditCard
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -89,6 +90,12 @@ const sidebarSections: SidebarSection[] = [
         badge: '3',
         color: 'from-teal-500 to-cyan-600',
         isNew: true
+      },
+      {
+        title: 'User Plans',
+        icon: CreditCard,
+        href: '/admin/user-plans',
+        color: 'from-indigo-500 to-blue-600'
       },
     ]
   },

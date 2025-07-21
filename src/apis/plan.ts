@@ -202,6 +202,30 @@ export const planAPI = {
       return [];
     }
   },
+
+  // GET /api/plan/all-userplans - Get all user plans (Admin only)
+  getAllUserPlans: (params?: {
+    startDate?: string | Date;
+    endDate?: string | Date;
+  }) => {
+    const queryParams: Record<string, string> = {};
+    
+    if (params?.startDate) {
+      queryParams['startDate'] = params.startDate instanceof Date 
+        ? params.startDate.toISOString() 
+        : params.startDate;
+    }
+    
+    if (params?.endDate) {
+      queryParams['endDate'] = params.endDate instanceof Date 
+        ? params.endDate.toISOString() 
+        : params.endDate;
+    }
+
+    return api.get<UserPlanResponse[]>(`${API_ENDPOINTS.userPlans.allUserPlans}`, {
+      params: queryParams
+    });
+  }
 };
 
 // Helper functions
@@ -232,4 +256,66 @@ export const getPlanBadgeColor = (planName: string): string => {
     default:
       return 'bg-gray-100 text-gray-800';
   }
+};
+
+// Helper functions for date filtering
+export const createDateFilter = (startDate?: Date | string, endDate?: Date | string) => {
+  const params: { startDate?: string; endDate?: string } = {};
+  
+  if (startDate) {
+    params.startDate = startDate instanceof Date ? startDate.toISOString() : startDate;
+  }
+  
+  if (endDate) {
+    // If endDate is provided, set it to end of day to include the full day
+    const endDateTime = endDate instanceof Date ? endDate : new Date(endDate);
+    endDateTime.setHours(23, 59, 59, 999);
+    params.endDate = endDateTime.toISOString();
+  }
+  
+  return params;
+};
+
+// Predefined date ranges for common filtering
+export const getDateRangePresets = () => {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  
+  return {
+    today: {
+      startDate: today,
+      endDate: today,
+      label: 'Hôm nay'
+    },
+    yesterday: {
+      startDate: new Date(today.getTime() - 24 * 60 * 60 * 1000),
+      endDate: new Date(today.getTime() - 24 * 60 * 60 * 1000),
+      label: 'Hôm qua'
+    },
+    thisWeek: {
+      startDate: new Date(today.getTime() - (today.getDay() * 24 * 60 * 60 * 1000)),
+      endDate: today,
+      label: 'Tuần này'
+    },
+    thisMonth: {
+      startDate: new Date(now.getFullYear(), now.getMonth(), 1),
+      endDate: today,
+      label: 'Tháng này'
+    },
+    lastMonth: {
+      startDate: new Date(now.getFullYear(), now.getMonth() - 1, 1),
+      endDate: new Date(now.getFullYear(), now.getMonth(), 0),
+      label: 'Tháng trước'
+    },
+    last30Days: {
+      startDate: new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000)),
+      endDate: today,
+      label: '30 ngày qua'
+    },
+    last90Days: {
+      startDate: new Date(today.getTime() - (90 * 24 * 60 * 60 * 1000)),
+      endDate: today,
+      label: '90 ngày qua'
+    }
+  };
 };

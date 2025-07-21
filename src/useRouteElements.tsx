@@ -38,6 +38,7 @@ const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
 const UsersManagement = lazy(() => import('@/pages/admin/UsersManagement'));
 const PostsManagement = lazy(() => import('@/pages/admin/PostsManagement'));
 const OrdersManagement = lazy(() => import('@/pages/admin/OrdersManagement'));
+const UserPlansManagement = lazy(() => import('@/pages/admin/UserPlansManagement'));
 const Analytics = lazy(() => import('@/pages/admin/Analytics'));
 const AdminSettings = lazy(() => import('@/pages/admin/AdminSettings'));
 
@@ -273,6 +274,14 @@ export function useRouteElements() {
           element={
             <Suspense fallback={<LoadingSpinner />}>
               <OrdersManagement />
+            </Suspense>
+          }
+        />
+        <Route
+          path="user-plans"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <UserPlansManagement />
             </Suspense>
           }
         />
