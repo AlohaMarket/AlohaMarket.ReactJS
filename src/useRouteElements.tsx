@@ -31,6 +31,7 @@ const TermsOfServicePage = lazy(() => import('@/pages/TermsOfServicePage'));
 const ProPage = lazy(() => import('@/pages/Payment/ProPage'));
 const CheckoutPage = lazy(() => import('@/pages/Payment/CheckoutPage'));
 const SuccessPage = lazy(() => import('@/pages/Payment/SuccessPage'));
+const PaymentReturnPage = lazy(() => import('@/pages/Payment/PaymentReturnPage'));
 const ChatPage = lazy(() => import('@/pages/ChatPage/ChatApp'));
 
 // Admin components
@@ -40,6 +41,8 @@ const ProductsManagement = lazy(() => import('@/pages/admin/ProductsManagement')
 const OrdersManagement = lazy(() => import('@/pages/admin/OrdersManagement'));
 const Analytics = lazy(() => import('@/pages/admin/Analytics'));
 const AdminSettings = lazy(() => import('@/pages/admin/AdminSettings'));
+
+// Thêm import
 
 export function useRouteElements() {
   return (
@@ -187,44 +190,45 @@ export function useRouteElements() {
         <Route
           path="payment/pro"
           element={
-            <ProtectedRoute>
-              <Suspense fallback={<LoadingSpinner />}>
-                <ProPage />
-              </Suspense>
-            </ProtectedRoute>
+            <Suspense fallback={<LoadingSpinner />}>
+              <ProPage />
+            </Suspense>
           }
         />
 
         <Route
           path="payment/checkout"
           element={
-            <ProtectedRoute>
-              <Suspense fallback={<LoadingSpinner />}>
-                <CheckoutPage />
-              </Suspense>
-            </ProtectedRoute>
+            <Suspense fallback={<LoadingSpinner />}>
+              <CheckoutPage />
+            </Suspense>
           }
         />
 
         <Route
           path="payment/success"
           element={
-            <ProtectedRoute>
-              <Suspense fallback={<LoadingSpinner />}>
-                <SuccessPage />
-              </Suspense>
-            </ProtectedRoute>
+            <Suspense fallback={<LoadingSpinner />}>
+              <SuccessPage />
+            </Suspense>
           }
         />
 
         <Route
           path="payment/failed"
           element={
-            <ProtectedRoute>
-              <Suspense fallback={<LoadingSpinner />}>
-                <SuccessPage />
-              </Suspense>
-            </ProtectedRoute>
+            <Suspense fallback={<LoadingSpinner />}>
+              <SuccessPage />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="payment/return"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <PaymentReturnPage />
+            </Suspense>
           }
         />
 
@@ -299,7 +303,6 @@ export function useRouteElements() {
           }
         />
       </Route>
-
 
       {/* Help routes - public pages */}
       <Route

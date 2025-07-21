@@ -11,7 +11,7 @@ export const APP_CONFIG = {
 
 // API configuration
 export const API_CONFIG = {
-  baseURL: 'https://localhost:7000/api',
+  baseURL: import.meta.env.DEV ? '/api' : import.meta.env['VITE_API_GATEWAY_URL'] + '/api', // DEV dùng proxy, PROD dùng direct
   timeout: 30000,
   retries: 3,
 } as const;
@@ -84,7 +84,7 @@ export const QUERY_KEYS = {
   posts: ['posts'] as const,
   post: (id: string) => ['posts', id] as const,
   postSearch: (filters: Record<string, unknown>) => ['posts', 'search', filters] as const,
-  categories: ['categories'] as const
+  categories: ['categories'] as const,
 } as const;
 
 // Pagination defaults

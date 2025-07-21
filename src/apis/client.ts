@@ -77,10 +77,12 @@ apiClient.interceptors.response.use(
           apiError.code = 'VALIDATION_ERROR';
           // Handle validation errors from backend
           if (data.data && typeof data.data === 'object' && data.data !== null) {
-            apiError.validationErrors = Object.entries(data.data as Record<string, string[]>).map(([field, messages]) => ({
-              field,
-              message: Array.isArray(messages) ? messages[0] : String(messages),
-            }));
+            apiError.validationErrors = Object.entries(data.data as Record<string, string[]>).map(
+              ([field, messages]) => ({
+                field,
+                message: Array.isArray(messages) ? messages[0] : String(messages),
+              })
+            );
           }
           break;
         case 429:
@@ -104,7 +106,6 @@ apiClient.interceptors.response.use(
   }
 );
 
-
 // Generic API methods
 export const api = {
   get: <T>(url: string, config?: AxiosRequestConfig): Promise<T> =>
@@ -122,11 +123,24 @@ export const api = {
   delete: <T>(url: string, config?: AxiosRequestConfig): Promise<T> =>
     apiClient.delete<ApiResponse<T>>(url, config).then((response) => response.data.data),
 
-  getPaginated: <T>(url: string, config?: AxiosRequestConfig): Promise<{ items: T[]; meta: { total_pages: number; total_items: number; current_page: number; page_size: number } }> =>
-    apiClient.get(url, config).then((response) => response.data.data),
+  getPaginated: <T>(
+    url: string,
+    config?: AxiosRequestConfig
+  ): Promise<{
+    items: T[];
+    meta: { total_pages: number; total_items: number; current_page: number; page_size: number };
+  }> => apiClient.get(url, config).then((response) => response.data.data),
 
   getFullResponse: <T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> =>
     apiClient.get<ApiResponse<T>>(url, config).then((response) => response.data),
+
+  // Thêm method mới cho payment - trả về full response
+  postFullResponse: <T>(
+    url: string,
+    data?: unknown,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> =>
+    apiClient.post<ApiResponse<T>>(url, data, config).then((response) => response.data),
 };
 
 export default apiClient;

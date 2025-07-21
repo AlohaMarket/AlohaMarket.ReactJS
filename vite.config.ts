@@ -33,23 +33,12 @@ export default defineConfig(({ mode }) => {
       open: true,
       proxy: {
         '/api': {
-          // Payment API proxy
-          target: env['VITE_API_PAYMENT_URL'] || 'https://localhost:7131',
+          target: env['VITE_API_GATEWAY_URL'] || 'https://localhost:7000', // SỬ DỤNG ENV
           changeOrigin: true,
           secure: false,
           rewrite: (path) => {
-            console.log('🔄 Payment API Proxy:', path, '→', path);
+            console.log('🔄 API Gateway Proxy:', path, '→', path);
             return path;
-          },
-        },
-        '/plans-api': {
-          // Plan API proxy - thêm proxy mới cho plan service
-          target: env['VITE_API_PLAN_URL'] || 'https://localhost:7007',
-          changeOrigin: true,
-          secure: false,
-          rewrite: (path) => {
-            console.log('🔄 Plan API Proxy:', path, '→', path.replace('/plans-api', '/api'));
-            return path.replace('/plans-api', '/api'); // /plans-api/plans -> /api/plans
           },
         },
       },

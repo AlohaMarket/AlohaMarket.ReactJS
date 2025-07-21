@@ -13,7 +13,8 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { paymentAPI, formatPaymentInformation, formatMomoPaymentRequest } from '@/apis/payment';
-import { planAPI, PlanResponse, formatPlanPrice, formatPlanDuration } from '@/apis/plan';
+import { formatPlanPrice, formatPlanDuration } from '@/apis/plan';
+import { useApp } from '@/contexts';
 
 interface CheckoutItem {
   id: string;
@@ -24,19 +25,11 @@ interface CheckoutItem {
   planId: number;
 }
 
-// Mock user data để test
-const mockUser = {
-  id: 'user_550e8400-e29b-41d4-a716-446655440000',
-  name: 'Nguyen Van A',
-  email: 'test@example.com',
-  phone: '0123456789',
-};
-
 export default function CheckoutPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const user = mockUser;
+  const { user } = useApp(); // Lấy user từ context
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('vnpay');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -74,18 +67,36 @@ export default function CheckoutPage() {
 
   const totalAmount = checkoutItems.reduce((sum, item) => sum + item.price, 0);
 
-  // Bỏ useEffect fetch API, lấy data từ URL params
   useEffect(() => {
     if (!planId) {
       navigate('/payment/pro');
       return;
     }
 
+    if (!user) {
+      navigate(
+        '/login?redirectTo=' + encodeURIComponent(window.location.pathname + window.location.search)
+      );
+      return;
+    }
+
+    // Lưu thông tin gói vào localStorage để khôi phục sau redirect
+    const planInfo = {
+      planId,
+      title: planTitle,
+      price: searchParams.get('price'),
+      duration: searchParams.get('duration'),
+      maxPosts: searchParams.get('maxPosts'),
+      maxPushes: searchParams.get('maxPushes'),
+    };
+
+    localStorage.setItem('payment_plan_info', JSON.stringify(planInfo));
+
     const price = parseInt(searchParams.get('price') || '0');
     const duration = parseInt(searchParams.get('duration') || '0');
     const maxPosts = parseInt(searchParams.get('maxPosts') || '0');
     const maxPushes = parseInt(searchParams.get('maxPushes') || '0');
-
+    console.log(user.id);
     const checkoutItem: CheckoutItem = {
       id: `plan-${planId}`,
       name: `${planTitle} - Gói dịch vụ`,
@@ -102,10 +113,10 @@ export default function CheckoutPage() {
 
     setCheckoutItems([checkoutItem]);
     setIsLoading(false);
-  }, [planId, planTitle, searchParams, navigate]);
+  }, [planId, planTitle, searchParams, navigate, user]);
 
   const handlePayment = async () => {
-    if (isProcessing || checkoutItems.length === 0) return;
+    if (isProcessing || checkoutItems.length === 0 || !user) return;
     setIsProcessing(true);
 
     try {
@@ -113,42 +124,62 @@ export default function CheckoutPage() {
 
       if (selectedPaymentMethod === 'vnpay') {
         const paymentData = formatPaymentInformation(
-          selectedItem.planId, // Sử dụng planId thực tế
+          selectedItem.planId,
           totalAmount,
           planTitle!,
-          user.name
+          user.userName,
+          window.location.origin + '/payment/return' // Thay vì /payment/success
         );
+
         const paymentResponse = await paymentAPI.createPaymentUrl(paymentData);
 
-        if (paymentResponse) {
-          window.location.href = paymentResponse;
+        if (!paymentResponse) {
+          throw new Error('Không nhận được phản hồi từ server');
+        }
+
+        let paymentUrl = paymentResponse.data;
+
+        if (paymentUrl && typeof paymentUrl === 'string') {
+          try {
+            new URL(paymentUrl); // Validate URL
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            window.location.href = paymentUrl;
+          } catch (urlError) {
+            throw new Error('URL thanh toán không hợp lệ');
+          }
         } else {
           throw new Error('Không nhận được URL thanh toán từ VNPay');
         }
       } else if (selectedPaymentMethod === 'momo') {
         const momoOrderId = `MOMO_ORDER_${Date.now()}`;
-        const momoOrderInfo = `${user.name} Thanh toán ${selectedItem.name} ${totalAmount}`;
+        const momoOrderInfo = `${user.userName} Thanh toán ${selectedItem.name} ${totalAmount}`;
 
         const momoPaymentData = formatMomoPaymentRequest(
-          user.name,
+          user.userName,
           momoOrderId,
           momoOrderInfo,
-          totalAmount
+          totalAmount,
+          window.location.origin + '/payment/return' // Thay vì /payment/success
         );
+
         const momoResponse = await paymentAPI.createMomoPaymentUrl(momoPaymentData);
 
-        if (momoResponse) {
-          window.location.href = momoResponse;
+        if (momoResponse && momoResponse.data) {
+          try {
+            new URL(momoResponse.data); // Validate URL
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            window.location.href = momoResponse.data;
+          } catch (urlError) {
+            throw new Error('URL thanh toán MoMo không hợp lệ');
+          }
         } else {
           throw new Error('Không nhận được URL thanh toán từ MoMo');
         }
       } else {
-        console.warn('Phương thức thanh toán chưa được hỗ trợ:', selectedPaymentMethod);
         setIsProcessing(false);
         return;
       }
     } catch (error) {
-      console.error('Payment error:', error);
       const errorMessage =
         error instanceof Error ? error.message : 'Đã có lỗi xảy ra trong quá trình thanh toán.';
       navigate(`/payment/failed?status=failed&message=${encodeURIComponent(errorMessage)}`);

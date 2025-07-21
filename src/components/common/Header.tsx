@@ -9,7 +9,7 @@ import {
   ChevronDown,
   User,
   Grid,
-  LogOut
+  LogOut,
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -19,6 +19,7 @@ import { LocationType } from '@/types/location.type';
 import { useTranslation } from 'react-i18next';
 import { LANGUAGES } from '@/constants';
 import toast from 'react-hot-toast';
+import ProUpgradeButton from './ProUpgradeButton';
 
 export default function Header() {
   const navigate = useNavigate();
@@ -26,7 +27,9 @@ export default function Header() {
   const { language, changeLanguage } = useApp();
   const [selectedAddress, setSelectedAddress] = useState('Toàn Quốc');
   const [selectedLocationId, setSelectedLocationId] = useState<number>(0);
-  const [selectedLocationLevel, setSelectedLocationLevel] = useState<LocationType>(LocationType.PROVINCE);
+  const [selectedLocationLevel, setSelectedLocationLevel] = useState<LocationType>(
+    LocationType.PROVINCE
+  );
   const [searchTerm, setSearchTerm] = useState('');
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [showAccount, setShowAccount] = useState(false);
@@ -34,7 +37,11 @@ export default function Header() {
   const { user } = useApp();
   const { user: authUser } = useAuth();
 
-  const handleSelectLocation = (locationId: number, locationLevel: LocationType, displayText: string) => {
+  const handleSelectLocation = (
+    locationId: number,
+    locationLevel: LocationType,
+    displayText: string
+  ) => {
     setSelectedLocationId(locationId);
     setSelectedLocationLevel(locationLevel);
     setSelectedAddress(displayText);
@@ -72,7 +79,7 @@ export default function Header() {
       <select
         value={language}
         onChange={(e) => changeLanguage(e.target.value as 'en' | 'vi')}
-        className="bg-transparent text-white text-sm cursor-pointer"
+        className="cursor-pointer bg-transparent text-sm text-white"
       >
         {LANGUAGES.map(({ code, flag }) => (
           <option key={code} value={code} className="text-black">
@@ -99,7 +106,7 @@ export default function Header() {
           {[
             { label: 'Đóng góp ý kiến', href: 'feedback' },
             { label: 'Tải ứng dụng', href: 'download-app' },
-            { label: 'Trợ giúp', href: 'help' }
+            { label: 'Trợ giúp', href: 'help' },
           ].map(({ label, href }) => (
             <a key={label} href={href} className="transition hover:text-gray-200">
               {label}
@@ -165,6 +172,9 @@ export default function Header() {
 
         {/* Right side icons and account */}
         <div className="ml-4 flex items-center gap-4">
+          {/* Pro Upgrade Button */}
+          <ProUpgradeButton />
+
           <Bell size={20} className="cursor-pointer text-white transition hover:text-gray-200" />
 
           <div className="relative">
@@ -175,7 +185,10 @@ export default function Header() {
             />
           </div>
 
-          <Briefcase size={20} className="cursor-pointer text-white transition hover:text-gray-200" />
+          <Briefcase
+            size={20}
+            className="cursor-pointer text-white transition hover:text-gray-200"
+          />
 
           {/* Account dropdown */}
           <div className="relative">
@@ -202,7 +215,11 @@ export default function Header() {
                       <div className="flex items-center gap-2 px-2 py-1">
                         <div className="h-8 w-8 overflow-hidden rounded-full bg-gray-200">
                           {user?.avatarUrl ? (
-                            <img src={user.avatarUrl} alt={user.userName} className="h-full w-full object-cover" />
+                            <img
+                              src={user.avatarUrl}
+                              alt={user.userName}
+                              className="h-full w-full object-cover"
+                            />
                           ) : (
                             <User size={20} className="h-full w-full p-1 text-gray-500" />
                           )}
@@ -265,10 +282,19 @@ export default function Header() {
           </div>
 
           {isAuthenticated && (
-            <Button className="rounded-lg bg-orange-500 px-4 py-2 font-bold text-white shadow-lg transition hover:bg-orange-600"
-              onClick={() => handleCreatePost()}>
+            <Button
+              className="rounded-lg bg-orange-500 px-4 py-2 font-bold text-white shadow-lg transition hover:bg-orange-600"
+              onClick={() => handleCreatePost()}
+            >
               <span className="flex items-center gap-2">
-                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <svg
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
                   <path d="M12 5v14m7-7H5" />
                 </svg>
                 ĐĂNG TIN
@@ -283,7 +309,6 @@ export default function Header() {
         onClose={() => setShowLocationModal(false)}
         onSelectLocation={handleSelectLocation}
       />
-
     </header>
   );
 }

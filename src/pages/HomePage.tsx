@@ -4,8 +4,7 @@ import BannerSlider from '@/components/common/BannerSlider';
 import PostList from '@/components/common/PostList';
 import { TrendingUp } from 'lucide-react';
 import CategorySection from '@/components/common/CategorySection';
-
-
+import ProPromotionBanner from '@/components/common/ProPromotionBanner';
 
 export default function HomePage() {
   const { t } = useTranslation();
@@ -17,6 +16,9 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
+      {/* Pro Promotion Banner */}
+      <ProPromotionBanner />
+
       {/* Hero Section with Banner */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>
@@ -26,9 +28,9 @@ export default function HomePage() {
       </div>
 
       {/* Shortcut Menu Section - Enhanced */}
-      <section className="py-8 bg-white/80 backdrop-blur-sm">
-        <div className="w-full max-w-6xl mx-auto px-4 sm:px-8 lg:px-16">
-          <div className="grid grid-cols-4 md:grid-cols-8 gap-4 text-center">
+      <section className="bg-white/80 py-8 backdrop-blur-sm">
+        <div className="mx-auto w-full max-w-6xl px-4 sm:px-8 lg:px-16">
+          <div className="grid grid-cols-4 gap-4 text-center md:grid-cols-8">
             {[
               { label: 'Nạp Đồng Tốt', icon: '💰', color: 'from-yellow-400 to-orange-500' },
               { label: 'Chợ Tốt Livestream', icon: '📺', color: 'from-red-400 to-pink-500' },
@@ -40,11 +42,13 @@ export default function HomePage() {
               { label: 'Đăng tin cho tặng', icon: '🎉', color: 'from-indigo-400 to-purple-500' },
             ].map(({ label, icon, color }) => (
               <div key={label} className="group cursor-pointer">
-                <div className="flex flex-col items-center hover:scale-105 transition-all duration-300">
-                  <div className={`p-3 rounded-2xl bg-gradient-to-br ${color} shadow-lg group-hover:shadow-xl transition-all duration-300`}>
-                    <span className="text-2xl filter drop-shadow-sm">{icon}</span>
+                <div className="flex flex-col items-center transition-all duration-300 hover:scale-105">
+                  <div
+                    className={`rounded-2xl bg-gradient-to-br p-3 ${color} shadow-lg transition-all duration-300 group-hover:shadow-xl`}
+                  >
+                    <span className="text-2xl drop-shadow-sm filter">{icon}</span>
                   </div>
-                  <span className="mt-3 text-xs font-medium text-gray-700 group-hover:text-gray-900 transition-colors duration-300 text-center leading-tight">
+                  <span className="mt-3 text-center text-xs font-medium leading-tight text-gray-700 transition-colors duration-300 group-hover:text-gray-900">
                     {label}
                   </span>
                 </div>
@@ -58,28 +62,24 @@ export default function HomePage() {
       <CategorySection />
 
       {/* Featured Posts - Enhanced */}
-      <section className="py-20 bg-white">
-        <div className="w-full max-w-6xl mx-auto px-4 sm:px-8 lg:px-16">
+      <section className="bg-white py-20">
+        <div className="mx-auto w-full max-w-6xl px-4 sm:px-8 lg:px-16">
           {/* Section Header */}
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-full text-sm font-medium mb-4">
-              <TrendingUp className="w-4 h-4" />
+          <div className="mb-16 text-center">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-600">
+              <TrendingUp className="h-4 w-4" />
               Bài đăng nổi bật
             </div>
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="mb-4 text-4xl font-bold text-gray-900">
               {t('product.featured')} Bài đăng
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+            <p className="mx-auto max-w-2xl text-lg text-gray-600">
               Khám phá những bài đăng chất lượng cao được lựa chọn đặc biệt dành cho bạn
             </p>
           </div>
 
           {/* Posts List with Infinite Scroll */}
-          <PostList
-            filters={{}}
-            pageSize={8}
-            onPostClick={handlePostClick}
-          />
+          <PostList filters={{}} pageSize={8} onPostClick={handlePostClick} />
         </div>
       </section>
     </div>

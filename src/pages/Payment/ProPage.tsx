@@ -6,27 +6,35 @@ import { useQuery } from '@tanstack/react-query';
 import { Crown, CheckCircle, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { planAPI, PlanResponse, formatPlanPrice, formatPlanDuration } from '@/apis/plan';
+import { useApp } from '@/contexts';
 
 export default function ProPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
+  const { user } = useApp();
 
   // React Query - auto cache, refetch on stale
   const {
-    data: plans = [],
+    data: plans = [] as PlanResponse[],
     isLoading,
     error,
-  } = useQuery({
+  } = useQuery<PlanResponse[]>({
     queryKey: ['plans'],
     queryFn: async () => {
       console.log('Fetching plans from API...');
       const plansData = await planAPI.getAllPlans();
-      return plansData.filter((plan) => plan.isActive);
+      console.log('Plans received in queryFn:', plansData);
+      // Đảm bảo không filter nếu plansData là undefined hoặc null
+      if (!plansData) return [];
+      const activePlans = plansData.filter((plan) => plan.isActive !== false); // Coi tất cả gói không có isActive: false là active
+      console.log('Active plans after filtering:', activePlans);
+      return activePlans;
     },
     staleTime: 5 * 60 * 1000, // Cache 5 phút
-    cacheTime: 10 * 60 * 1000, // Giữ cache 10 phút
+    gcTime: 10 * 60 * 1000, // Giữ cache 10 phút (cacheTime đã đổi thành gcTime trong React Query mới)
   });
+  console.log(user?.id);
 
   const handlePlanSelect = (planId: number) => {
     setSelectedPlanId(planId);
@@ -35,6 +43,12 @@ export default function ProPage() {
   const handlePurchase = () => {
     if (!selectedPlanId) {
       alert('Vui lòng chọn gói dịch vụ trước khi mua!');
+      return;
+    }
+
+    // Kiểm tra đăng nhập
+    if (!user) {
+      navigate('/login?redirectTo=' + encodeURIComponent('/payment/pro'));
       return;
     }
 
@@ -64,7 +78,27 @@ export default function ProPage() {
     );
   }
 
-  if (error || plans.length === 0) {
+  // Log để debug
+  console.log('Plans state in component:', plans);
+  console.log('Error state:', error);
+
+  if (error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <p className="text-gray-600">Đã xảy ra lỗi khi tải gói dịch vụ</p>
+          <p className="mb-3 text-sm text-red-500">
+            {error instanceof Error ? error.message : 'Unknown error'}
+          </p>
+          <Button onClick={() => window.location.reload()} className="mt-4">
+            Thử lại
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!plans || plans.length === 0) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
