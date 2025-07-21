@@ -31,7 +31,6 @@ const TermsOfServicePage = lazy(() => import('@/pages/TermsOfServicePage'));
 const ProPage = lazy(() => import('@/pages/Payment/ProPage'));
 const CheckoutPage = lazy(() => import('@/pages/Payment/CheckoutPage'));
 const SuccessPage = lazy(() => import('@/pages/Payment/SuccessPage'));
-const PaymentReturnPage = lazy(() => import('@/pages/Payment/PaymentReturnPage'));
 const ChatPage = lazy(() => import('@/pages/ChatPage/ChatApp'));
 
 // Admin components
@@ -219,15 +218,6 @@ export function useRouteElements() {
           element={
             <Suspense fallback={<LoadingSpinner />}>
               <SuccessPage />
-            </Suspense>
-          }
-        />
-
-        <Route
-          path="payment/return"
-          element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <PaymentReturnPage />
             </Suspense>
           }
         />
