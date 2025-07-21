@@ -191,16 +191,19 @@ export default function PostDetailPage() {
                                 onMouseMove={handleImageZoom}
                                 onMouseLeave={handleRemoveZoom}
                             >
-                                <img
-                                    src={activeImage}
-                                    alt={post.title}
-                                    className="absolute inset-0 w-full h-full object-cover"
-                                    ref={imageRef}
-                                    onError={(e) => {
-                                        const target = e.target as HTMLImageElement;
-                                        target.src = 'https://static.vecteezy.com/system/resources/previews/014/814/251/non_2x/a-sale-tag-in-flat-modern-design-vector.jpg';
-                                    }}
-                                />
+                                {activeImage && (
+                                    <img
+                                        src={activeImage}
+                                        alt={post.title}
+                                        className="absolute inset-0 w-full h-full object-cover"
+                                        ref={imageRef}
+                                        onError={(e) => {
+                                            const target = e.target as HTMLImageElement;
+                                            target.src = 'https://static.vecteezy.com/system/resources/previews/014/814/251/non_2x/a-sale-tag-in-flat-modern-design-vector.jpg';
+                                        }}
+                                    />
+                                )}
+
                             </div>
 
                             {/* Image Thumbnails */}
