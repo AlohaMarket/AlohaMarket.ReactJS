@@ -29,6 +29,40 @@ import { LocationType } from '@/types/location.type';
 import { useApp } from '@/contexts';
 
 
+// Type definition for localStorage structure
+// Lưu: { [userId: string]: { [postId: string]: true } }
+type ReportedPosts = Record<string, Record<string, boolean>>;
+
+// Initialize flag safely (chỉ chạy phía client)
+const initializeReportFlag = () => {
+    if (typeof window !== 'undefined' && localStorage.getItem('aloha_report_check_enabled') === null) {
+        localStorage.setItem('aloha_report_check_enabled', 'true');
+    }
+};
+
+function isPostReported(postId: string, userId: string): boolean {
+    if (typeof window === 'undefined') return false;
+    try {
+        if (localStorage.getItem('aloha_report_check_enabled') !== 'true') return false;
+        const allReported: ReportedPosts = JSON.parse(localStorage.getItem('aloha_reported_posts') || '{}');
+        return !!(userId && allReported[userId] && allReported[userId][postId]);
+    } catch (error) {
+        console.error('Error reading reported posts from localStorage:', error);
+        return false;
+    }
+}
+
+function setPostReported(postId: string, userId: string): void {
+    if (typeof window === 'undefined') return;
+    try {
+        const allReported: ReportedPosts = JSON.parse(localStorage.getItem('aloha_reported_posts') || '{}');
+        if (!allReported[userId]) allReported[userId] = {};
+        allReported[userId][postId] = true;
+        localStorage.setItem('aloha_reported_posts', JSON.stringify(allReported));
+    } catch (error) {
+        console.error('Error saving reported posts to localStorage:', error);
+    }
+}
 
 export default function PostDetailPage() {
     const { i18n } = useTranslation();
@@ -146,23 +180,9 @@ export default function PostDetailPage() {
         }
     };
 
-    // Xử lý localStorage flag và trạng thái đã report
-    // Đảm bảo flag luôn tồn tại
-    if (typeof window !== 'undefined' && localStorage.getItem('aloha_report_check_enabled') === null) {
-        localStorage.setItem('aloha_report_check_enabled', 'true');
-    }
-
-    function isPostReported(postId: string, userId: string) {
-        if (localStorage.getItem('aloha_report_check_enabled') !== 'true') return false;
-        const allReported = JSON.parse(localStorage.getItem('aloha_reported_posts') || '{}');
-        return !!(userId && allReported[userId] && allReported[userId][postId]);
-    }
-    function setPostReported(postId: string, userId: string) {
-        const allReported = JSON.parse(localStorage.getItem('aloha_reported_posts') || '{}');
-        if (!allReported[userId]) allReported[userId] = {};
-        allReported[userId][postId] = true;
-        localStorage.setItem('aloha_reported_posts', JSON.stringify(allReported));
-    }
+    useEffect(() => {
+        initializeReportFlag();
+    }, []);
 
     const [showReportModal, setShowReportModal] = useState(false);
     const [isReporting, setIsReporting] = useState(false);
