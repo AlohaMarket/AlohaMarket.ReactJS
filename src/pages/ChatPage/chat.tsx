@@ -88,7 +88,10 @@ export default function Chats() {
 
   // Setup SignalR event listeners function
   const setupEventListeners = () => {
+    
     signalRService.onReceiveMessage((message: Message) => {
+      console.log('📨 Received message via SignalR:', message);
+      
       setMessages(prevMessages => {
         // Check if this message replaces an optimistic message
         const optimisticIndex = prevMessages.findIndex(msg => 
@@ -102,7 +105,7 @@ export default function Chats() {
         if (optimisticIndex !== -1) {
           // Replace optimistic message with real message
           const newMessages = [...prevMessages];
-          newMessages[optimisticIndex] = message;
+          newMessages[optimisticIndex] = { ...message, isOptimistic: false };
           return newMessages;
         }
 
@@ -112,24 +115,170 @@ export default function Chats() {
           return prevMessages;
         }
 
-        return [...prevMessages, message];
+        return [...prevMessages, { ...message, isOptimistic: false }];
+      });
+
+      // Update conversation's last message time and move to top
+      setConversations(prevConversations => {
+        const updatedConversations = prevConversations.map(conv => 
+          conv.id === message.conversationId 
+            ? { ...conv, lastMessageAt: message.timestamp }
+            : conv
+        );
+        
+        // Sort conversations by lastMessageAt (most recent first)
+        return updatedConversations.sort((a, b) => 
+          new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
+        );
       });
     });
 
-    signalRService.onMessageEdited((editedMessage: Message) => {
+    signalRService.onMessageEdited((editedData) => {
+      
       setMessages(prevMessages => 
-        prevMessages.map(msg => msg.id === editedMessage.id ? editedMessage : msg)
+        prevMessages.map(msg => {
+          if (msg.id === editedData.id) {
+            return {
+              ...msg,
+              content: editedData.content,
+              isEdited: editedData.isEdited,
+              editedAt: editedData.editedAt,
+            };
+          }
+          return msg;
+        })
       );
     });
 
     signalRService.onMessageDeleted((messageId: string) => {
+      
       setMessages(prevMessages => 
         prevMessages.filter(msg => msg.id !== messageId)
       );
     });
 
-    // Handle user status changes (online/offline)
+    // Handle conversation updates
+    signalRService.onConversationUpdated((updatedConversation: Conversation) => {
+      console.log('🔄 Conversation updated via SignalR:', updatedConversation);
+      console.log('🔄 Conversation update details:', {
+        conversationId: updatedConversation.id,
+        hasProductContext: !!updatedConversation.productContext,
+        productContext: updatedConversation.productContext,
+        currentSelectedConversation: selectedConversation?.id,
+        isCurrentConversation: selectedConversation?.id === updatedConversation.id
+      });
+      
+      // Validate the conversation data
+      if (!updatedConversation.id || !updatedConversation.participants) {
+        if (updatedConversation.id) {
+          refreshConversationData(updatedConversation.id);
+        }
+        return;
+      }
+      
+      setConversations(prevConversations => {
+        const updatedConversations = prevConversations.map(conv => 
+          conv.id === updatedConversation.id ? updatedConversation : conv
+        );
+        
+        // Sort by lastMessageAt
+        const sorted = updatedConversations.sort((a, b) => 
+          new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
+        );
+        
+        return sorted;
+      });
+
+      // Update selected conversation if it's the one being updated
+      setSelectedConversation(prevSelected => {
+        if (prevSelected?.id === updatedConversation.id) {
+          return updatedConversation;
+        }
+        return prevSelected;
+      });
+    });
+
+    // Handle new conversation creation
+    signalRService.onConversationCreated((newConversation: Conversation) => {
+      
+      setConversations(prevConversations => {
+        // Check if conversation already exists
+        const exists = prevConversations.some(conv => conv.id === newConversation.id);
+        if (exists) {
+          return prevConversations;
+        }
+        
+        // Add new conversation and sort
+        const updatedConversations = [newConversation, ...prevConversations];
+        return updatedConversations.sort((a, b) => 
+          new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
+        );
+      });
+    });
+
+    // Handle product context updates
+    signalRService.onProductContextUpdated((data: { conversationId: string, productContext: any }) => {
+      
+      // Validate the product context data
+      if (!data.productContext || !data.productContext.productName) {
+        refreshConversationData(data.conversationId);
+        return;
+      }
+      
+      setConversations(prevConversations => {
+        const updated = prevConversations.map(conv => 
+          conv.id === data.conversationId 
+            ? { ...conv, productContext: data.productContext }
+            : conv
+        );
+        return updated;
+      });
+
+      // Update selected conversation if it's the one being updated
+      setSelectedConversation(prevSelected => {
+        if (prevSelected?.id === data.conversationId) {
+          const updatedSelected = { ...prevSelected, productContext: data.productContext };
+          return updatedSelected;
+        }
+        return prevSelected;
+      });
+    });
+
+    // Handle participant changes
+    signalRService.onParticipantJoined((data: { conversationId: string, participant: any }) => {
+      
+      setConversations(prevConversations => 
+        prevConversations.map(conv => {
+          if (conv.id === data.conversationId) {
+            const participantExists = conv.participants.some(p => p.userId === data.participant.userId);
+            if (!participantExists) {
+              return {
+                ...conv,
+                participants: [...conv.participants, data.participant]
+              };
+            }
+          }
+          return conv;
+        })
+      );
+    });
+
+    signalRService.onParticipantLeft((data: { conversationId: string, userId: string }) => {
+      
+      setConversations(prevConversations => 
+        prevConversations.map(conv => 
+          conv.id === data.conversationId 
+            ? {
+                ...conv,
+                participants: conv.participants.filter(p => p.userId !== data.userId)
+              }
+            : conv
+        )
+      );
+    });
+
     signalRService.onUserStatusChanged((userId: string, isOnline: boolean) => {
+      
       setConversations(prevConversations => 
         prevConversations.map(conv => ({
           ...conv,
@@ -141,11 +290,24 @@ export default function Chats() {
     });
 
     signalRService.onConnectionClosed(() => {
+      console.log('🔌 SignalR connection closed');
+      setIsConnected(false);
+    });
+
+    signalRService.onReconnecting(() => {
+      console.log('🔄 SignalR reconnecting...');
       setIsConnected(false);
     });
 
     signalRService.onReconnected(() => {
+      console.log('✅ SignalR reconnected');
       setIsConnected(true);
+      
+      // Rejoin current conversation if any
+      if (selectedConversation) {
+        signalRService.joinConversation(selectedConversation.id)
+          .catch(error => console.error('Failed to rejoin conversation after reconnect:', error));
+      }
     });
 
     // Setup typing listeners
@@ -172,6 +334,25 @@ export default function Chats() {
           }
         });
       }
+    });
+
+    // Handle message delivery status
+    signalRService.onMessageDelivered((data) => {
+      console.log('✅ Message delivered via SignalR:', data);
+      
+      if (data.Status === 'read') {
+        setMessages(prevMessages => 
+          prevMessages.map(msg => 
+            msg.id === data.MessageId ? { ...msg, isRead: true } : msg
+          )
+        );
+      }
+    });
+
+    // Handle message errors
+    signalRService.onMessageError((error: string) => {
+      console.error('❌ SignalR message error:', error);
+      // You could show a user-friendly error message here
     });
   };
 
@@ -222,6 +403,7 @@ export default function Chats() {
       
       // Join new conversation
       await signalRService.joinConversation(conversation.id);
+      console.log(`✅ Joined conversation ${conversation.id} via SignalR`);
       
       // Load messages for this conversation
       const conversationMessages = await chatApiService.getConversationMessages(
@@ -229,6 +411,9 @@ export default function Chats() {
         currentUserId
       );
       setMessages(conversationMessages.reverse());
+      
+      // Force refresh conversation data to ensure we have the latest product context
+      await refreshConversationData(conversation.id);
     } catch (error) {
       console.error('Failed to load conversation:', error);
     } finally {
@@ -236,26 +421,29 @@ export default function Chats() {
     }
   };
 
-  const handleCreateConversation = async () => {
+  const refreshConversationData = async (conversationId: string) => {
     try {
-      const otherUserId = prompt('Enter user ID to chat with:');
-      if (!otherUserId) return;
-
-      const newConversation = await chatApiService.createConversation({
-        userIds: [currentUserId, otherUserId],
-      });
-
-      setConversations(prev => [newConversation, ...prev]);
-      handleConversationSelect(newConversation);
+      console.log(`🔄 Refreshing conversation data for ${conversationId}`);
+      const latestConversation = await chatApiService.getConversation(conversationId);
+      
+      // Update the conversation in our local state
+      setConversations(prev => prev.map(conv => 
+        conv.id === conversationId ? latestConversation : conv
+      ));
+      
+      // Update selected conversation if it's the current one
+      setSelectedConversation(prevSelected => 
+        prevSelected?.id === conversationId ? latestConversation : prevSelected
+      );
+      
     } catch (error) {
-      console.error('Failed to create conversation:', error);
+      console.error('Failed to refresh conversation data:', error);
     }
   };
 
   // Auto-login effect when user is authenticated via Keycloak
   useEffect(() => {
     if (user && user.id && !isConnected && !currentUserId) {
-      console.log('Auto-login triggered for user:', user.id);
       handleLogin(user.id);
     }
   }, [user, isConnected, currentUserId]);
@@ -289,14 +477,51 @@ export default function Chats() {
       setAutoCreateInProgress(true);
       setLoading(true);
 
-      // Check if conversation already exists between these users
+      // Check if conversation already exists between these users (regardless of product)
       const existingConversation = conversations.find(conv => 
         conv.participants.some(p => p.userId === targetUserId) &&
         conv.participants.some(p => p.userId === currentUserId)
       );
 
       if (existingConversation) {
-        await handleConversationSelect(existingConversation);
+        
+        // If we have a new productId and it's different from the current one, update it
+        if (postId && existingConversation.productId !== postId) {
+          try {
+            
+            // Try SignalR first for real-time updates
+            await signalRService.updateProductContext(existingConversation.id, postId);
+            
+            await handleConversationSelect(existingConversation);
+            
+          } catch (signalrError) {
+            console.warn('SignalR product update failed, falling back to API:', signalrError);
+            
+            // Fallback to API call
+            try {
+              const updatedConversation = await chatApiService.updateConversationProduct({
+                conversationId: existingConversation.id,
+                productId: postId
+              });
+              
+              // Update the conversation in our local state
+              setConversations(prev => prev.map(conv => 
+                conv.id === existingConversation.id ? updatedConversation : conv
+              ));
+              
+              // Select the updated conversation
+              await handleConversationSelect(updatedConversation);
+            } catch (updateError) {
+              // Still select the existing conversation even if update fails
+              await handleConversationSelect(existingConversation);
+            }
+          }
+        } else {
+          console.log('No product update needed, selecting existing conversation');
+          await handleConversationSelect(existingConversation);
+        }
+        
+        // Clear URL parameters after successful conversation selection
         navigate('/chat', { replace: true });
         return;
       }
@@ -310,26 +535,59 @@ export default function Chats() {
         createRequest.productId = postId;
       }
 
-      console.log('Creating new conversation with request:', createRequest);
       const newConversation = await chatApiService.createConversation(createRequest);
       
-      // Add to conversations list and select it
-      setConversations(prev => [newConversation, ...prev]);
+      setConversations(prev => {
+        const exists = prev.some(conv => conv.id === newConversation.id);
+        if (!exists) {
+          return [newConversation, ...prev];
+        }
+        return prev;
+      });
+      
       await handleConversationSelect(newConversation);
       
-      // Clear URL parameters after successful conversation creation
       navigate('/chat', { replace: true });
       
-      console.log('Auto-created conversation:', newConversation);
     } catch (error) {
-      console.error('Failed to auto-create conversation:', error);
-      // Don't show error to user, just log it and clear URL params
       navigate('/chat', { replace: true });
     } finally {
       setLoading(false);
       setAutoCreateInProgress(false);
     }
   };
+
+  useEffect(() => {
+    if (!selectedConversation || !isConnected) return;
+
+    const syncInterval = setInterval(async () => {
+      try {
+        const latestConversation = await chatApiService.getConversation(selectedConversation.id);
+        
+        const currentProductId = selectedConversation.productContext?.productId;
+        const latestProductId = latestConversation.productContext?.productId;
+        
+        if (currentProductId !== latestProductId) {
+          console.log('🔄 Detected product context mismatch, syncing...', {
+            current: currentProductId,
+            latest: latestProductId
+          });
+          
+          // Update conversations list
+          setConversations(prev => prev.map(conv => 
+            conv.id === selectedConversation.id ? latestConversation : conv
+          ));
+          
+          // Update selected conversation
+          setSelectedConversation(latestConversation);
+        }
+      } catch (error) {
+        console.error('Failed to sync conversation data:', error);
+      }
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(syncInterval);
+  }, [selectedConversation?.id, isConnected, selectedConversation?.productContext?.productId]);
 
   // Cleanup effect
   useEffect(() => {
