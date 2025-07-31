@@ -1,73 +1,87 @@
 import { useTranslation } from 'react-i18next';
-import { APP_CONFIG } from '@/constants';
+import { useNavigate } from 'react-router-dom';
+import BannerSlider from '@/components/common/BannerSlider';
+import PostList from '@/components/common/PostList';
+import { TrendingUp } from 'lucide-react';
+import CategorySection from '@/components/common/CategorySection';
+import ProPromotionBanner from '@/components/common/ProPromotionBanner';
 
 export default function HomePage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  const handlePostClick = (postId: string) => {
+    navigate(`/post/${postId}`);
+  };
 
   return (
-    <div className="min-h-screen">
-        {/* Hero Section */}
-        <section className="bg-gradient-to-r from-primary-500 to-primary-600 text-white py-20">
-          <div className="container mx-auto px-4 text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              Welcome to {APP_CONFIG.name}
-            </h1>
-            <p className="text-xl md:text-2xl mb-8 opacity-90">
-              {APP_CONFIG.description}
-            </p>
-            <button className="bg-white text-primary-500 px-8 py-3 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-colors">
-              {t('common.viewAll')} {t('navigation.products')}
-            </button>
-          </div>
-        </section>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
+      {/* Pro Promotion Banner */}
+      <ProPromotionBanner />
 
-        {/* Featured Products */}
-        <section className="py-16">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-12">
-              {t('product.featured')} {t('navigation.products')}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* Placeholder product cards */}
-              {[1, 2, 3, 4].map((item) => (
-                <div key={item} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="h-48 bg-gray-200 flex items-center justify-center">
-                    <span className="text-gray-500">Product Image</span>
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold text-lg mb-2">Sample Product {item}</h3>
-                    <p className="text-gray-600 mb-2">Product description here...</p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-primary-500 font-bold text-xl">$29.99</span>
-                      <button className="bg-primary-500 text-white px-4 py-2 rounded-md hover:bg-primary-600 transition-colors">
-                        {t('product.addToCart')}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Categories */}
-        <section className="py-16 bg-gray-50">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-12">
-              {t('navigation.categories')}
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-              {['Electronics', 'Fashion', 'Home', 'Sports', 'Books', 'Beauty'].map((category) => (
-                <div key={category} className="bg-white rounded-lg p-6 text-center hover:shadow-md transition-shadow cursor-pointer">
-                  <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-primary-500 text-2xl">📱</span>
-                  </div>
-                  <h3 className="font-semibold">{category}</h3>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+      {/* Hero Section with Banner */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>
+        <div className="relative">
+          <BannerSlider />
+        </div>
       </div>
+
+      {/* Shortcut Menu Section - Enhanced */}
+      <section className="bg-white/80 py-8 backdrop-blur-sm">
+        <div className="mx-auto w-full max-w-6xl px-4 sm:px-8 lg:px-16">
+          <div className="grid grid-cols-4 gap-4 text-center md:grid-cols-8">
+            {[
+              { label: 'Nạp Đồng Tốt', icon: '💰', color: 'from-yellow-400 to-orange-500' },
+              { label: 'Chợ Tốt Livestream', icon: '📺', color: 'from-red-400 to-pink-500' },
+              { label: 'Gói Pro', icon: '⭐', color: 'from-purple-400 to-indigo-500' },
+              { label: 'Thu mua ô tô', icon: '🚗', color: 'from-blue-400 to-cyan-500' },
+              { label: 'Đặt xe chính hãng', icon: '🎁', color: 'from-green-400 to-emerald-500' },
+              { label: 'Thu mua xe máy', icon: '🏍️', color: 'from-orange-400 to-red-500' },
+              { label: 'Tin đã lưu', icon: '❤️', color: 'from-pink-400 to-rose-500' },
+              { label: 'Đăng tin cho tặng', icon: '🎉', color: 'from-indigo-400 to-purple-500' },
+            ].map(({ label, icon, color }) => (
+              <div key={label} className="group cursor-pointer">
+                <div className="flex flex-col items-center transition-all duration-300 hover:scale-105">
+                  <div
+                    className={`rounded-2xl bg-gradient-to-br p-3 ${color} shadow-lg transition-all duration-300 group-hover:shadow-xl`}
+                  >
+                    <span className="text-2xl drop-shadow-sm filter">{icon}</span>
+                  </div>
+                  <span className="mt-3 text-center text-xs font-medium leading-tight text-gray-700 transition-colors duration-300 group-hover:text-gray-900">
+                    {label}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Categories Section - Enhanced */}
+      <CategorySection />
+
+      {/* Featured Posts - Enhanced */}
+      <section className="bg-white py-20">
+        <div className="mx-auto w-full max-w-6xl px-4 sm:px-8 lg:px-16">
+          {/* Section Header */}
+          <div className="mb-16 text-center">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-600">
+              <TrendingUp className="h-4 w-4" />
+              Bài đăng nổi bật
+            </div>
+            <h2 className="mb-4 text-4xl font-bold text-gray-900">
+              {t('product.featured')} Bài đăng
+            </h2>
+            <p className="mx-auto max-w-2xl text-lg text-gray-600">
+              Khám phá những bài đăng chất lượng cao được lựa chọn đặc biệt dành cho bạn
+            </p>
+          </div>
+
+          {/* Posts List with Infinite Scroll */}
+          <PostList filters={{}} pageSize={8} onPostClick={handlePostClick} />
+        </div>
+      </section>
+    </div>
   );
-} 
+}

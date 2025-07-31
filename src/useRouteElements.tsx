@@ -1,23 +1,82 @@
-import { Routes, Route } from 'react-router-dom';
-import { Suspense, lazy } from 'react';
+import { lazy, Suspense } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from '@/layouts/MainLayout';
+import AdminLayout from '@/layouts/AdminLayout';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import { ROLES } from '@/utils/role';
+import ProfilePage from './pages/ProfilePage/ProfilePage';
+import PostDetailPage from './pages/PostDetailPage/PostDetailPage';
+import AuthCallback from './pages/AuthCallback';
+import CreatePostPage from './pages/CreatePostPage/CreatePostPage';
+import PostStatusPage from './pages/PostStatusPage/PostStatusPage';
+import MyPostsPage from './pages/ProfilePage/MyPostsPage';
 
-// Lazy load pages for better performance
+// Add RequiredLoginPage import
+const RequiredLoginPage = lazy(() => import('@/pages/RequiredLoginPage'));
+
+// Lazy load components
 const HomePage = lazy(() => import('@/pages/HomePage'));
-const ProductsPage = lazy(() => import('@/pages/ProductsPage'));
-const ProductDetailPage = lazy(() => import('@/pages/ProductDetailPage'));
-const CartPage = lazy(() => import('@/pages/CartPage'));
-const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
-const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage'));
-const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
-const AboutPage = lazy(() => import('@/pages/AboutPage'));
+const PostListPage = lazy(() => import('@/pages/PostListPage/PostListPage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
+const UnauthorizedPage = lazy(() => import('@/pages/UnauthorizedPage'));
+const SellerProfilePage = lazy(() => import('@/pages/SellerProfilePage/SellerProfilePage'));
+const HelpCenter = lazy(() => import('@/pages/Help/HelpCenter'));
+const HelpSeller = lazy(() => import('@/pages/Help/HelpSeller'));
+const HelpBuyer = lazy(() => import('@/pages/Help/HelpBuyer'));
+const AboutPage = lazy(() => import('@/pages/AboutPage'));
+const PrivacyPolicyPage = lazy(() => import('@/pages/PrivacyPolicyPage'));
+const TermsOfServicePage = lazy(() => import('@/pages/TermsOfServicePage'));
+
+const ProPage = lazy(() => import('@/pages/Payment/ProPage'));
+const CheckoutPage = lazy(() => import('@/pages/Payment/CheckoutPage'));
+const SuccessPage = lazy(() => import('@/pages/Payment/SuccessPage'));
+const ChatPage = lazy(() => import('@/pages/ChatPage/chat'));
+
+// Admin components
+const UsersManagement = lazy(() => import('@/pages/admin/UsersManagement'));
+const PostsManagement = lazy(() => import('@/pages/admin/PostsManagement'));
+const UserPlansManagement = lazy(() => import('@/pages/admin/UserPlansManagement'));
+const AdminSettings = lazy(() => import('@/pages/admin/AdminSettings'));
+
+// Thêm import
 
 export function useRouteElements() {
   return (
     <Routes>
+      {/* Auth callback route */}
+      <Route
+        path="/auth/callback"
+        element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <AuthCallback />
+          </Suspense>
+        }
+      />
+
+      {/* Unauthorized route */}
+      <Route
+        path="/unauthorized"
+        element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <UnauthorizedPage />
+          </Suspense>
+        }
+      />
+
+      {/* Required login route */}
+      <Route
+        path="/required-login"
+        element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <RequiredLoginPage />
+          </Suspense>
+        }
+      />
+
+      {/* Main layout routes */}
       <Route path="/" element={<MainLayout />}>
+        {/* Public routes - no protection needed */}
         <Route
           index
           element={
@@ -26,38 +85,25 @@ export function useRouteElements() {
             </Suspense>
           }
         />
+
         <Route
-          path="products"
+          path="posts"
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <ProductsPage />
+              <PostListPage />
             </Suspense>
           }
         />
+
         <Route
-          path="products/:id"
+          path="post/:id"
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <ProductDetailPage />
+              <PostDetailPage />
             </Suspense>
           }
         />
-        <Route
-          path="cart"
-          element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <CartPage />
-            </Suspense>
-          }
-        />
-        <Route
-          path="profile"
-          element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <ProfilePage />
-            </Suspense>
-          }
-        />
+
         <Route
           path="about"
           element={
@@ -66,23 +112,197 @@ export function useRouteElements() {
             </Suspense>
           }
         />
+        <Route
+          path="privacy"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <PrivacyPolicyPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="terms"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <TermsOfServicePage />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="seller/:id"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <SellerProfilePage />
+            </Suspense>
+          }
+        />
+
+        {/* Protected routes - require authentication */}
+        <Route
+          path="post/:id/status"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<LoadingSpinner />}>
+                <PostStatusPage />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="create-post"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<LoadingSpinner />}>
+                <CreatePostPage />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="profile"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<LoadingSpinner />}>
+                <ProfilePage />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="my-posts"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<LoadingSpinner />}>
+                <MyPostsPage />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Payment routes - require authentication */}
+        <Route
+          path="payment/pro"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <ProPage />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="payment/checkout"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <CheckoutPage />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="payment/success"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <SuccessPage />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="payment/failed"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <SuccessPage />
+            </Suspense>
+          }
+        />
+
+        {/* Chat route - no protection needed, can be accessed with userId/postId from URL */}
+        <Route
+          path="chat"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <ChatPage />
+            </Suspense>
+          }
+        />
       </Route>
+
+      {/* Admin routes - protected by role */}
       <Route
-        path="/login"
+        path="/admin"
+        element={
+          <ProtectedRoute requiredRole={ROLES.ADMIN} allowAutoLogin={false} fallbackPath="/required-login">
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Navigate to="/admin/posts" replace />} />
+
+        <Route
+          path="users"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <UsersManagement />
+            </Suspense>
+          }
+        />
+        <Route
+          path="posts"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <PostsManagement />
+            </Suspense>
+          }
+        />
+        <Route
+          path="user-plans"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <UserPlansManagement />
+            </Suspense>
+          }
+        />
+        <Route
+          path="settings"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <AdminSettings />
+            </Suspense>
+          }
+        />
+      </Route>
+
+      {/* Help routes - public pages */}
+      <Route
+        path="help"
         element={
           <Suspense fallback={<LoadingSpinner />}>
-            <LoginPage />
+            <HelpCenter />
           </Suspense>
         }
       />
       <Route
-        path="/register"
+        path="help/seller"
         element={
           <Suspense fallback={<LoadingSpinner />}>
-            <RegisterPage />
+            <HelpSeller />
           </Suspense>
         }
       />
+      <Route
+        path="help/buyer"
+        element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <HelpBuyer />
+          </Suspense>
+        }
+      />
+
+      {/* 404 route */}
       <Route
         path="*"
         element={
@@ -93,4 +313,4 @@ export function useRouteElements() {
       />
     </Routes>
   );
-} 
+}

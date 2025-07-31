@@ -72,11 +72,11 @@ src/
    npm run dev
    ```
 
-   The application will be available at `http://localhost:4000`
+   The application will be available at `http://localhost:3000`
 
 ## 📜 Available Scripts
 
-- `npm run dev` - Start development server on port 4000
+- `npm run dev` - Start development server on port 3000
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint
@@ -211,6 +211,20 @@ The project is configured for deployment on:
 - Follow ESLint and Prettier configurations
 - Write tests for new features
 - Use semantic commit messages
+
+## 👥 Contributors
+
+Thanks to all the amazing people who have contributed to this project! ✨
+
+<div align="center">
+
+<a href="https://github.com/AlohaMarket/AlohaMarket.ReactJS/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=AlohaMarket/AlohaMarket.ReactJS" />
+</a>
+
+</div>
+
+---
 
 ## 📄 License
 

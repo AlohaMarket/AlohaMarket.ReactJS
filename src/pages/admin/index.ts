@@ -1,0 +1,4 @@
+export { default as UsersManagement } from './UsersManagement';
+export { default as ProductsManagement } from './ProductsManagement';
+export { default as PostsManagement } from './PostsManagement';
+export { default as AdminSettings } from './AdminSettings';
